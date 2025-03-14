@@ -1,0 +1,32 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.PureRainOfRainbow"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.PureRainOfRainbow.Desc"
+    },
+    "icon": {
+      "item": "fantasydesire:fdslashblade",
+      "nbt":"{ModelName: \"named/PureSnow\", TextureName: \"named/PureSnow\", CurrentItemName: \"tennouboshiuzume.slashblade.PureSnow\"}"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:start",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "fantasydesire:fdslashblade",
+            "nbt":"{ModelName: \"named/PureSnow\", TextureName: \"named/PureSnow\", CurrentItemName: \"tennouboshiuzume.slashblade.PureSnow\"}"
+          }
+        ]
+      }
+    }
+  }
+}

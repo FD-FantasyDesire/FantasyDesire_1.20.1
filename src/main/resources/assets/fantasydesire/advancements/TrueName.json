@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.TrueName"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.TrueName.Desc"
+    },
+    "icon": {
+      "item": "minecraft:name_tag"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:Root",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:impossible",
+      "conditions": {
+      }
+    }
+  }
+}

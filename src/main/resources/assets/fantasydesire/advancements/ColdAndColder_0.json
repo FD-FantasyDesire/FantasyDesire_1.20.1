@@ -1,0 +1,32 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.ColdAndColder_0"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.ColdAndColder_0.Desc"
+    },
+    "icon": {
+      "item": "fantasydesire:fdslashblade",
+      "nbt":"{ModelName: \"named/OverCold_0\", TextureName: \"named/OverCold\", CurrentItemName: \"tennouboshiuzume.slashblade.OverCold\"}"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:start",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "fantasydesire:fdslashblade",
+            "nbt":"{ModelName: \"named/OverCold_0\", TextureName: \"named/OverCold\", CurrentItemName: \"tennouboshiuzume.slashblade.OverCold\"}"
+          }
+        ]
+      }
+    }
+  }
+}

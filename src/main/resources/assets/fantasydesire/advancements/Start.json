@@ -1,0 +1,30 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.Start"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.Start.Desc"
+    },
+    "icon": {
+      "item": "flammpfeil.slashblade:slashbladenamed"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:root",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "flammpfeil.slashblade:slashbladenamed"
+          }
+        ]
+      }
+    }
+  }
+}

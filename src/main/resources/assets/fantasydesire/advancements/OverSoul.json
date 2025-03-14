@@ -1,0 +1,26 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.OverSoul"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.OverSoul.Desc"
+    },
+    "icon": {
+      "item": "fantasydesire:fdslashblade",
+      "nbt":"{ench: [{lvl:1,id:35}],ModelName: \"named/ChikeFlare\", TextureName: \"named/ChikeFlare\", CurrentItemName: \"tennouboshiuzume.slashblade.ChikeFlare\"}"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:OverDimension",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:impossible",
+      "conditions": {
+      }
+    }
+  }
+}

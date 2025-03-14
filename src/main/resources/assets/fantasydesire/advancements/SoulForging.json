@@ -1,0 +1,25 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.SoulForging"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.SoulForging.Desc"
+    },
+    "icon": {
+      "item": "minecraft:iron_ingot"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:root",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:impossible",
+      "conditions": {
+      }
+    }
+  }
+}

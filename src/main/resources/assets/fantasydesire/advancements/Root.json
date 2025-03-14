@@ -1,0 +1,23 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.Desc",
+      "with": ["\n"]
+    },
+    "icon": {
+      "item": "fantasydesire:fdslashblade"
+    },
+    "background": "minecraft:textures/blocks/red_nether_brick.png",
+    "frame": "task"
+  },
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:impossible",
+      "conditions": {
+      }
+    }
+  }
+}

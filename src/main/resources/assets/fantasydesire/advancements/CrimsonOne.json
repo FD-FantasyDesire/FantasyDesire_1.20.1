@@ -1,0 +1,32 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.CrimsonOne"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.CrimsonOne.Desc"
+    },
+    "icon": {
+      "item": "fantasydesire:fdslashblade",
+      "nbt":"{ModelName: \"named/CrimsonScythe\", TextureName: \"named/CrimsonScythe\", CurrentItemName: \"tennouboshiuzume.slashblade.CrimsonScythe\"}"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:start",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "fantasydesire:fdslashblade",
+            "nbt":"{ModelName: \"named/CrimsonScythe\", TextureName: \"named/CrimsonScythe\", CurrentItemName: \"tennouboshiuzume.slashblade.CrimsonScythe\"}"
+          }
+        ]
+      }
+    }
+  }
+}

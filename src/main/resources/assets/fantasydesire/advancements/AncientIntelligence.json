@@ -1,0 +1,32 @@
+{
+  "display": {
+    "title": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.AncientIntelligence"
+    },
+    "description": {
+      "translate": "tennouboshiuzume.fantasydesire.advancement.AncientIntelligence.Desc"
+    },
+    "icon": {
+      "item": "fantasydesire:fdslashblade",
+      "nbt":"{ModelName: \"named/SmartPistol\", TextureName: \"named/SmartPistol\", CurrentItemName: \"tennouboshiuzume.slashblade.ModernGunblade\"}"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "fantasydesire:start",
+  "criteria": {
+    "criterion_name": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "item": "fantasydesire:fdslashblade",
+            "nbt":"{ModelName: \"named/SmartPistol\", TextureName: \"named/SmartPistol\", CurrentItemName: \"tennouboshiuzume.slashblade.ModernGunblade\"}"
+          }
+        ]
+      }
+    }
+  }
+}
