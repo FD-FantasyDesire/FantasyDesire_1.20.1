@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.items;
 
-import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.capability.slashblade.NamedBladeStateCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
@@ -42,7 +41,6 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         LazyOptional<IFantasySlashBladeState> state = stack.getCapability(FDBLADESTATE);
         state.ifPresent((s) -> {
             String specialType = s.getSpecialType();
-            System.out.println(specialType);
             if (!specialType.isBlank()){
                 tooltip.add(Component.translatable(String.format("tennouboshiuzume.tooltips."+specialType)));
             }else {
@@ -66,9 +64,26 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             this.appendSlashArt(stack, tooltip, s);
             this.appendRefineCount(tooltip, stack);
             this.appendSpecialEffects(tooltip, s);
+            this.appendSpecialCharge(tooltip,stack);
         });
     }
-//    合并Capability
+
+    @OnlyIn(Dist.CLIENT)
+    private void appendSpecialCharge(List<Component> tooltip, ItemStack stack){
+        stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
+            int charge = s.getSpecialCharge();
+            int maxCharge = s.getMaxSpecialCharge();
+            if (maxCharge>0){
+                String chargeRate = String.format("Charge: %s / %s ", charge , maxCharge);
+                tooltip.add(Component.literal(ChatFormatting.DARK_RED + chargeRate ));
+            }
+        });
+        stack.getCapability(BLADESTATE).ifPresent((s) -> {
+            System.out.println(s.getRefine());
+        });
+    }
+
+    //    合并Capability
     private static class CombinedCapabilityProvider implements ICapabilityProvider {
         private final ICapabilityProvider[] providers;
 
