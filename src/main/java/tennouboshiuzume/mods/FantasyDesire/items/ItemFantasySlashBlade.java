@@ -79,45 +79,27 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             }
         });
         stack.getCapability(BLADESTATE).ifPresent((s) -> {
-            System.out.println(s.getRefine());
+            System.out.println("refine:"+s.getRefine());
+            System.out.println("baseAttack:"+s.getBaseAttackModifier());
+            System.out.println("attackAmp:"+s.getAttackAmplifier());
         });
     }
-
-    //    合并Capability
-    private static class CombinedCapabilityProvider implements ICapabilityProvider {
-        private final ICapabilityProvider[] providers;
-
-        public CombinedCapabilityProvider(ICapabilityProvider... providers) {
-            this.providers = providers;
-        }
-
-        @Override
-        public <T> @NotNull LazyOptional<T> getCapability(Capability<T> cap, @Nullable Direction side) {
-            for (ICapabilityProvider provider : providers) {
-                LazyOptional<T> result = provider.getCapability(cap, side);
-                if (result.isPresent()) return result;
-            }
-            return LazyOptional.empty();
-        }
-    }
-
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
         if (stack.isEmpty() || !(stack.getItem() instanceof ItemSlashBlade)) {
             return null;
         }
+
         return new CombinedCapabilityProvider(
-                new NamedBladeStateCapabilityProvider(stack), // 原有 Capability
-                new FantasyBladeStateCapabilityProvider(stack)    // 自定义 Capability
+                new NamedBladeStateCapabilityProvider(stack),
+                new FantasyBladeStateCapabilityProvider(stack)
         );
     }
+
     @Nullable
     @Override
     public CompoundTag getShareTag(ItemStack stack) {
-        CompoundTag tag = stack.getOrCreateTag();
-        stack.getCapability(BLADESTATE).ifPresent((state) -> {
-            tag.put("bladeState", state.serializeNBT());
-        });
+        CompoundTag tag = super.getShareTag(stack);
         stack.getCapability(FDBLADESTATE).ifPresent((state) -> {
             tag.put("fdBladeState", state.serializeNBT());
         });
@@ -125,10 +107,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
     }
     @Override
     public void readShareTag(ItemStack stack, @Nullable CompoundTag nbt) {
-        if (nbt != null && nbt.contains("bladeState")) {
-            stack.getCapability(BLADESTATE).ifPresent((state) -> {
-                state.deserializeNBT(nbt.getCompound("bladeState"));
-            });
+        if (nbt != null && nbt.contains("fdBladeState")) {
             stack.getCapability(FDBLADESTATE).ifPresent((state) -> {
                 state.deserializeNBT(nbt.getCompound("fdBladeState"));
             });
