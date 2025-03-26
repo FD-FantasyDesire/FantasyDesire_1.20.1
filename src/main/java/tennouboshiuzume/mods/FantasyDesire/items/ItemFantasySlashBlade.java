@@ -2,7 +2,6 @@ package tennouboshiuzume.mods.FantasyDesire.items;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.capability.slashblade.NamedBladeStateCapabilityProvider;
-import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
 import net.minecraft.ChatFormatting;
@@ -15,19 +14,18 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.CapabilityManager;
-import net.minecraftforge.common.capabilities.CapabilityToken;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.LazyOptional;
-import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
 
 public class ItemFantasySlashBlade extends ItemSlashBlade {
     public static final Capability<IFantasySlashBladeState> FDBLADESTATE = CapabilityManager.get(new CapabilityToken<IFantasySlashBladeState>() {
+    });
+    public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager.get(new CapabilityToken<ISlashBladeState>() {
     });
     public ItemFantasySlashBlade(Tier tier, int attackDamageIn, float attackSpeedIn, Properties builder) {
         super(tier, attackDamageIn, attackSpeedIn, builder);
@@ -80,21 +78,18 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         });
         stack.getCapability(BLADESTATE).ifPresent((s) -> {
             System.out.println("refine:"+s.getRefine());
-            System.out.println("baseAttack:"+s.getBaseAttackModifier());
-            System.out.println("attackAmp:"+s.getAttackAmplifier());
         });
     }
-    @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        if (stack.isEmpty() || !(stack.getItem() instanceof ItemSlashBlade)) {
-            return null;
-        }
 
-        return new CombinedCapabilityProvider(
-                new NamedBladeStateCapabilityProvider(stack),
-                new FantasyBladeStateCapabilityProvider(stack)
-        );
-    }
+@Override
+public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
+    // 获取父类 Provider（负责 BLADESTATE）
+    ICapabilityProvider parentProvider = super.initCapabilities(stack, nbt);
+    // 创建子类新增的 Provider（负责 FDBLADESTATE）
+    FantasyBladeStateCapabilityProvider fantasyProvider = new FantasyBladeStateCapabilityProvider(stack);
+    // 返回组合 Provider
+    return new CombinedCapabilityProvider(parentProvider, fantasyProvider);
+}
 
     @Nullable
     @Override
@@ -114,5 +109,6 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         }
         super.readShareTag(stack, nbt);
     }
+
 
 }

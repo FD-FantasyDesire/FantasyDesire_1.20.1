@@ -1,10 +1,12 @@
 
 package tennouboshiuzume.mods.FantasyDesire.items;
 
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
 import net.minecraft.world.item.ItemStack;
 
 
-public class FantasySlashBladeState implements IFantasySlashBladeState {
+public class FantasySlashBladeState implements IFantasySlashBladeState{
     protected int SpecialCharge = 0;
     protected int MaxSpecialCharge = 0;
     protected int SpecialLore = 0;

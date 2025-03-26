@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.items;
 
-import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 

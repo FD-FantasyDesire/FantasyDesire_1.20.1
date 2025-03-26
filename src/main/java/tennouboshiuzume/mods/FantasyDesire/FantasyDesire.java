@@ -6,6 +6,8 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -15,6 +17,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
+import tennouboshiuzume.mods.FantasyDesire.event.CapabilityAttachHandler;
+import tennouboshiuzume.mods.FantasyDesire.items.CapabilityFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.items.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.registry.ModItems;
 import tennouboshiuzume.mods.FantasyDesire.registry.creativetab.FdTab;
@@ -48,7 +52,13 @@ public class FantasyDesire {
         }
     }
 
+    @SubscribeEvent
+    public static void onRegisterCapability(final RegisterCapabilitiesEvent event) {
+        CapabilityFantasySlashBlade.register(event);
+    }
+
     private void commonSetup(final FMLCommonSetupEvent event) {
+//        MinecraftForge.EVENT_BUS.register(new CapabilityAttachHandler());
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

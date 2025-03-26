@@ -7,6 +7,8 @@ package tennouboshiuzume.mods.FantasyDesire.items;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import mods.flammpfeil.slashblade.capability.slashblade.NamedBladeStateCapabilityProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
