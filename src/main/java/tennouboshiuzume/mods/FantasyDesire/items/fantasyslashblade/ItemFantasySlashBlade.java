@@ -40,7 +40,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         state.ifPresent((s) -> {
             String specialType = s.getSpecialType();
             if (!specialType.isBlank()){
-                tooltip.add(Component.translatable(String.format("tennouboshiuzume.tooltips."+specialType)));
+                tooltip.add(Component.translatable(String.format("tennouboshiuzume.info."+specialType)));
             }else {
                 if (swordType.contains(SwordType.BEWITCHED)) {
                     tooltip.add(Component.translatable("slashblade.sword_type.bewitched").withStyle(ChatFormatting.DARK_PURPLE));

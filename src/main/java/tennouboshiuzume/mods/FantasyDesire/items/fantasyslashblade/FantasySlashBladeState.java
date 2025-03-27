@@ -4,13 +4,14 @@ package tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade;
 import net.minecraft.world.item.ItemStack;
 
 
-public class FantasySlashBladeState implements IFantasySlashBladeState{
+public class FantasySlashBladeState implements IFantasySlashBladeState {
     protected int SpecialCharge = 0;
     protected int MaxSpecialCharge = 0;
     protected int SpecialLore = 0;
     protected int SpecialEffectLore = 0;
     protected int SpecialAttackLore = 0;
     protected String SpecialType = "Fantasy";
+    protected String SpecialChargeName = "Fancy";
 
     public FantasySlashBladeState(ItemStack blade) {
         if (!blade.isEmpty() && blade.getOrCreateTag().contains("fdBladeState")) {
@@ -42,6 +43,10 @@ public class FantasySlashBladeState implements IFantasySlashBladeState{
         return this.SpecialType;
     }
 
+    public String getSpecialChargeName() {
+        return SpecialChargeName;
+    }
+
     public void setSpecialCharge(int specialCharge) {
         this.SpecialCharge = specialCharge;
     }
@@ -64,6 +69,10 @@ public class FantasySlashBladeState implements IFantasySlashBladeState{
 
     public void setSpecialType(String specialType) {
         this.SpecialType = specialType;
+    }
+
+    public void setSpecialChargeName(String specialChargeName) {
+        SpecialChargeName = specialChargeName;
     }
 
 }

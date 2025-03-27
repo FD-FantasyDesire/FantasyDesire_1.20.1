@@ -21,8 +21,6 @@ public class FantasySlashBladeBuiltInRegistry {
 
     public static void registerAll(BootstapContext<FantasySlashBladeDefinition> bootstrap) {
         System.out.println("==== 开始注册数据 ====");
-        System.out.println("==== 注册 Key: " + FantasySlashBladeDefinition.REGISTRY_KEY + " ====");
-        System.out.println("注册的 ResourceKey: " + ChikeFlare);
         bootstrap.register(ChikeFlare,
                 new FantasySlashBladeDefinition(FantasyDesire.prefix("chikeflare"),
                         RenderDefinition.Builder.newInstance()
@@ -38,11 +36,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .maxDamage(40)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
-                                .specialCharge(0)
-                                .maxSpecialCharge(0)
-                                .specialLore(0)
-                                .specialEffectLore(0)
-                                .specialAttackLore(0)
+                                .maxSpecialCharge(100)
+                                .specialLore(3)
+                                .specialEffectLore(5)
+                                .specialAttackLore(6)
                                 .specialType("Yarimono")
                                 .build(),
                         List.of()
