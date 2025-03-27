@@ -14,6 +14,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
 
 public class FdTab {
@@ -27,13 +28,15 @@ public class FdTab {
                     .title(Component.translatable("itemGroup.fantasydesire")).icon(() -> {
                         ItemStack stack = new ItemStack(SBItems.slashblade);
                         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
-                            s.setModel(new ResourceLocation(SlashBlade.MODID, "model/named/yamato.obj"));
-                            s.setTexture(new ResourceLocation(SlashBlade.MODID, "model/named/yamato.png"));
+                            s.setModel(new ResourceLocation(FantasyDesire.MODID, "models/chikeflare.obj"));
+                            s.setTexture(new ResourceLocation(FantasyDesire.MODID, "models/chikeflare.png"));
                         });
                         return stack;
                     }).displayItems((parameters, output) -> {
 //                        output.accept(ItemUtils.CustomEffectShard(new ItemStack(SBItems.proudsoul_crystal), SpecialEffectsRegistry.WITHER_EDGE.get())); // 添加物品
+                        fillBlades(parameters, output);
                         ItemUtils.fillSEShards(output);
+//                        fillBlades(parameters, output);
                     })
                     .build());
 
@@ -41,4 +44,9 @@ public class FdTab {
     public static void register(IEventBus eventBus) {
         CREATIVE_MODE_TABS.register(eventBus);
     }
+    private static void fillBlades(CreativeModeTab.ItemDisplayParameters features,CreativeModeTab.Output output) {
+        FantasyDesire.getFantasySlashBladeDefinitionRegistry(features.holders()).listElements().sorted(FantasySlashBladeDefinition.COMPARATOR)
+                .forEach( entry -> {output.accept(entry.value().getBlade()); });
+    }
+
 }

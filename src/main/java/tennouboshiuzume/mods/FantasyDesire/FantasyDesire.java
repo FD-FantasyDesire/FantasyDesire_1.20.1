@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.client.event.ModelEvent;
@@ -18,6 +19,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
+import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.CapabilityFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
@@ -32,7 +34,7 @@ public class FantasyDesire {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static ResourceLocation prefix(String path) {
-        return new ResourceLocation(MOD_ID,path);
+        return new ResourceLocation(MODID,path);
     }
 
     public FantasyDesire() {
@@ -61,16 +63,21 @@ public class FantasyDesire {
         MinecraftForge.EVENT_BUS.register(new idletest());
 
     }
-    @SubscribeEvent
-    public static void Baked(final ModelEvent.ModifyBakingResult event) {
-        bakeBlade(FDItems.fantasyslashblade, event);
-    }
-    public static void bakeBlade(Item blade, final ModelEvent.ModifyBakingResult event) {
-        ModelResourceLocation loc = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(blade), "inventory");
-        BladeModel model = new BladeModel(event.getModels().get(loc), event.getModelBakery());
-        event.getModels().put(loc, model);
-    }
+//    @SubscribeEvent
+//    public static void Baked(final ModelEvent.ModifyBakingResult event) {
+//        bakeBlade(FDItems.fantasyslashblade, event);
+//    }
+//
+//    public static void bakeBlade(Item blade, final ModelEvent.ModifyBakingResult event) {
+//        ModelResourceLocation loc = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(blade), "inventory");
+//        BladeModel model = new BladeModel(event.getModels().get(loc), event.getModelBakery());
+//        event.getModels().put(loc, model);
+//    }
 
     private void clientSetup(final FMLClientSetupEvent event) {
+    }
+
+    public static HolderLookup.RegistryLookup<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(HolderLookup.Provider access) {
+        return access.lookupOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
     }
 }
