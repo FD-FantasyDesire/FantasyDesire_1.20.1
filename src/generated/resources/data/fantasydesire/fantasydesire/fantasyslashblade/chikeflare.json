@@ -1,0 +1,19 @@
+{
+  "fantasy": {
+    "special_type": "Yarimono"
+  },
+  "name": "fantasydesire:chikeflare",
+  "properties": {
+    "attack_base": 2.0,
+    "slash_art": "slashblade:sakura_end",
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "katana",
+    "model": "fantasydesire:models/chikeflare.obj",
+    "summon_sword_color": -16776961,
+    "texture": "fantasydesire:models/chikeflare.png"
+  }
+}

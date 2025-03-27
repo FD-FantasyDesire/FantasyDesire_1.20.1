@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.capability.slashblade.SlashBladeState;
-import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.slashblade.EnchantmentDefinition;
 import mods.flammpfeil.slashblade.registry.slashblade.PropertiesDefinition;

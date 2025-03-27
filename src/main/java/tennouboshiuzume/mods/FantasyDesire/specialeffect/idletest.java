@@ -2,8 +2,6 @@ package tennouboshiuzume.mods.FantasyDesire.specialeffect;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
-import mods.flammpfeil.slashblade.registry.slashblade.SlashBladeDefinition;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
@@ -11,7 +9,6 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.ColorUtils;

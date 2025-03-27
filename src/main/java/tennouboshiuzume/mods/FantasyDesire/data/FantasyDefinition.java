@@ -5,15 +5,8 @@
 
 package tennouboshiuzume.mods.FantasyDesire.data;
 
-import com.google.common.collect.Lists;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.List;
-import mods.flammpfeil.slashblade.item.SwordType;
-import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
-import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
-import mods.flammpfeil.slashblade.registry.slashblade.SlashBladeDefinition;
-import net.minecraft.resources.ResourceLocation;
 
 public class FantasyDefinition {
     public static final Codec<FantasyDefinition> CODEC = RecordCodecBuilder.create((instance) -> {

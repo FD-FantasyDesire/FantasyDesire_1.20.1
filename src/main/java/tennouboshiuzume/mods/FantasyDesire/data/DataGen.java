@@ -1,8 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.data;
 
-import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataGenerator;
@@ -13,6 +10,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.data.builtin.FantasySlashBladeBuiltInRegistry;
+
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class DataGen {

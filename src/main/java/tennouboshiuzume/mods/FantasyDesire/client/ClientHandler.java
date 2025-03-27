@@ -1,8 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.client;
 
-import org.apache.logging.log4j.util.LoaderUtil;
-import org.jetbrains.annotations.Nullable;
-
 import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
 import mods.flammpfeil.slashblade.client.renderer.gui.RankRenderer;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
@@ -28,6 +25,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.apache.logging.log4j.util.LoaderUtil;
+import org.jetbrains.annotations.Nullable;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)

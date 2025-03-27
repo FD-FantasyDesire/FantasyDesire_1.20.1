@@ -1,32 +1,26 @@
 package tennouboshiuzume.mods.FantasyDesire;
 
 import com.mojang.logging.LogUtils;
-import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.CapabilityFantasySlashBlade;
-import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.registry.creativetab.FdTab;
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.idletest;
-
-import static net.minecraftforge.versions.forge.ForgeVersion.MOD_ID;
 
 @Mod(FantasyDesire.MODID)
 public class FantasyDesire {

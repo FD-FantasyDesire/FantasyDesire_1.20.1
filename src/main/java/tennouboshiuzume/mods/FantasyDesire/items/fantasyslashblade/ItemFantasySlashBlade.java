@@ -12,7 +12,10 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.capabilities.*;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.CapabilityManager;
+import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 
 import javax.annotation.Nullable;
@@ -73,9 +76,9 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 tooltip.add(Component.literal(ChatFormatting.DARK_RED + chargeRate ));
             }
         });
-//        stack.getCapability(BLADESTATE).ifPresent((s) -> {
-////            System.out.println("refine:"+s.getRefine());
-//        });
+        stack.getCapability(BLADESTATE).ifPresent((s) -> {
+            System.out.println("refine:"+s.getColorCode());
+        });
     }
 
     @Override

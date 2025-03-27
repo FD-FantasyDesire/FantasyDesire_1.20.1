@@ -3,19 +3,18 @@ package tennouboshiuzume.mods.FantasyDesire.data.builtin;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import mods.flammpfeil.slashblade.item.SwordType;
 import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
+import mods.flammpfeil.slashblade.registry.slashblade.PropertiesDefinition;
 import mods.flammpfeil.slashblade.registry.slashblade.RenderDefinition;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.registries.ForgeRegistries;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import mods.flammpfeil.slashblade.registry.slashblade.PropertiesDefinition;
-import net.minecraft.resources.ResourceLocation;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasyDefinition;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 public class FantasySlashBladeBuiltInRegistry {
     public static final ResourceKey<FantasySlashBladeDefinition> ChikeFlare = register("chikeflare");
