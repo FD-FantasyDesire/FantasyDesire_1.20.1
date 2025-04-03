@@ -11,24 +11,26 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 public class FantasyDefinition {
     public static final Codec<FantasyDefinition> CODEC = RecordCodecBuilder.create((instance) -> {
         return instance.group(
-                Codec.INT.optionalFieldOf("special_charge", 0).forGetter(FantasyDefinition::getSpecialCharge),
-                Codec.INT.optionalFieldOf("max_special_charge", 0).forGetter(FantasyDefinition::getMaxSpecialCharge),
-                Codec.INT.optionalFieldOf("special_lore", 0).forGetter(FantasyDefinition::getSpecialLore),
-                Codec.INT.optionalFieldOf("special_effect_lore", 0).forGetter(FantasyDefinition::getSpecialEffectLore),
-                Codec.INT.optionalFieldOf("special_attack_lore", 0).forGetter(FantasyDefinition::getSpecialAttackLore),
-                Codec.STRING.optionalFieldOf("special_type", "Fantasy").forGetter(FantasyDefinition::getSpecialType),
-                Codec.STRING.optionalFieldOf("special_charge_name", "Fancy").forGetter(FantasyDefinition::getSpecialChargeName)
-        ).apply(instance, FantasyDefinition::new);
+                        Codec.INT.optionalFieldOf("special_charge", 0).forGetter(FantasyDefinition::getSpecialCharge),
+                        Codec.INT.optionalFieldOf("max_special_charge", 0).forGetter(FantasyDefinition::getMaxSpecialCharge),
+                        Codec.INT.optionalFieldOf("special_lore", 0).forGetter(FantasyDefinition::getSpecialLore),
+                        Codec.INT.optionalFieldOf("special_effect_lore", 0).forGetter(FantasyDefinition::getSpecialEffectLore),
+                        Codec.INT.optionalFieldOf("special_attack_lore", 0).forGetter(FantasyDefinition::getSpecialAttackLore),
+                        Codec.STRING.optionalFieldOf("special_type", "Fantasy").forGetter(FantasyDefinition::getSpecialType),
+                        Codec.STRING.optionalFieldOf("special_charge_name", "Fancy").forGetter(FantasyDefinition::getSpecialChargeName),
+                        Codec.STRING.optionalFieldOf("special_attack_effect", "Null").forGetter(FantasyDefinition::getSpecialAttackEffect))
+                .apply(instance, FantasyDefinition::new);
     });
     private final int SpecialCharge;
     private final int MaxSpecialCharge;
-    private final int SpecialLore ;
+    private final int SpecialLore;
     private final int SpecialEffectLore;
     private final int SpecialAttackLore;
     private final String SpecialType;
-    private final String  SpecialChargeName;
+    private final String SpecialChargeName;
+    private final String SpecialAttackEffect;
 
-    private FantasyDefinition(int specialCharge,int maxSpecialCharge,int specialLore,int specialEffectLore,int specialAttackLore,String specialType,String specialChargeName) {
+    private FantasyDefinition(int specialCharge, int maxSpecialCharge, int specialLore, int specialEffectLore, int specialAttackLore, String specialType, String specialChargeName, String specialAttackEffect) {
         this.SpecialCharge = specialCharge;
         this.MaxSpecialCharge = maxSpecialCharge;
         this.SpecialLore = specialLore;
@@ -36,7 +38,9 @@ public class FantasyDefinition {
         this.SpecialAttackLore = specialAttackLore;
         this.SpecialType = specialType;
         this.SpecialChargeName = specialChargeName;
+        this.SpecialAttackEffect = specialAttackEffect;
     }
+
     public int getSpecialCharge() {
         return SpecialCharge;
     }
@@ -65,6 +69,10 @@ public class FantasyDefinition {
         return SpecialChargeName;
     }
 
+    public String getSpecialAttackEffect() {
+        return SpecialAttackEffect;
+    }
+
     public static class Builder {
         private int specialCharge;
         private int maxSpecialCharge;
@@ -72,7 +80,8 @@ public class FantasyDefinition {
         private int specialEffectLore;
         private int specialAttackLore;
         private String specialType;
-        private String  specialChargeName;
+        private String specialChargeName;
+        private String specialAttackEffect;
 
         private Builder() {
             this.specialCharge = 0;
@@ -81,7 +90,8 @@ public class FantasyDefinition {
             this.specialEffectLore = 0;
             this.specialAttackLore = 0;
             this.specialType = "Fantasy";
-            this.specialChargeName = "Fancy";
+            this.specialChargeName = "Null";
+            this.specialAttackEffect = "Null";
         }
 
         public static Builder newInstance() {
@@ -118,8 +128,19 @@ public class FantasyDefinition {
             return this;
         }
 
+        public Builder specialChargeName(String specialChargeName) {
+            this.specialChargeName = specialChargeName;
+            return this;
+        }
+
+        public Builder specialAttackEffect(String specialAttackEffect) {
+            this.specialAttackEffect = specialAttackEffect;
+            return this;
+        }
+
+
         public FantasyDefinition build() {
-            return new FantasyDefinition(this.specialCharge, this.maxSpecialCharge, this.specialLore, this.specialEffectLore, this.specialAttackLore, this.specialType,this.specialChargeName);
+            return new FantasyDefinition(this.specialCharge, this.maxSpecialCharge, this.specialLore, this.specialEffectLore, this.specialAttackLore, this.specialType, this.specialChargeName, this.specialAttackEffect);
         }
     }
 }

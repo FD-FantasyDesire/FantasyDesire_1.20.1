@@ -1,0 +1,38 @@
+{
+  "item.fantasydesire.chikeflare": "§6希望的门票§b「奇克§e芙蕾雅」",
+  "item.fantasydesire.ModernGunblade":"§fYRM-67 §b智能枪刃",
+  "item.fantasydesire.CrimsonScythe":"§cDK-001 §4深红恶魔",
+  "item.fantasydesire.TwinBlade":"§bMOOD§f/§dDOOM §6双子圣灵",
+  "item.fantasydesire.OverCold":"§3Crystallization-11² §1永冻纪元",
+  "item.fantasydesire.PureSnow":"§f素雪§3「云音」",
+  "item.fantasydesire.ArdorBlossomStar":"§4「红艳煞」",
+  "item.fantasydesire.Eshahar":"§a艾夏哈尔",
+
+  "item.fantasydesire.chikeflare.desc0":"§e嗨，是芙蕾雅酱！",
+  "item.fantasydesire.chikeflare.desc1": "§e带着神的力量出生，真的好累哦！",
+  "item.fantasydesire.chikeflare.desc2": "§e我到底会怎么样呢？,",
+
+
+  "tooltip.fantasydesire.SpecialCharge":"%s§f: %s§f / %s",
+  "tooltip.fantasydesire.SpecialCharge.Soul": "§6灵魂",
+
+  "tooltip.fantasydesire.AttackEffect": "§f攻击造成§l%s§f伤害",
+  "tooltip.fantasydesire.AttackEffect.Dimension": "§6次元",
+  "tooltip.fantasydesire.AttackEffect.Omega": "§6终焉",
+  "tooltip.fantasydesire.AttackEffect.Resolution": "§4决断",
+  "tooltip.fantasydesire.AttackEffect.Absorb": "§a吸收",
+  "tooltip.fantasydesire.AttackEffect.Wrath": "§4暴怒",
+  "tooltip.fantasydesire.AttackEffect.Lust": "§6色欲",
+  "tooltip.fantasydesire.AttackEffect.Sloth": "§e怠惰",
+  "tooltip.fantasydesire.AttackEffect.Gluttony": "§a暴食",
+  "tooltip.fantasydesire.AttackEffect.Gloom": "§b忧郁",
+  "tooltip.fantasydesire.AttackEffect.Pride": "§1傲慢",
+  "tooltip.fantasydesire.AttackEffect.Envy": "§5嫉妒",
+
+  "tooltip.fantasydesire.press_shift_for_details": "按下SHIFT显示SE介绍",
+  "tooltip.fantasydesire.press_ctrl_for_details": "按下CTRL显示SA介绍",
+
+  "info.fantasydesire.Fantasy": "§e幻想",
+  "info.fantasydesire.Yarimono": "§eYarimono"
+
+}

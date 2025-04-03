@@ -13,8 +13,10 @@ public interface IFantasySlashBladeState extends INBTSerializable<CompoundTag> {
         tag.putInt("SpecialLore", this.getSpecialLore());
         tag.putString("SpecialType", this.getSpecialType());
         tag.putString("SpecialChargeName", this.getSpecialChargeName());
+        tag.putString("SpecialAttackEffect",this.getSpecialAttackEffect());
         return tag;
     }
+
 
     default void deserializeNBT(CompoundTag tag) {
         if (tag != null) {
@@ -25,6 +27,7 @@ public interface IFantasySlashBladeState extends INBTSerializable<CompoundTag> {
             this.setSpecialLore(tag.getInt("SpecialLore"));
             this.setSpecialType(tag.getString("SpecialType"));
             this.setSpecialChargeName(tag.getString("SpecialChargeName"));
+            this.setSpecialAttackEffect(tag.getString("SpecialAttackEffect"));
         }
     }
     // Getter methods
@@ -35,6 +38,7 @@ public interface IFantasySlashBladeState extends INBTSerializable<CompoundTag> {
     int getSpecialEffectLore();
     String getSpecialType();
     String getSpecialChargeName();
+    String getSpecialAttackEffect();
     // Setter methods
     void setSpecialCharge(int specialCharge);
     void setMaxSpecialCharge(int specialCharge);
@@ -43,4 +47,5 @@ public interface IFantasySlashBladeState extends INBTSerializable<CompoundTag> {
     void setSpecialEffectLore(int specialEffectLore);
     void setSpecialType(String specialType);
     void setSpecialChargeName(String specialChargeName);
+    void setSpecialAttackEffect(String specialAttackEffect);
 }

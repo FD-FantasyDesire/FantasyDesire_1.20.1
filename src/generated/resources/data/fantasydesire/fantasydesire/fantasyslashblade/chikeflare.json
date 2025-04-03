@@ -1,5 +1,11 @@
 {
   "fantasy": {
+    "max_special_charge": 100,
+    "special_attack_effect": "Dimension",
+    "special_attack_lore": 6,
+    "special_charge_name": "Null",
+    "special_effect_lore": 5,
+    "special_lore": 3,
     "special_type": "Yarimono"
   },
   "name": "fantasydesire:chikeflare",
@@ -11,9 +17,8 @@
     ]
   },
   "render": {
-    "carry_type": "katana",
     "model": "fantasydesire:models/chikeflare.obj",
-    "summon_sword_color": -16776961,
+    "summon_sword_color": 16776960,
     "texture": "fantasydesire:models/chikeflare.png"
   }
 }

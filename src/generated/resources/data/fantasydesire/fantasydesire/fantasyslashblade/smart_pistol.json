@@ -1,0 +1,21 @@
+{
+  "fantasy": {
+    "max_special_charge": 21,
+    "special_charge_name": "Null",
+    "special_type": "Gunblade"
+  },
+  "name": "fantasydesire:smart_pistol",
+  "properties": {
+    "attack_base": 3.0,
+    "max_damage": 256,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "katana",
+    "model": "fantasydesire:models/smartpistol.obj",
+    "summon_sword_color": 65535,
+    "texture": "fantasydesire:models/smartpistol.png"
+  }
+}

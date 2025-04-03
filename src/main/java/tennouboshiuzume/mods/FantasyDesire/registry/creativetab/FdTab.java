@@ -5,6 +5,9 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -36,7 +39,6 @@ public class FdTab {
 //                        fillBlades(parameters, output);
                     })
                     .build());
-
     // 方法用于注册物品栏
     public static void register(IEventBus eventBus) {
         CREATIVE_MODE_TABS.register(eventBus);

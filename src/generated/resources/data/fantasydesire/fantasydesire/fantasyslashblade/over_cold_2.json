@@ -1,0 +1,21 @@
+{
+  "fantasy": {
+    "max_special_charge": 130,
+    "special_attack_effect": "Blizzard",
+    "special_charge_name": "Null",
+    "special_type": "Frost"
+  },
+  "name": "fantasydesire:over_cold",
+  "properties": {
+    "attack_base": 3.2,
+    "max_damage": 55,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "model": "fantasydesire:models/overcold_2.obj",
+    "summon_sword_color": 6724095,
+    "texture": "fantasydesire:models/overcold.png"
+  }
+}

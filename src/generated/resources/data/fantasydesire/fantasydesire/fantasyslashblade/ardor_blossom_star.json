@@ -1,0 +1,20 @@
+{
+  "fantasy": {
+    "special_charge_name": "Null",
+    "special_type": "EGO"
+  },
+  "name": "fantasydesire:ardor_blossom_star",
+  "properties": {
+    "attack_base": 3.6,
+    "max_damage": 58,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "katana",
+    "model": "fantasydesire:models/ardorblossomstar.obj",
+    "summon_sword_color": 16750848,
+    "texture": "fantasydesire:models/ardorblossomstar.png"
+  }
+}

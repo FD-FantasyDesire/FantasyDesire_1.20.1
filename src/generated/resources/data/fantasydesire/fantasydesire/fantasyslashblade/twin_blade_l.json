@@ -1,0 +1,21 @@
+{
+  "fantasy": {
+    "max_special_charge": 110,
+    "special_charge_name": "Null",
+    "special_type": "Twin"
+  },
+  "name": "fantasydesire:twin_blade",
+  "properties": {
+    "attack_base": 2.5,
+    "max_damage": 45,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "ninja",
+    "model": "fantasydesire:models/twinblade.obj",
+    "summon_sword_color": 51455,
+    "texture": "fantasydesire:models/twinbladeleft.png"
+  }
+}

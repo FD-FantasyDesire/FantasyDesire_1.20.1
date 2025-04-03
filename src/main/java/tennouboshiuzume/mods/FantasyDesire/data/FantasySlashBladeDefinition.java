@@ -124,6 +124,7 @@ public class FantasySlashBladeDefinition {
         fdState.setSpecialEffectLore(this.fantasyDefinition.getSpecialEffectLore());
         fdState.setSpecialAttackLore(this.fantasyDefinition.getSpecialAttackLore());
         fdState.setSpecialType(this.fantasyDefinition.getSpecialType());
+        fdState.setSpecialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect());
         result.getOrCreateTag().put("fdBladeState",fdState.serializeNBT());
 
         Iterator var4 = this.enchantments.iterator();

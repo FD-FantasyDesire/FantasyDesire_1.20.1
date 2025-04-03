@@ -11,7 +11,8 @@ public class FantasySlashBladeState implements IFantasySlashBladeState {
     protected int SpecialEffectLore = 0;
     protected int SpecialAttackLore = 0;
     protected String SpecialType = "Fantasy";
-    protected String SpecialChargeName = "Fancy";
+    protected String SpecialChargeName = "Null";
+    protected String SpecialAttackEffect = "Null";
 
     public FantasySlashBladeState(ItemStack blade) {
         if (!blade.isEmpty() && blade.getOrCreateTag().contains("fdBladeState")) {
@@ -47,6 +48,10 @@ public class FantasySlashBladeState implements IFantasySlashBladeState {
         return SpecialChargeName;
     }
 
+    public String getSpecialAttackEffect() {
+        return SpecialAttackEffect;
+    }
+
     public void setSpecialCharge(int specialCharge) {
         this.SpecialCharge = specialCharge;
     }
@@ -72,7 +77,11 @@ public class FantasySlashBladeState implements IFantasySlashBladeState {
     }
 
     public void setSpecialChargeName(String specialChargeName) {
-        SpecialChargeName = specialChargeName;
+        this.SpecialChargeName = specialChargeName;
+    }
+
+    public void setSpecialAttackEffect(String specialAttackEffect) {
+        this.SpecialAttackEffect = specialAttackEffect;
     }
 
 }

@@ -1,9 +1,11 @@
 package tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.entity.EntityDrive;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -40,7 +42,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         state.ifPresent((s) -> {
             String specialType = s.getSpecialType();
             if (!specialType.isBlank()){
-                tooltip.add(Component.translatable(String.format("tennouboshiuzume.info."+specialType)));
+                tooltip.add(Component.translatable(String.format("info.fantasydesire."+specialType)));
             }else {
                 if (swordType.contains(SwordType.BEWITCHED)) {
                     tooltip.add(Component.translatable("slashblade.sword_type.bewitched").withStyle(ChatFormatting.DARK_PURPLE));
@@ -61,23 +63,100 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             this.appendKillCount(tooltip, stack);
             this.appendSlashArt(stack, tooltip, s);
             this.appendRefineCount(tooltip, stack);
+            this.appendSpecialAttackEffect(tooltip,stack);
             this.appendSpecialEffects(tooltip, s);
+            this.appendSpecialLore(tooltip,stack);
+            this.appendSpecialAttackLore(tooltip,stack);
+            this.appendSpecialEffectLore(tooltip,stack);
             this.appendSpecialCharge(tooltip,stack);
         });
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void appendSpecialCharge(List<Component> tooltip, ItemStack stack){
+    private void appendSpecialLore(List<Component> tooltip, ItemStack stack) {
         stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
-            int charge = s.getSpecialCharge();
-            int maxCharge = s.getMaxSpecialCharge();
-            if (maxCharge>0){
-                String chargeRate = String.format("Charge: %s / %s ", charge , maxCharge);
-                tooltip.add(Component.literal(ChatFormatting.DARK_RED + chargeRate ));
+            int loreCount = s.getSpecialLore(); // 获取需要显示的文本行数
+            if (loreCount>0){
+                stack.getCapability(BLADESTATE).ifPresent((b) -> {
+                    String locName = b.getTranslationKey();
+                    for (int i = 0; i < loreCount; i++) {
+                        Component loreText = Component.translatable(locName + ".desc" + i);
+                        tooltip.add(loreText);
+                    }
+                });
             }
         });
-        stack.getCapability(BLADESTATE).ifPresent((s) -> {
-            System.out.println("refine:"+s.getColorCode());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void appendSpecialAttackLore(List<Component> tooltip, ItemStack stack) {
+        // 只有按下 Ctrl 键时才显示
+        if (Screen.hasControlDown() && !Screen.hasShiftDown()) {
+            stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
+                int loreCount = s.getSpecialAttackLore(); // 获取需要显示的文本行数
+                if (loreCount>0){
+                    stack.getCapability(BLADESTATE).ifPresent((b) -> {
+                        String locName = b.getTranslationKey();
+                        for (int i = 0; i < loreCount; i++) {
+                            Component loreText = Component.translatable(locName + ".SpecialAttack.desc" + i);
+                            tooltip.add(loreText);
+                        }
+                    });
+                }
+            });
+        } else {
+            // 提示玩家按 Ctrl 查看更多信息
+            tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void appendSpecialEffectLore(List<Component> tooltip, ItemStack stack) {
+        // 只有按下 Shift 键时才显示
+        if (Screen.hasShiftDown() && !Screen.hasControlDown()) {
+            stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
+                int loreCount = s.getSpecialEffectLore(); // 获取需要显示的文本行数
+                if (loreCount>0){
+                    stack.getCapability(BLADESTATE).ifPresent((b) -> {
+                        String locName = b.getTranslationKey();
+                        for (int i = 0; i < loreCount; i++) {
+                            Component loreText = Component.translatable(locName + ".SpecialEffect.desc" + i);
+                            tooltip.add(loreText);
+                        }
+                    });
+                }
+            });
+        } else {
+            // 提示玩家按 Ctrl 查看更多信息
+            tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
+        }
+    }
+    @OnlyIn(Dist.CLIENT)
+    private void appendSpecialCharge(List<Component> tooltip, ItemStack stack){
+        stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
+            String scType = s.getSpecialChargeName();
+            if (!scType.equals("Null")){
+                int charge = s.getSpecialCharge();
+                int maxCharge = s.getMaxSpecialCharge();
+                if (maxCharge>0){
+                    Component sc = Component.translatable("tooltip.fantasydesire.SpecialCharge."+scType);
+                    Component chargeText = Component.translatable("tooltip.fantasydesire.SpecialCharge", sc, charge, maxCharge);
+                    tooltip.add(chargeText);
+                }
+            }
+        });
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void appendSpecialAttackEffect(List<Component> tooltip, ItemStack stack){
+        stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
+            String ae = s.getSpecialAttackEffect();
+            if (!ae.equals("Null")){
+//                System.out.println("tooltip.fantasydesire.AttaackEffect."+ae);
+                Component attackEffect = Component.translatable("tooltip.fantasydesire.AttackEffect." + ae);
+                Component damageText = Component.translatable("tooltip.fantasydesire.AttackEffect", attackEffect);
+                tooltip.add(damageText);
+            }
         });
     }
 
@@ -100,6 +179,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         });
         return tag;
     }
+
     @Override
     public void readShareTag(ItemStack stack, @Nullable CompoundTag nbt) {
         if (nbt != null && nbt.contains("fdBladeState")) {

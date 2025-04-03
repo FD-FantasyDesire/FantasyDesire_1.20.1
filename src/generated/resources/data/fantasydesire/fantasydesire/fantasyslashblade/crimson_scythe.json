@@ -1,0 +1,21 @@
+{
+  "fantasy": {
+    "max_special_charge": 150,
+    "special_attack_effect": "BloodHarvest",
+    "special_charge_name": "Null",
+    "special_type": "Reaper"
+  },
+  "name": "fantasydesire:crimson_scythe",
+  "properties": {
+    "attack_base": 4.5,
+    "max_damage": 60,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "model": "fantasydesire:models/crimsonscythe.obj",
+    "summon_sword_color": 16711680,
+    "texture": "fantasydesire:models/crimsonscythe.png"
+  }
+}

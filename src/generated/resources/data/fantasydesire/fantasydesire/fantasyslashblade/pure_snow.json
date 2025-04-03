@@ -1,0 +1,20 @@
+{
+  "fantasy": {
+    "special_charge_name": "Null",
+    "special_type": "Miracle"
+  },
+  "name": "fantasydesire:pure_snow",
+  "properties": {
+    "attack_base": 2.8,
+    "max_damage": 50,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "rninja",
+    "model": "fantasydesire:models/puresnow.obj",
+    "summon_sword_color": 16777215,
+    "texture": "fantasydesire:models/puresnow.png"
+  }
+}
