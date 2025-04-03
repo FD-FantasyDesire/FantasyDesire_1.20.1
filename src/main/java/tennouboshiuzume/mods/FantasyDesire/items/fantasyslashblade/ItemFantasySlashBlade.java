@@ -66,8 +66,8 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             this.appendSpecialAttackEffect(tooltip,stack);
             this.appendSpecialEffects(tooltip, s);
             this.appendSpecialLore(tooltip,stack);
-            this.appendSpecialAttackLore(tooltip,stack);
             this.appendSpecialEffectLore(tooltip,stack);
+            this.appendSpecialAttackLore(tooltip,stack);
             this.appendSpecialCharge(tooltip,stack);
         });
     }
@@ -86,6 +86,28 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 });
             }
         });
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void appendSpecialEffectLore(List<Component> tooltip, ItemStack stack) {
+        // 只有按下 Shift 键时才显示
+        if (Screen.hasShiftDown() && !Screen.hasControlDown()) {
+            stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
+                int loreCount = s.getSpecialEffectLore(); // 获取需要显示的文本行数
+                if (loreCount>0){
+                    stack.getCapability(BLADESTATE).ifPresent((b) -> {
+                        String locName = b.getTranslationKey();
+                        for (int i = 0; i < loreCount; i++) {
+                            Component loreText = Component.translatable(locName + ".SpecialEffect.desc" + i);
+                            tooltip.add(loreText);
+                        }
+                    });
+                }
+            });
+        } else {
+            // 提示玩家按 Ctrl 查看更多信息
+            tooltip.add(Component.translatable("tooltip.fantasydesire.press_shift_for_details"));
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -110,27 +132,6 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
-    private void appendSpecialEffectLore(List<Component> tooltip, ItemStack stack) {
-        // 只有按下 Shift 键时才显示
-        if (Screen.hasShiftDown() && !Screen.hasControlDown()) {
-            stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
-                int loreCount = s.getSpecialEffectLore(); // 获取需要显示的文本行数
-                if (loreCount>0){
-                    stack.getCapability(BLADESTATE).ifPresent((b) -> {
-                        String locName = b.getTranslationKey();
-                        for (int i = 0; i < loreCount; i++) {
-                            Component loreText = Component.translatable(locName + ".SpecialEffect.desc" + i);
-                            tooltip.add(loreText);
-                        }
-                    });
-                }
-            });
-        } else {
-            // 提示玩家按 Ctrl 查看更多信息
-            tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
-        }
-    }
     @OnlyIn(Dist.CLIENT)
     private void appendSpecialCharge(List<Component> tooltip, ItemStack stack){
         stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
