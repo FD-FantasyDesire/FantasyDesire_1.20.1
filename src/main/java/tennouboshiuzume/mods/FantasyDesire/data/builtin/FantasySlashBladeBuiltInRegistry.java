@@ -28,8 +28,6 @@ public class FantasySlashBladeBuiltInRegistry {
     public static final ResourceKey<FantasySlashBladeDefinition> OverColdP3 = register("over_cold_3");
     public static final ResourceKey<FantasySlashBladeDefinition> PureSnow = register("pure_snow");
     public static final ResourceKey<FantasySlashBladeDefinition> ArdorBlossomStar = register("ardor_blossom_star");
-
-
     public static void registerAll(BootstapContext<FantasySlashBladeDefinition> bootstrap) {
         System.out.println("==== 开始注册数据 ====");
         bootstrap.register(ChikeFlare,
@@ -167,7 +165,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .effectColor(0x6699FF)
                                 .textureName(FantasyDesire.prefix("models/overcold.png"))
                                 .modelName(FantasyDesire.prefix("models/overcold_0.obj"))
-                                .standbyRenderType(CarryType.PSO2)
+                                .standbyRenderType(CarryType.RNINJA)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
@@ -192,7 +190,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .effectColor(0x6699FF)
                                 .textureName(FantasyDesire.prefix("models/overcold.png"))
                                 .modelName(FantasyDesire.prefix("models/overcold_1.obj"))
-                                .standbyRenderType(CarryType.PSO2)
+                                .standbyRenderType(CarryType.RNINJA)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
@@ -217,7 +215,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .effectColor(0x6699FF)
                                 .textureName(FantasyDesire.prefix("models/overcold.png"))
                                 .modelName(FantasyDesire.prefix("models/overcold_2.obj"))
-                                .standbyRenderType(CarryType.PSO2)
+                                .standbyRenderType(CarryType.RNINJA)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
@@ -243,7 +241,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .effectColor(0x6699FF)
                                 .textureName(FantasyDesire.prefix("models/overcold.png"))
                                 .modelName(FantasyDesire.prefix("models/overcold_3.obj"))
-                                .standbyRenderType(CarryType.PSO2)
+                                .standbyRenderType(CarryType.RNINJA)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)

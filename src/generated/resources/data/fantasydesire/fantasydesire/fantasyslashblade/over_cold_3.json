@@ -17,6 +17,7 @@
     ]
   },
   "render": {
+    "carry_type": "rninja",
     "model": "fantasydesire:models/overcold_3.obj",
     "summon_sword_color": 6724095,
     "texture": "fantasydesire:models/overcold.png"
