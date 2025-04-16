@@ -1,8 +1,8 @@
 {
   "fantasy": {
-    "max_special_charge": 110,
+    "special_attack_effect": "resolution",
     "special_charge_name": "Null",
-    "special_type": "Twin"
+    "special_type": "TwinBladeL"
   },
   "name": "fantasydesire:twin_blade",
   "properties": {
@@ -13,7 +13,7 @@
     ]
   },
   "render": {
-    "carry_type": "ninja",
+    "carry_type": "katana",
     "model": "fantasydesire:models/twinblade.obj",
     "summon_sword_color": 51455,
     "texture": "fantasydesire:models/twinbladeleft.png"

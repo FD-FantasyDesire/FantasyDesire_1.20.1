@@ -33,8 +33,6 @@ public class FantasyDesire {
 
     public FantasyDesire() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        // 注册物品
-        // 注册创造模式物品栏
         FdTab.register(eventBus);
     }
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -55,8 +53,8 @@ public class FantasyDesire {
     private void commonSetup(final FMLCommonSetupEvent event) {
 //        MinecraftForge.EVENT_BUS.register(new CapabilityAttachHandler());
         MinecraftForge.EVENT_BUS.register(new idletest());
-
     }
+
 //    @SubscribeEvent
 //    public static void Baked(final ModelEvent.ModifyBakingResult event) {
 //        bakeBlade(FDItems.fantasyslashblade, event);

@@ -1,7 +1,7 @@
 {
   "fantasy": {
     "max_special_charge": 100,
-    "special_attack_effect": "Dimension",
+    "special_attack_effect": "dimension",
     "special_attack_lore": 6,
     "special_charge_name": "Null",
     "special_effect_lore": 5,

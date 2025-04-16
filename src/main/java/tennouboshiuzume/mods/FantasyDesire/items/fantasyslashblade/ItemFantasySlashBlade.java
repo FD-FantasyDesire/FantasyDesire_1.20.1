@@ -1,7 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.entity.EntityDrive;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
 import net.minecraft.ChatFormatting;

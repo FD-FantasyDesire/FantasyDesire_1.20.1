@@ -1,7 +1,8 @@
 {
   "fantasy": {
+    "special_attack_effect": "omega",
     "special_charge_name": "Null",
-    "special_type": "Twin"
+    "special_type": "TwinBladeR"
   },
   "name": "fantasydesire:twin_blade",
   "properties": {
@@ -12,7 +13,7 @@
     ]
   },
   "render": {
-    "carry_type": "rninja",
+    "carry_type": "katana",
     "model": "fantasydesire:models/twinblade.obj",
     "summon_sword_color": 16711817,
     "texture": "fantasydesire:models/twinbladeright.png"

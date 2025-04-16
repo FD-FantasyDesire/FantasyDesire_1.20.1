@@ -9,7 +9,6 @@ import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 public class RegistryHandler {
     @SubscribeEvent
     public static void onDatapackRegister(DataPackRegistryEvent.NewRegistry event) {
-//        System.out.println("注册表键: " + FantasySlashBladeDefinition.REGISTRY_KEY);
         event.dataPackRegistry(
                 FantasySlashBladeDefinition.REGISTRY_KEY,
                 FantasySlashBladeDefinition.CODEC,

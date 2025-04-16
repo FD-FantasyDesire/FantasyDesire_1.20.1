@@ -1,9 +1,9 @@
 {
   "fantasy": {
     "max_special_charge": 150,
-    "special_attack_effect": "BloodHarvest",
+    "special_attack_effect": "absorb",
     "special_charge_name": "Null",
-    "special_type": "Reaper"
+    "special_type": "CrimsonScythe"
   },
   "name": "fantasydesire:crimson_scythe",
   "properties": {

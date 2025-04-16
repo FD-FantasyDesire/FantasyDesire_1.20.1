@@ -1,12 +1,11 @@
 {
   "fantasy": {
     "max_special_charge": 130,
-    "special_attack_effect": "Blizzard",
     "special_attack_lore": 4,
     "special_charge_name": "Null",
     "special_effect_lore": 5,
     "special_lore": 4,
-    "special_type": "Frost"
+    "special_type": "OverCold_3"
   },
   "name": "fantasydesire:over_cold",
   "properties": {
