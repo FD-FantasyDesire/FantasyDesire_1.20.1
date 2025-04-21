@@ -7,7 +7,11 @@
   "name": "fantasydesire:over_cold",
   "properties": {
     "attack_base": 3.2,
-    "max_damage": 55,
+    "max_damage": 144,
+    "special_effects": [
+      "fantasydesire:evolution_ice",
+      "fantasydesire:cold_leak"
+    ],
     "sword_type": [
       "bewitched"
     ]

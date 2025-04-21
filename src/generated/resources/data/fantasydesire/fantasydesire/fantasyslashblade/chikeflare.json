@@ -4,7 +4,6 @@
     "special_attack_effect": "dimension",
     "special_attack_lore": 6,
     "special_charge_name": "Null",
-    "special_effect_lore": 5,
     "special_lore": 3,
     "special_type": "Yarimono"
   },
@@ -12,6 +11,12 @@
   "properties": {
     "attack_base": 2.0,
     "slash_art": "slashblade:sakura_end",
+    "special_effects": [
+      "fantasydesire:cheat_rumble",
+      "fantasydesire:tyrant_strike",
+      "fantasydesire:soul_shield",
+      "fantasydesire:immortal_soul"
+    ],
     "sword_type": [
       "bewitched"
     ]

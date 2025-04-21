@@ -35,8 +35,12 @@ public class ModDamageTypeTagsProvider extends DamageTypeTagsProvider {
         this.tag(DamageTypeTags.BYPASSES_SHIELD)
                 .add(FDDamageTypes.DIMENSION)
                 .add(FDDamageTypes.WRATH);
+//      火焰伤害
         this.tag(DamageTypeTags.IS_FIRE)
                 .add(FDDamageTypes.WRATH);
+//      射弹伤害
+        this.tag(DamageTypeTags.IS_PROJECTILE)
+                .add(FDDamageTypes.LUST);
 //      冰冻伤害
         this.tag(DamageTypeTags.IS_FREEZING).
                 add(FDDamageTypes.SLOTH);

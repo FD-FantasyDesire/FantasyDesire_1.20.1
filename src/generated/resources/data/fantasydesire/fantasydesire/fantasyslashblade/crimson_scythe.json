@@ -9,6 +9,10 @@
   "properties": {
     "attack_base": 4.5,
     "max_damage": 60,
+    "special_effects": [
+      "fantasydesire:blood_drain",
+      "fantasydesire:crimson_strike"
+    ],
     "sword_type": [
       "bewitched"
     ]

@@ -1,15 +1,9 @@
 package tennouboshiuzume.mods.FantasyDesire.specialeffect;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -25,9 +19,7 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageTypes;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
-
 import tennouboshiuzume.mods.FantasyDesire.utils.DamageUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.VelocityUtils;
 
 @Mod.EventBusSubscriber
 public class DamageConverterEvent {
@@ -49,7 +41,7 @@ public class DamageConverterEvent {
 
     @SubscribeEvent
     public static void OnHurt(LivingHurtEvent event) {
-        System.out.println(event.getAmount());
+//        System.out.println(event.getAmount());
         DamageSource source = event.getSource();
         LivingEntity player = (LivingEntity) source.getEntity(); // 攻击者
         LivingEntity target = event.getEntity(); // 受击者
@@ -74,63 +66,68 @@ public class DamageConverterEvent {
                         }
                         if (b.getTranslationKey().equals("item.fantasydesire.pure_snow")) {
                             String effect = s.getSpecialAttackEffect();
-                            event.setAmount(0);
+                            event.setAmount(original * 0.5f);
+                            float damageRemain = original * 0.5f;
+//                            剩余一半伤害转换为对应罪孽伤害
                             if ("wrath".equals(effect)) {
 //                                暴怒，对格挡敌人造成三倍伤害
 //                                算作火焰伤害
                                 float multiple = target.isBlocking() ? 3 : 1;
                                 target.invulnerableTime = 0;
                                 target.hurtTime = 0;
-                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.WRATH, (LivingEntity) player, player.level().registryAccess()), original * multiple);
+                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.WRATH, (LivingEntity) player, player.level().registryAccess()), damageRemain * multiple);
                             } else if ("lust".equals(effect)) {
-                                // 色欲，将伤害的一部分转换为生命值
+//                                色欲，将伤害的一部分转换为生命值
+//                                算作凋零伤害
                                 target.invulnerableTime = 0;
                                 target.hurtTime = 0;
-                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.LUST, (LivingEntity) player, player.level().registryAccess()), original * 0.8f);
+                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.LUST, (LivingEntity) player, player.level().registryAccess()), damageRemain * 0.8f);
                                 player.heal(original * 0.2f);
                             } else if ("sloth".equals(effect)) {
-                                // 怠惰，玩家的移动速度越低，伤害倍率越高，算作摔落伤害
+//                                 怠惰，玩家的移动速度越低，伤害倍率越高
+//                                 算作摔落伤害
                                 double attackerSpeed = player.getDeltaMovement().length();
                                 double targetSpeed = target.getDeltaMovement().length();
                                 double safeTargetSpeed = Math.max(targetSpeed, 0.05);
                                 double speedRatio = Math.min(attackerSpeed / safeTargetSpeed, 3.0);
                                 target.invulnerableTime = 0;
                                 target.hurtTime = 0;
-                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.SLOTH, (LivingEntity) player, player.level().registryAccess()), (float) speedRatio);
-
+                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.SLOTH, (LivingEntity) player, player.level().registryAccess()), (float) speedRatio * damageRemain);
                             } else if ("gluttony".equals(effect)) {
-                                // 暴食，伤害的一半转化为玩家的饱食度和饱和度
+//                                暴食，伤害的一半转化为玩家的饱食度和饱和度
+//                                算作饥饿伤害，无视药水伤害抗性
                                 target.invulnerableTime = 0;
                                 target.hurtTime = 0;
-                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.GLUTTONY, (LivingEntity) player, player.level().registryAccess()), original * 0.5f);
+                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.GLUTTONY, (LivingEntity) player, player.level().registryAccess()), damageRemain * 0.5f);
                                 ((Player) player).getFoodData().eat((int) (original * 0.3f), original * 0.2f);
-
                             } else if ("gloom".equals(effect)) {
-                                // 忧郁，优先消耗敌人的氧气，如果没有氧气则造成两倍伤害
+//                                忧郁，优先消耗敌人的氧气，如果没有氧气则造成两倍伤害
+//                                算作溺水伤害
                                 int currentAir = target.getAirSupply();
                                 target.invulnerableTime = 0;
                                 target.hurtTime = 0;
                                 if (currentAir <= 0) {
-                                    target.hurt(DamageUtils.createWithEntity(FDDamageTypes.GLOOM, (LivingEntity) player, player.level().registryAccess()), original * 2);
+                                    target.hurt(DamageUtils.createWithEntity(FDDamageTypes.GLOOM, (LivingEntity) player, player.level().registryAccess()), damageRemain * 2);
                                 } else {
                                     target.setAirSupply((int) (currentAir - original));
                                 }
-
                             } else if ("pride".equals(effect)) {
-                                // 傲慢，对拥有护甲的敌人造成三倍伤害，同时具备两种属性会叠乘
-                                float multiple = target.getArmorValue() > 0 ? 3 : 1;
+//                                傲慢，对拥有护甲的敌人或生命上限是你五倍以上的敌人造成三倍伤害，同时具备两种属性会叠乘
+//                                算作魔法伤害
+                                float multiple = 1;
+                                if(target.getArmorValue()>0)multiple*=3;
+                                if (target.getMaxHealth()/player.getMaxHealth()>=5)multiple*=3;
                                 target.invulnerableTime = 0;
                                 target.hurtTime = 0;
-                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.PRIDE, (LivingEntity) player, player.level().registryAccess()), original * multiple);
-
+                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.PRIDE, (LivingEntity) player, player.level().registryAccess()), damageRemain * multiple);
                             } else if ("envy".equals(effect)) {
-                                // 嫉妒，对血量比你高的敌人造成1.5倍伤害，算作荆棘伤害
+//                                嫉妒，对当前血量比你高的敌人造成1.5倍伤害
+//                                算作荆棘伤害
                                 float multiple = target.getHealth() > player.getHealth() ? 1.5f : 1.0f;
                                 target.invulnerableTime = 0;
                                 target.hurtTime = 0;
-                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.ENVY, (LivingEntity) player, player.level().registryAccess()), original * multiple);
+                                target.hurt(DamageUtils.createWithEntity(FDDamageTypes.ENVY, (LivingEntity) player, player.level().registryAccess()), damageRemain * multiple);
                             }
-//                            System.out.println(original);
                         }
                     });
                 });

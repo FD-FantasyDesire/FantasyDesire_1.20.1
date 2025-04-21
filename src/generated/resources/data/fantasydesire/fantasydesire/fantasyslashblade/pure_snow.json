@@ -7,6 +7,10 @@
   "properties": {
     "attack_base": 2.8,
     "max_damage": 50,
+    "special_effects": [
+      "fantasydesire:rainbow_flux",
+      "fantasydesire:color_flux"
+    ],
     "sword_type": [
       "bewitched"
     ]

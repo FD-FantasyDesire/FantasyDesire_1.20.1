@@ -3,10 +3,13 @@ package tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.item.SwordType;
+import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TooltipFlag;
@@ -18,6 +21,8 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.NotNull;
+import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -71,6 +76,22 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         });
     }
 
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void appendSpecialEffects(List<Component> tooltip, @NotNull ISlashBladeState s) {
+        if (!s.getSpecialEffects().isEmpty()) {
+            Minecraft mcinstance = Minecraft.getInstance();
+            Player player = mcinstance.player;
+            s.getSpecialEffects().forEach((se) -> {
+                boolean showingLevel = SpecialEffect.getRequestLevel(se) > 0;
+                tooltip.add(Component.translatable("slashblade.tooltip.special_effect", new Object[]{SpecialEffect.getDescription(se), Component.literal(showingLevel ? String.valueOf(SpecialEffect.getRequestLevel(se)) : "").withStyle(SpecialEffect.isEffective(se, player.experienceLevel) ? ChatFormatting.RED : ChatFormatting.DARK_GRAY)}).withStyle(ChatFormatting.GRAY));
+                if (se.getNamespace().equals(FantasyDesire.MODID) && Screen.hasShiftDown() && !Screen.hasControlDown()){
+                    tooltip.add(Component.translatable("se.fantasydesire."+se.getPath()+".desc"));
+                }
+            });
+        }
+    }
+
     @OnlyIn(Dist.CLIENT)
     private void appendSpecialLore(List<Component> tooltip, ItemStack stack) {
         stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
@@ -90,6 +111,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
     @OnlyIn(Dist.CLIENT)
     private void appendSpecialEffectLore(List<Component> tooltip, ItemStack stack) {
         // 只有按下 Shift 键时才显示
+        //        待重写，SELore相关功能已合并至SE显示
         if (Screen.hasShiftDown() && !Screen.hasControlDown()) {
             stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
                 int loreCount = s.getSpecialEffectLore(); // 获取需要显示的文本行数

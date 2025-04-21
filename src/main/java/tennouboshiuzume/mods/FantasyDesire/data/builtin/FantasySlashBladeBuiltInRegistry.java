@@ -13,6 +13,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasyDefinition;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
+import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 
 import java.util.List;
 
@@ -28,6 +29,8 @@ public class FantasySlashBladeBuiltInRegistry {
     public static final ResourceKey<FantasySlashBladeDefinition> OverColdP3 = register("over_cold_3");
     public static final ResourceKey<FantasySlashBladeDefinition> PureSnow = register("pure_snow");
     public static final ResourceKey<FantasySlashBladeDefinition> ArdorBlossomStar = register("ardor_blossom_star");
+    public static final ResourceKey<FantasySlashBladeDefinition> StarlessNight = register("starless_night");
+
     public static void registerAll(BootstapContext<FantasySlashBladeDefinition> bootstrap) {
         System.out.println("==== 开始注册数据 ====");
         bootstrap.register(ChikeFlare,
@@ -43,11 +46,14 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .slashArtsType(SlashArtsRegistry.SAKURA_END.getId())
                                 .maxDamage(40)
+                                .addSpecialEffect(FDSpecialEffects.CheatRumble.getId())
+                                .addSpecialEffect(FDSpecialEffects.TyrantStrike.getId())
+                                .addSpecialEffect(FDSpecialEffects.SoulShield.getId())
+                                .addSpecialEffect(FDSpecialEffects.ImmortalSoul.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(100)
                                 .specialLore(3)
-                                .specialEffectLore(5)
                                 .specialAttackLore(6)
                                 .specialType("Yarimono")
                                 .specialAttackEffect("dimension")
@@ -88,6 +94,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .baseAttackModifier(4.5F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .maxDamage(60)
+                                .addSpecialEffect(FDSpecialEffects.BloodDrain.getId())
+                                .addSpecialEffect(FDSpecialEffects.CrimsonStrike.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(150)
@@ -109,7 +117,8 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(2.5F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(45)
+                                .maxDamage(400)
+                                .addSpecialEffect(FDSpecialEffects.TwinSet.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("TwinBladeL")
@@ -130,7 +139,8 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(2.5F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(45)
+                                .maxDamage(100)
+                                .addSpecialEffect(FDSpecialEffects.TwinSet.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("TwinBladeR")
@@ -151,7 +161,9 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(55)
+                                .maxDamage(144)
+                                .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
+                                .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(130)
@@ -171,8 +183,9 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-//                                .slashArtsType(SlashArtsRegistry.FROST_EDGE.getId())
-                                .maxDamage(55)
+                                .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
+                                .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
+                                .maxDamage(144)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("OverCold_1")
@@ -191,7 +204,9 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(55)
+                                .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
+                                .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
+                                .maxDamage(144)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("OverCold_2")
@@ -211,7 +226,9 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(55)
+                                .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
+                                .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
+                                .maxDamage(144)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(130)
@@ -235,13 +252,16 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(2.8F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-//                                .slashArtsType(SlashArtsRegistry.HEAVENLY_STRIKE.getId())
+                                .addSpecialEffect(FDSpecialEffects.RainbowFlux.getId())
+                                .addSpecialEffect(FDSpecialEffects.ColorFlux.getId())
                                 .maxDamage(50)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("PureSnow")
                                 .build(),
-                        List.of()
+                        List.of(
+
+                        )
                 )
         );
 
@@ -256,7 +276,6 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.6F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-//                                .slashArtsType(SlashArtsRegistry.SAKURA_BLAST.getId())
                                 .maxDamage(58)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
@@ -265,7 +284,34 @@ public class FantasySlashBladeBuiltInRegistry {
 //                                .specialEffectLore(6)
 //                                .specialAttackLore(5)
                                 .specialType("EGO")
-//                                .specialAttackEffect("Blossom")
+                                .build(),
+                        List.of()
+                )
+        );
+
+        bootstrap.register(StarlessNight,
+                new FantasySlashBladeDefinition(FantasyDesire.prefix("starless_night"),
+                        RenderDefinition.Builder.newInstance()
+                                .effectColor(0xFF99FF)
+                                .textureName(FantasyDesire.prefix("models/sn.png"))
+                                .modelName(FantasyDesire.prefix("models/sn.obj"))
+                                .standbyRenderType(CarryType.RNINJA)
+                                .build(),
+                        PropertiesDefinition.Builder.newInstance()
+                                .baseAttackModifier(14.0F)
+                                .defaultSwordType(List.of(SwordType.BEWITCHED))
+//                                .slashArtsType(SlashArtsRegistry.SAKURA_BLAST.getId())
+                                .maxDamage(1561)
+                                .addSpecialEffect(FDSpecialEffects.VoidStrike.getId())
+                                .addSpecialEffect(FDSpecialEffects.EchoingStrike.getId())
+                                .build(),
+                        FantasyDefinition.Builder.newInstance()
+//                                .maxSpecialCharge(140)
+//                                .specialLore(4)
+//                                .specialEffectLore(6)
+//                                .specialAttackLore(5)
+                                .specialType("StarlessNight")
+                                .specialAttackEffect("echo")
                                 .build(),
                         List.of()
                 )

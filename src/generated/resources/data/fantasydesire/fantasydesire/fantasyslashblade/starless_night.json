@@ -1,0 +1,25 @@
+{
+  "fantasy": {
+    "special_attack_effect": "echo",
+    "special_charge_name": "Null",
+    "special_type": "StarlessNight"
+  },
+  "name": "fantasydesire:starless_night",
+  "properties": {
+    "attack_base": 14.0,
+    "max_damage": 1561,
+    "special_effects": [
+      "fantasydesire:void_strike",
+      "fantasydesire:echoing_strike"
+    ],
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "rninja",
+    "model": "fantasydesire:models/sn.obj",
+    "summon_sword_color": 16751103,
+    "texture": "fantasydesire:models/sn.png"
+  }
+}

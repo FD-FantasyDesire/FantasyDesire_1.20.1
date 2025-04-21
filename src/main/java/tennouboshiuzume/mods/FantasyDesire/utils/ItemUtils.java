@@ -6,6 +6,7 @@ import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 
 public class ItemUtils {
     public static ItemStack CustomEffectShard(ItemStack stack, SpecialEffect effect) {
@@ -15,6 +16,14 @@ public class ItemUtils {
     }
     public static void fillSEShards(CreativeModeTab.Output output){
         SpecialEffectsRegistry.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
+            SpecialEffect se = specialEffectRegistryObject.get();
+            ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);
+            CompoundTag tag = new CompoundTag();
+            tag.putString("SpecialEffectType", se.toString());
+            sphere.setTag(tag);
+            output.accept(sphere);
+        });
+        FDSpecialEffects.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
             SpecialEffect se = specialEffectRegistryObject.get();
             ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);
             CompoundTag tag = new CompoundTag();

@@ -7,7 +7,10 @@
   "name": "fantasydesire:twin_blade",
   "properties": {
     "attack_base": 2.5,
-    "max_damage": 45,
+    "max_damage": 100,
+    "special_effects": [
+      "fantasydesire:twin_set"
+    ],
     "sword_type": [
       "bewitched"
     ]
