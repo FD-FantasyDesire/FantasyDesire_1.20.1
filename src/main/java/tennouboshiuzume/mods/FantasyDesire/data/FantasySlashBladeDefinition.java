@@ -116,7 +116,6 @@ public class FantasySlashBladeDefinition {
             state.setTranslationKey(this.getTranslationKey());
         }
         result.getOrCreateTag().put("bladeState", state.serializeNBT());
-
         IFantasySlashBladeState fdState = (IFantasySlashBladeState)result.getCapability(ItemFantasySlashBlade.FDBLADESTATE).orElse(new FantasySlashBladeState(result));
         fdState.setSpecialCharge(this.fantasyDefinition.getSpecialCharge());
         fdState.setMaxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge());
@@ -124,6 +123,7 @@ public class FantasySlashBladeDefinition {
         fdState.setSpecialEffectLore(this.fantasyDefinition.getSpecialEffectLore());
         fdState.setSpecialAttackLore(this.fantasyDefinition.getSpecialAttackLore());
         fdState.setSpecialType(this.fantasyDefinition.getSpecialType());
+        fdState.setSpecialChargeName(this.fantasyDefinition.getSpecialChargeName());
         fdState.setSpecialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect());
         result.getOrCreateTag().put("fdBladeState",fdState.serializeNBT());
 

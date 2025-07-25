@@ -1,18 +1,20 @@
 package tennouboshiuzume.mods.FantasyDesire.specialeffect;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.ColorUtils;
@@ -26,21 +28,21 @@ public class idletest {
     public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager.get(new CapabilityToken<ISlashBladeState>() {
     });
 
-    @SubscribeEvent
-    public static void fdupdateevent(SlashBladeEvent.UpdateEvent event) {
-        ItemStack blade = event.getBlade();
-        Entity player = event.getEntity();
-        if (blade.getItem() instanceof ItemFantasySlashBlade) {
-            ISlashBladeState state = blade.getCapability(BLADESTATE).orElseThrow(NullPointerException::new);
-            IFantasySlashBladeState fdState = blade.getCapability(FDBLADESTATE).orElseThrow(NullPointerException::new);
-            if (!state.getTranslationKey().equals("item.fantasydesire.pure_snow")) return;
-            int color = ColorUtils.getSmoothTransitionColor(player.level().getDayTime() % 126, 126, true);
-            state.setColorCode(color);
-            int timeStep = (int) ((player.level().getDayTime() + 8) % 126);
-            int damageTypeIndex = (timeStep / 18);
-            fdState.setSpecialAttackEffect(damageTypes[damageTypeIndex]);
-        }
-    }
+//    @SubscribeEvent
+//    public static void fdupdateevent(SlashBladeEvent.UpdateEvent event) {
+//        ItemStack blade = event.getBlade();
+//        Entity player = event.getEntity();
+//        if (blade.getItem() instanceof ItemFantasySlashBlade && player instanceof Player && ((Player) player).getMainHandItem()==blade) {
+//            ISlashBladeState state = blade.getCapability(BLADESTATE).orElseThrow(NullPointerException::new);
+//            IFantasySlashBladeState fdState = blade.getCapability(FDBLADESTATE).orElseThrow(NullPointerException::new);
+//            if (!state.getTranslationKey().equals("item.fantasydesire.pure_snow")) return;
+//            int color = ColorUtils.getSmoothTransitionColor(player.level().getDayTime() % 126, 126, true);
+//            state.setColorCode(color);
+//            int timeStep = (int) ((player.level().getDayTime() + 8) % 126);
+//            int damageTypeIndex = (timeStep / 18);
+//            fdState.setSpecialAttackEffect(damageTypes[damageTypeIndex]);
+//        }
+//    }
 
 //    EntityAbstractSummonedSword
 //
@@ -123,14 +125,14 @@ public class idletest {
 //
 //    }
 
-    public static Player getNearestPlayer(Entity entity, double radius) {
-        Level level = entity.level();
-        AABB area = entity.getBoundingBox().inflate(radius);
-
-        return level.getEntitiesOfClass(Player.class, area).stream()
-                .min(Comparator.comparingDouble(p -> p.distanceToSqr(entity)))
-                .orElse(null); // 没有玩家就返回 null
-    }
+//    public static Player getNearestPlayer(Entity entity, double radius) {
+//        Level level = entity.level();
+//        AABB area = entity.getBoundingBox().inflate(radius);
+//
+//        return level.getEntitiesOfClass(Player.class, area).stream()
+//                .min(Comparator.comparingDouble(p -> p.distanceToSqr(entity)))
+//                .orElse(null); // 没有玩家就返回 null
+//    }
     //      根据伤害类型作出不同的修正
 //        暴怒 点燃敌人
 //        色欲 使攻击者回复0.2生命值

@@ -17,7 +17,7 @@ public class FantasyDefinition {
                         Codec.INT.optionalFieldOf("special_effect_lore", 0).forGetter(FantasyDefinition::getSpecialEffectLore),
                         Codec.INT.optionalFieldOf("special_attack_lore", 0).forGetter(FantasyDefinition::getSpecialAttackLore),
                         Codec.STRING.optionalFieldOf("special_type", "Fantasy").forGetter(FantasyDefinition::getSpecialType),
-                        Codec.STRING.optionalFieldOf("special_charge_name", "Fancy").forGetter(FantasyDefinition::getSpecialChargeName),
+                        Codec.STRING.optionalFieldOf("special_charge_name", "Null").forGetter(FantasyDefinition::getSpecialChargeName),
                         Codec.STRING.optionalFieldOf("special_attack_effect", "Null").forGetter(FantasyDefinition::getSpecialAttackEffect))
                 .apply(instance, FantasyDefinition::new);
     });

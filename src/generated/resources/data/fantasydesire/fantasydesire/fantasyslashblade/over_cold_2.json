@@ -1,6 +1,7 @@
 {
   "fantasy": {
-    "special_charge_name": "Null",
+    "max_special_charge": 30000,
+    "special_charge_name": "Evolution_2",
     "special_type": "OverCold_2"
   },
   "name": "fantasydesire:over_cold",

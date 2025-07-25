@@ -15,6 +15,7 @@
   "item.fantasydesire.chikeflare.desc2": "§e我到底会怎么样呢？,",
 
   "tooltip.fantasydesire.SpecialCharge":"%s§f: %s§f / %s",
+  "tooltip.fantasydesire.SpecialCharge.ammo":"§f电池弹药§f:§b%%s§f/§a%%s",
   "tooltip.fantasydesire.SpecialCharge.Soul": "§6灵魂",
   "tooltip.fantasydesire.SpecialCharge.BloodMess": "§4鲜血",
 
@@ -37,35 +38,51 @@
   "tooltip.fantasydesire.press_shift_for_details": "按下SHIFT显示SE介绍",
   "tooltip.fantasydesire.press_ctrl_for_details": "按下CTRL显示SA介绍",
 
-  "se.fantasydesire.immortal_soul": "不屈之魂",
   "se.fantasydesire.cheat_rumble": "作弊冲撞",
-  "se.fantasydesire.rainbow_flux": "虹光通量",
-  "se.fantasydesire.cold_leak": "寒流外溢",
-  "se.fantasydesire.prism_flux": "棱光通量",
-  "se.fantasydesire.soul_shield": "灵魂之盾",
-  "se.fantasydesire.blood_drain": "幻猎",
-  "se.fantasydesire.crimson_strike": "狩魂",
-  "se.fantasydesire.evolution_ice": "冰川进化序列",
-  "se.fantasydesire.color_flux": "全色汇流",
+  "se.fantasydesire.cheat_rumble.desc_0": "作弊：切断连接，绝杀的一击",
+  "se.fantasydesire.immortal_soul": "不屈之魂",
+  "se.fantasydesire.immortal_soul.desc_0": "遭受致命伤害时：消耗1000耀魂免于死亡，并使该武器伤害永久+2",
   "se.fantasydesire.tyrant_strike": "暴君一击",
-  "se.fantasydesire.void_strike": "虚空强袭",
-  "se.fantasydesire.echoing_strike": "回响打击",
-  "se.fantasydesire.twin_set": "双子情感增幅系统",
+  "se.fantasydesire.tyrant_strike.desc_0": "+25% 击中时：召唤尖碑幻影剑打击敌人，造成同等最大生命值20%%伤害",
+  "se.fantasydesire.soul_shield": "灵魂之盾",
+  "se.fantasydesire.soul_shield.desc_0": "受击时：将大于5的伤害减至5",
+  "se.fantasydesire.soul_shield.desc_1": "受击时：自动反击，反击成功获得 1 灵魂",
+  "se.fantasydesire.soul_shield.desc_0": "根据灵魂的充能程度，有（灵魂/2）%%的概率完全吸收伤害并且转为临时护盾",
+  "se.fantasydesire.over_dimension": "超越次元",
+  "se.fantasydesire.over_dimension.desc_0": "即使意外丢失也可以召回，甚至可以跨越世界和维度",
 
-  "se.fantasydesire.immortal_soul.desc": "遭受致命伤害时：消耗1000耀魂免于死亡，并使该武器伤害永久+2",
-  "se.fantasydesire.cheat_rumble.desc": "作弊：切断连接，绝杀的一击",
-  "se.fantasydesire.tyrant_strike.desc": "+25% 击中时：召唤尖碑幻影剑打击敌人，造成同等最大生命值20%%伤害",
-  "se.fantasydesire.soul_shield.desc": "受击时：将大于5的伤害减至5，+20%完全无视伤害并获得临时护盾",
-  "se.fantasydesire.rainbow_flux.desc": "斩击时：射出虹光剑气，造成175%伤害 使刀光变得如彩虹般闪耀",
-  "se.fantasydesire.color_flux.desc": "击中时：召唤虹光幻影剑追击敌人",
-  "se.fantasydesire.prism_flux.desc": "击中时：向附近3名敌人折射幻影剑 §4取消虹光通量的效果",
-  "se.fantasydesire.over_cold.desc": "(2%%/5%%/10%%/15%%) 击中时：召唤双刺打击敌人，触发概率受进化阶段影响",
-  "se.fantasydesire.cold_leak.desc": "溢出的低温能量使敌人减速，扔出形成冰封立场",
-  "se.fantasydesire.blood_drain.desc": "你造成的吸收伤害会为你回复饱食度和生命值",
-  "se.fantasydesire.crimson_strike.desc": "斩击时：射出猩红剑气，造成150%的伤害",
-  "se.fantasydesire.evolution_ice.desc": "当进化点数达到300/3000/30000后，展现更强大的力量",
-  "se.fantasydesire.void_strike.desc": "击中时：叠加“虚空强袭”，使你造成的伤害最高提升至600%",
-  "se.fantasydesire.echoing_strike.desc": "击中时：将300%的回响伤害打击5米内所有敌人",
+  "se.fantasydesire.color_flux": "全色汇流",
+  "se.fantasydesire.color_flux.desc_0": "击中时：召唤虹光幻影剑追击敌人",
+  "se.fantasydesire.rainbow_flux": "虹光通量",
+  "se.fantasydesire.rainbow_flux.desc_0": "斩击时：射出虹光剑气，造成175%伤害",
+  "se.fantasydesire.rainbow_flux.desc_1": "使刀光变得如彩虹般闪耀",
+  "se.fantasydesire.prism_flux": "棱光通量",
+  "se.fantasydesire.prism_flux.desc_0": "击中时：向附近3名敌人折射幻影剑 §4取消虹光通量的效果",
+
+  "se.fantasydesire.blood_drain": "幻猎",
+  "se.fantasydesire.blood_drain.desc_0": "你造成的吸收伤害会为你回复饱食度和生命值",
+  "se.fantasydesire.crimson_strike": "狩魂",
+  "se.fantasydesire.crimson_strike.desc_0": "斩击时：额外产生两道斩击，造成主要斩击相同的伤害",
+
+  "se.fantasydesire.cold_leak": "寒流外溢",
+  "se.fantasydesire.cold_leak.desc_0": "溢出的低温能量使敌人减速，扔出形成冰封立场",
+  "se.fantasydesire.evolution_ice": "冰川进化序列",
+  "se.fantasydesire.evolution_ice.desc_0": "当进化点数达到300/3000/30000后，展现更强大的力量",
+  "se.fantasydesire.over_cold.desc_0": "(2%%/5%%/10%%/15%%) 击中时：召唤霜刺打击敌人，触发概率受进化阶段影响",
+
+  "se.fantasydesire.energy_bullet": "WG-Omega 冲击波发射器",
+  "se.fantasydesire.triple_bullet": "WG-Zero 智能弹药系统",
+  "se.fantasydesire.thunder_bullet": "WG-FallenBlossom 宙霆能量电容",
+  "se.fantasydesire.explosive_bullet": "WG-HyperBlast 绝肃爆裂弹头",
+
+  "se.fantasydesire.twin_set": "双子情感增幅系统",
+  "se.fantasydesire.twin_set.desc_0": "斩击时：若副手持有另一把双子拔刀，则同时发动斩击",
+
+  "se.fantasydesire.void_strike": "虚空强袭",
+  "se.fantasydesire.void_strike.desc_0": "击中时：叠加“虚空强袭”，使你造成的伤害最高提升至600%",
+  "se.fantasydesire.echoing_strike": "回响打击",
+  "se.fantasydesire.echoing_strike.desc_0": "击中时：将300%的回响伤害打击5米内所有敌人",
+
 
   "info.fantasydesire.Fantasy": "§e幻想",
   "info.fantasydesire.Yarimono": "§eYarimono",
@@ -80,7 +97,9 @@
   "info.fantasydesire.PureSnow": "§f纯净的天降奇迹",
   "info.fantasydesire.Eshahar": "§b永恒璀璨彗星",
   "info.fantasydesire.EGO": "§eE.G.O.",
-  "info.fantasydesire.StarlessNight":"§6来自虚空的回响"
+  "info.fantasydesire.StarlessNight":"§6回响:AATC",
+
+  "itemGroup.fantasydesire":"幻想塑愿"
 
 
 

@@ -20,6 +20,8 @@ public class FDDamageTypes {
     public static final ResourceKey<DamageType> GLOOM = register("gloom");
     public static final ResourceKey<DamageType> PRIDE = register("pride");
     public static final ResourceKey<DamageType> ENVY = register("envy");
+    public static final ResourceKey<DamageType> ECHO = register("echo");
+
 
     private static ResourceKey<DamageType> register(String name)
     {
@@ -39,5 +41,7 @@ public class FDDamageTypes {
         context.register(GLOOM, new DamageType(FantasyDesire.MODID + ":gloom", 0f));
         context.register(PRIDE, new DamageType(FantasyDesire.MODID + ":pride", 0f));
         context.register(ENVY, new DamageType(FantasyDesire.MODID + ":envy", 0f));
+        context.register(ECHO, new DamageType(FantasyDesire.MODID + ":echo", 0f));
+
     }
 }

@@ -1,13 +1,17 @@
 {
   "fantasy": {
-    "max_special_charge": 21,
-    "special_charge_name": "Null",
+    "max_special_charge": 36,
+    "special_charge_name": "ammo",
     "special_type": "Gunblade"
   },
   "name": "fantasydesire:smart_pistol",
   "properties": {
     "attack_base": 3.0,
     "max_damage": 256,
+    "special_effects": [
+      "fantasydesire:energy_bullet",
+      "fantasydesire:triple_bullet"
+    ],
     "sword_type": [
       "bewitched"
     ]

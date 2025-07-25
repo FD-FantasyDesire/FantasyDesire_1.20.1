@@ -1,7 +1,6 @@
 {
   "fantasy": {
     "special_attack_effect": "omega",
-    "special_charge_name": "Null",
     "special_type": "TwinBladeR"
   },
   "name": "fantasydesire:twin_blade",

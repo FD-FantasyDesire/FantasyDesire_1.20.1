@@ -45,7 +45,7 @@ public class FantasySlashBladeState implements IFantasySlashBladeState {
     }
 
     public String getSpecialChargeName() {
-        return SpecialChargeName;
+        return this.SpecialChargeName;
     }
 
     public String getSpecialAttackEffect() {

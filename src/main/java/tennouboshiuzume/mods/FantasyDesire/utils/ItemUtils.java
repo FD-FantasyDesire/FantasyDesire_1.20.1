@@ -8,6 +8,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 
+//用于填充创造物品栏和获取物品的工具类
 public class ItemUtils {
     public static ItemStack CustomEffectShard(ItemStack stack, SpecialEffect effect) {
         CompoundTag tag = stack.getOrCreateTag();

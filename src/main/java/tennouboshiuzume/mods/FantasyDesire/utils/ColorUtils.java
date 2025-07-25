@@ -1,5 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.utils;
-
+//用于颜色计算的工具类
 public class ColorUtils {
     public static int getSmoothTransitionColor(float step, int totalSteps) {
         // 将渐变过程分成三个阶段，计算每个阶段的长度

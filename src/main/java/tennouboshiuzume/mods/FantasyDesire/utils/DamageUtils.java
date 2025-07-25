@@ -9,6 +9,7 @@ import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.LivingEntity;
 
+//用于调用自定义伤害的工具类
 public class DamageUtils {
     // 从 registryAccess 获取 Holder<DamageType>
     public static Holder<DamageType> getDamageTypeHolder(ResourceKey<DamageType> typeKey, RegistryAccess registryAccess) {
@@ -30,6 +31,5 @@ public class DamageUtils {
         DamageSources sources = new DamageSources(registryAccess);
         Holder<DamageType> holder = getDamageTypeHolder(typeKey, registryAccess);
         return new DamageSource(holder);
-    }
-
+    };
 }

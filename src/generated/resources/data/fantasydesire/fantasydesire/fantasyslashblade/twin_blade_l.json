@@ -1,7 +1,6 @@
 {
   "fantasy": {
     "special_attack_effect": "resolution",
-    "special_charge_name": "Null",
     "special_type": "TwinBladeL"
   },
   "name": "fantasydesire:twin_blade",

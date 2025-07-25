@@ -53,6 +53,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(100)
+                                .specialChargeName("Soul")
                                 .specialLore(3)
                                 .specialAttackLore(6)
                                 .specialType("Yarimono")
@@ -73,9 +74,12 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .baseAttackModifier(3.0F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .maxDamage(256)
+                                .addSpecialEffect(FDSpecialEffects.EnergyBullet.getId())
+                                .addSpecialEffect(FDSpecialEffects.TripleBullet.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
-                                .maxSpecialCharge(21)
+                                .maxSpecialCharge(36)
+                                .specialChargeName("ammo")
                                 .specialType("Gunblade")
                                 .build(),
                         List.of()
@@ -166,7 +170,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
-                                .maxSpecialCharge(130)
+                                .specialChargeName("Evolution_0")
+                                .maxSpecialCharge(300)
                                 .specialType("OverCold_0")
                                 .build(),
                         List.of()
@@ -188,6 +193,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .maxDamage(144)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
+                                .specialChargeName("Evolution_1")
+                                .maxSpecialCharge(3000)
                                 .specialType("OverCold_1")
                                 .build(),
                         List.of()
@@ -209,6 +216,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .maxDamage(144)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
+                                .specialChargeName("Evolution_2")
+                                .maxSpecialCharge(30000)
                                 .specialType("OverCold_2")
                                 .build(),
                         List.of()
@@ -231,7 +240,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .maxDamage(144)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
-                                .maxSpecialCharge(130)
+                                .specialChargeName("Evolution_3")
+                                .maxSpecialCharge(300000)
                                 .specialLore(4)
                                 .specialEffectLore(5)
                                 .specialAttackLore(4)
@@ -292,7 +302,7 @@ public class FantasySlashBladeBuiltInRegistry {
         bootstrap.register(StarlessNight,
                 new FantasySlashBladeDefinition(FantasyDesire.prefix("starless_night"),
                         RenderDefinition.Builder.newInstance()
-                                .effectColor(0xFF99FF)
+                                .effectColor(0x8000ff)
                                 .textureName(FantasyDesire.prefix("models/sn.png"))
                                 .modelName(FantasyDesire.prefix("models/sn.obj"))
                                 .standbyRenderType(CarryType.RNINJA)

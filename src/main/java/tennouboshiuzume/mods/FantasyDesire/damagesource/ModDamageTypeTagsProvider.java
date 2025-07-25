@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.data;
+package tennouboshiuzume.mods.FantasyDesire.damagesource;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -6,7 +6,6 @@ import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageTypes;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
@@ -30,11 +29,22 @@ public class ModDamageTypeTagsProvider extends DamageTypeTagsProvider {
         this.tag(DamageTypeTags.BYPASSES_INVULNERABILITY)
                 .add(FDDamageTypes.DIMENSION)
                 .add(FDDamageTypes.OMEGA)
-                .add(FDDamageTypes.ETERNITY);
+                .add(FDDamageTypes.ETERNITY)
+                .add(FDDamageTypes.ECHO)
+                .add(FDDamageTypes.WRATH)
+                .add(FDDamageTypes.LUST)
+                .add(FDDamageTypes.SLOTH)
+                .add(FDDamageTypes.GLUTTONY)
+                .add(FDDamageTypes.GLOOM)
+                .add(FDDamageTypes.PRIDE)
+                .add(FDDamageTypes.ENVY)
+        ;
 //      无视盾牌
         this.tag(DamageTypeTags.BYPASSES_SHIELD)
                 .add(FDDamageTypes.DIMENSION)
+                .add(FDDamageTypes.ECHO)
                 .add(FDDamageTypes.WRATH);
+
 //      火焰伤害
         this.tag(DamageTypeTags.IS_FIRE)
                 .add(FDDamageTypes.WRATH);

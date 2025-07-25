@@ -18,7 +18,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
+import tennouboshiuzume.mods.FantasyDesire.client.ClientHandler;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
+import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
+import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.CapabilityFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
@@ -36,6 +39,9 @@ public class FantasyDesire {
 
     public FantasyDesire() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        FDEntitys.register(eventBus);
+//        ClientHandler.register(eventBus);
+        FDPotionEffects.register(eventBus);
         FDSpecialEffects.SPECIAL_EFFECT.register(eventBus);
         FdTab.register(eventBus);
     }

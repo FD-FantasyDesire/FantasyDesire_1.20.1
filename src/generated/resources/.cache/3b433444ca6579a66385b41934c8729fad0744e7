@@ -1,8 +1,8 @@
-// 1.20.1	2025-04-21T21:40:56.4666671	Tags for minecraft:damage_type mod id fantasydesire
+// 1.20.1	2025-04-24T10:59:24.5379129	Tags for minecraft:damage_type mod id fantasydesire
 c5d36dbcbdb1efe5bac96964bd1e26315fdc5f41 data/minecraft/tags/damage_type/bypasses_armor.json
-348b63bbd9dc80986bf265d66e77eb4f15b3194f data/minecraft/tags/damage_type/bypasses_invulnerability.json
+6b9b60fb59d617ea335e076aeb27c573784db25a data/minecraft/tags/damage_type/bypasses_invulnerability.json
 d8323d73e13e070ad9e535e61d40a252141be90c data/minecraft/tags/damage_type/bypasses_resistance.json
-1c0d7c19fbbb8da01e79dc90576b348e6e4d7dbe data/minecraft/tags/damage_type/bypasses_shield.json
+00591074f2df8489829fdbea8f7a6a8c3d6546d7 data/minecraft/tags/damage_type/bypasses_shield.json
 4121e352484190e54824c0de8c8cc218d214ae3b data/minecraft/tags/damage_type/is_drowning.json
 18864f9ab72254c7dee54ffea57267dc6e682648 data/minecraft/tags/damage_type/is_fire.json
 a3f6e839e30051a13e8ae1f8c20637df46248dc5 data/minecraft/tags/damage_type/is_freezing.json

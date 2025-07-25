@@ -171,6 +171,9 @@ dependencies {
 
     implementation fg.deobf("curse.maven:Dummy-225738:6237015")
 
+    implementation fg.deobf("curse.maven:freecam-557076:4643128")
+
+
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
