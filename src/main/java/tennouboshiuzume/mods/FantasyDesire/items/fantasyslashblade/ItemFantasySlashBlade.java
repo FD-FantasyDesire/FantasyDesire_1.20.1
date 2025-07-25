@@ -49,7 +49,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         LazyOptional<IFantasySlashBladeState> state = stack.getCapability(FDBLADESTATE);
         state.ifPresent((s) -> {
             String specialType = s.getSpecialType();
-            if (!specialType.isBlank()) {
+            if (!specialType.isBlank()&& !specialType.equals("Null")) {
                 tooltip.add(Component.translatable(String.format("info.fantasydesire." + specialType)));
             } else {
                 if (swordType.contains(SwordType.BEWITCHED)) {

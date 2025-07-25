@@ -10,7 +10,7 @@ public class FantasySlashBladeState implements IFantasySlashBladeState {
     protected int SpecialLore = 0;
     protected int SpecialEffectLore = 0;
     protected int SpecialAttackLore = 0;
-    protected String SpecialType = "Fantasy";
+    protected String SpecialType = "Null";
     protected String SpecialChargeName = "Null";
     protected String SpecialAttackEffect = "Null";
 
