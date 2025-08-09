@@ -9,13 +9,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class GunbladeEffect {
+public class GunBladeEffects {
     //    填弹上膛
     @SubscribeEvent
     public static void onSlash(SlashBladeEvent.DoSlashEvent event) {
@@ -31,13 +32,18 @@ public class GunbladeEffect {
 //        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TripleBullet, player, "item.fantasydesire.smart_pistol")) cost=1;
         if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EnergyBullet, player, "item.fantasydesire.smart_pistol")) cost=6;
         if (ammo<cost){
+            state.doChargeAction(player,0);
             reload(player,blade,fdState);
             return;
         }
         fdState.setSpecialCharge(ammo - cost);
         System.out.println("fireing");
+        EntityFDPhantomSword sword = new EntityFDPhantomSword(player.level(),player,player.getLookAngle(),55,null,1f);
+        sword.setPos(player.position().x,player.position().y,player.position().z);
+        sword.setDamage(1);
+        sword.setColor(0xFF00FF);
+        player.level().addFreshEntity(sword);
         int color = state.getColorCode();
-
 
     }
 

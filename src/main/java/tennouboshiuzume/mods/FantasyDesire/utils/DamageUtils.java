@@ -26,7 +26,7 @@ public class DamageUtils {
         return new DamageSource(holder, source);
     }
 
-    // 无源伤害（比如场景伤害）
+    // 无源伤害（场景伤害，环境伤害，药水效果）
     public static DamageSource createWithoutEntity(ResourceKey<DamageType> typeKey, RegistryAccess registryAccess) {
         DamageSources sources = new DamageSources(registryAccess);
         Holder<DamageType> holder = getDamageTypeHolder(typeKey, registryAccess);

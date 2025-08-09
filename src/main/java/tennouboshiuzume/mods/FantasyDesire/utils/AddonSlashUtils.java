@@ -41,12 +41,4 @@ public class AddonSlashUtils {
         }
     }
 
-
-
-
-    //    public static void doAddonSlashWithDrive(LivingEntity playerIn, float roll, float YRot, float XRot, int colorCode, Vec3 centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback, float speed, int lifetime) {
-//        doAddonSlash(playerIn, roll, YRot, XRot, colorCode, centerOffset, mute, critical, damage, knockback);
-//        doAddonDrive(playerIn, roll, YRot, XRot, lifetime, colorCode, centerOffset, critical, damage, knockback, speed);
-//    }
-
 }

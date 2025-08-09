@@ -1,5 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.client;
 
+import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.client.renderer.LockonCircleRender;
 import mods.flammpfeil.slashblade.client.renderer.gui.RankRenderer;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModel;
@@ -22,7 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,6 +32,8 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDPhantomSwordRender;
+import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
 
 
@@ -69,5 +72,10 @@ public class ClientHandler {
         ModelResourceLocation loc = new ModelResourceLocation(ForgeRegistries.ITEMS.getKey(blade), "inventory");
         BladeModel model = new BladeModel(event.getModels().get(loc), event.getModelBakery());
         event.getModels().put(loc, model);
+    }
+
+    @SubscribeEvent
+    public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(FDEntitys.FDPhantomSword.get(), FDPhantomSwordRender::new);
     }
 }

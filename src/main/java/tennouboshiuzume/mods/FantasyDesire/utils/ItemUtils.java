@@ -16,14 +16,15 @@ public class ItemUtils {
         return stack;
     }
     public static void fillSEShards(CreativeModeTab.Output output){
-        SpecialEffectsRegistry.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
-            SpecialEffect se = specialEffectRegistryObject.get();
-            ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);
-            CompoundTag tag = new CompoundTag();
-            tag.putString("SpecialEffectType", se.toString());
-            sphere.setTag(tag);
-            output.accept(sphere);
-        });
+//        排除本体SE
+//        SpecialEffectsRegistry.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
+//            SpecialEffect se = specialEffectRegistryObject.get();
+//            ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);
+//            CompoundTag tag = new CompoundTag();
+//            tag.putString("SpecialEffectType", se.toString());
+//            sphere.setTag(tag);
+//            output.accept(sphere);
+//        });
         FDSpecialEffects.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
             SpecialEffect se = specialEffectRegistryObject.get();
             ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);

@@ -17,7 +17,7 @@ import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TwinBladeEffects {
-    //    双持 爪刃斩
+    //    双持共击
     @SubscribeEvent
     public static void onTwinSlash(SlashBladeEvent.DoSlashEvent event) {
         ItemStack blade = event.getBlade();
@@ -37,7 +37,7 @@ public class TwinBladeEffects {
         boolean offActive = CapabilityUtils.isSpecialEffectActiveForItem(offstate, FDSpecialEffects.TwinSet, player, "item.fantasydesire.twin_blade");
 //        检查两把刀是否为不同形态
         if (fdState.getSpecialType().equals(offfdState.getSpecialType())) return;
-        int color = state.getColorCode();
+//        int color = state.getColorCode();
         int offcolor = offstate.getColorCode();
         if (mainActive && offActive) {
 //            切斩

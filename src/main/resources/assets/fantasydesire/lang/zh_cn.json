@@ -16,7 +16,7 @@
 
   "tooltip.fantasydesire.SpecialCharge":"%s§f: %s§f / %s",
   "tooltip.fantasydesire.SpecialCharge.ammo":"§f电池弹药§f:§b%%s§f/§a%%s",
-  "tooltip.fantasydesire.SpecialCharge.Soul": "§6灵魂",
+  "tooltip.fantasydesire.SpecialCharge.Soul": "§6灵魂能量§f:§b%%s§f/§a%%s",
   "tooltip.fantasydesire.SpecialCharge.BloodMess": "§4鲜血",
 
   "tooltip.fantasydesire.AttackEffect": "§f攻击造成§l%s§f伤害",
@@ -82,6 +82,9 @@
   "se.fantasydesire.void_strike.desc_0": "击中时：叠加“虚空强袭”，使你造成的伤害最高提升至600%",
   "se.fantasydesire.echoing_strike": "回响打击",
   "se.fantasydesire.echoing_strike.desc_0": "击中时：将300%的回响伤害打击5米内所有敌人",
+
+  "effect.fantasydesire.void_strike": "虚空强袭",
+  "effect.fantasydesire.immortal_soul": "不屈之魂",
 
 
   "info.fantasydesire.Fantasy": "§e幻想",
