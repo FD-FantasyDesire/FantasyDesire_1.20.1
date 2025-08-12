@@ -2,48 +2,47 @@ package tennouboshiuzume.mods.FantasyDesire.entity;
 
 import com.mojang.math.Axis;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
-import net.minecraft.core.particles.ParticleTypes;
+import mods.flammpfeil.slashblade.entity.Projectile;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 
 public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
+//    发射延迟
     private static final EntityDataAccessor<Integer> DELAY_TICKS = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.INT);
+//    大小缩放
     private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.FLOAT);
+//    目标ID
     private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.INT);
+//    待命行为模式：绑定于玩家/绑定于世界 PLAYER/WORLD
+    private static final EntityDataAccessor<String> STANDBY_MODE = SynchedEntityData.defineId(EntityFDPhantomSword.class,EntityDataSerializers.STRING);
+//    发射后行为模式：追踪/直射 NORMAL/TRACKING
+    private static final EntityDataAccessor<String> MOVING_MODE = SynchedEntityData.defineId(EntityFDPhantomSword.class,EntityDataSerializers.STRING);
+//    待命固定朝向 (无论是玩家还是世界)
+    private static final EntityDataAccessor<Vector3f> STANDBY_VEC = SynchedEntityData.defineId(EntityFDPhantomSword.class,EntityDataSerializers.VECTOR3);
+//    飞行粒子
+    private static final EntityDataAccessor<ParticleOptions> PARTICLE_TYPES = SynchedEntityData.defineId(EntityFDPhantomSword.class,EntityDataSerializers.PARTICLE);
+//    向量偏移量，仅用于绑定玩家时
+    private static final EntityDataAccessor<Vector3f> OFFSET = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.VECTOR3);
+//    是否已发射
+    private static final EntityDataAccessor<Boolean> IT_FIRED = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.BOOLEAN);
+//    发射速度
+    private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.FLOAT);
 
-    private Vec3 initialDirection = Vec3.ZERO;
-    private boolean fired = false;
-
-    public EntityFDPhantomSword(EntityType<? extends EntityFDPhantomSword> type, Level level) {
-        super(type, level);
-    }
-
-    public EntityFDPhantomSword(Level level, LivingEntity owner, Vec3 initialDirection, int delayTicks, @Nullable LivingEntity target, float scale) {
-        this(FDEntitys.FDPhantomSword.get(), level);
-        this.setOwner(owner);
-        this.initialDirection = initialDirection.normalize();
-        this.entityData.set(DELAY_TICKS, delayTicks);
-        this.entityData.set(SCALE, scale);
-        if (target != null) {
-            this.entityData.set(TARGET_ID, target.getId());
-        } else {
-            this.entityData.set(TARGET_ID, -1);
-        }
-        this.setPos(owner.getX(), owner.getEyeY() - 0.1, owner.getZ());
+    public EntityFDPhantomSword(EntityType<? extends Projectile> entityTypeIn, Level worldIn)
+    {
+        super(entityTypeIn, worldIn);
+        this.setPierce((byte) 5);
     }
 
     @Override
@@ -52,38 +51,23 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.define(DELAY_TICKS, 0);
         this.entityData.define(SCALE, 1.0f);
         this.entityData.define(TARGET_ID, -1);
+        this.entityData.define(STANDBY_MODE,"WORLD");
+        this.entityData.define(MOVING_MODE, "NORMAL");
+        this.entityData.define(STANDBY_VEC, Vec3.ZERO.toVector3f());
+        this.entityData.define(PARTICLE_TYPES, null);
+        this.entityData.define(OFFSET, Vec3.ZERO.toVector3f());
+        this.entityData.define(IT_FIRED , false);
+        this.entityData.define(SPEED,3f);
     }
 
     @Override
     public void tick() {
+//        TODO::行为模式
+//        测试使用GunBladeEffects.java类测试
+//        检定：如果绑定于玩家，则骑乘玩家，适用视角对应的位置修正，类似BlisteringSwords
+//        如果绑定于世界，则适用默认方向修正
+//        无论如何，当延迟结束，都向剑的指向方向发射
         super.tick();
-
-        int delay = this.entityData.get(DELAY_TICKS);
-        if (!fired) {
-            if (this.tickCount < delay) {
-                // 延迟期间转向目标
-                LivingEntity target = getTargetEntity();
-                if (target != null && target.isAlive()) {
-                    Vec3 toTarget = target.position().add(0, target.getBbHeight() / 2, 0).subtract(this.position()).normalize();
-                    this.setYRot((float)(Mth.atan2(toTarget.x, toTarget.z) * Mth.RAD_TO_DEG));
-                    this.setXRot((float)(Mth.atan2(toTarget.y, toTarget.horizontalDistance()) * Mth.RAD_TO_DEG));
-                } else {
-                    // 保持初始朝向
-                    this.setYRot((float)(Mth.atan2(initialDirection.x, initialDirection.z) * Mth.RAD_TO_DEG));
-                    this.setXRot((float)(Mth.atan2(initialDirection.y, initialDirection.horizontalDistance()) * Mth.RAD_TO_DEG));
-                }
-                // 静止
-                this.setDeltaMovement(Vec3.ZERO);
-            } else if (this.tickCount == delay) {
-                // 发射
-                Vec3 dir = Vec3.directionFromRotation(-this.getXRot(), -this.getYRot());
-                this.shoot(dir.x, dir.y, dir.z, 1.5f, 0.0f);
-                fired = true;
-            }
-        } else {
-            // 发射后粒子效果
-            this.level().addParticle(ParticleTypes.CRIT, this.getX(), this.getY(), this.getZ(), 0, 0, 0);
-        }
     }
 
     @Nullable
@@ -102,11 +86,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         tag.putInt("Delay", this.entityData.get(DELAY_TICKS));
         tag.putFloat("Scale", this.entityData.get(SCALE));
         tag.putInt("TargetId", this.entityData.get(TARGET_ID));
-        tag.put("InitialDir", this.newDoubleList(
-                this.initialDirection.x,
-                this.initialDirection.y,
-                this.initialDirection.z
-        ));
+
     }
 
     @Override
@@ -115,15 +95,40 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(DELAY_TICKS, tag.getInt("Delay"));
         this.entityData.set(SCALE, tag.getFloat("Scale"));
         this.entityData.set(TARGET_ID, tag.getInt("TargetId"));
-        if (tag.contains("InitialDir", 9)) { // 9 = ListTag
-            ListTag list = tag.getList("InitialDir", 6); // 6 = DoubleTag
-            if (list.size() == 3) {
-                this.initialDirection = new Vec3(list.getDouble(0), list.getDouble(1), list.getDouble(2));
-            }
-        }
     }
 
-    public float getScaleValue() {
-        return this.entityData.get(SCALE);
+    protected void faceEntityStandby()
+    {
+        Vec3 pos = this.getVehicle().position();
+        Vec3 offset = this.getOffset();
+
+        if (this.getVehicle() == null)
+        {
+            doFire();
+            return;
+        }
+
+        offset = offset.xRot((float) Math.toRadians(-this.getVehicle().getXRot()));
+        offset = offset.yRot((float) Math.toRadians(-this.getVehicle().getYRot()));
+
+        pos = pos.add(offset);
+
+        this.xRotO = this.getXRot();
+        this.yRotO = this.getYRot();
+
+        setPos(pos);
+        setRot(-this.getVehicle().getYRot(), -this.getVehicle().getXRot());
+    }
+
+    public Vec3 getOffset() {
+        return new Vec3(this.getEntityData().get(OFFSET));
+    }
+
+    public void doFire() {
+        this.getEntityData().set(IT_FIRED, true);
+    }
+
+    public boolean itFired() {
+        return this.getEntityData().get(IT_FIRED);
     }
 }

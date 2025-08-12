@@ -40,5 +40,4 @@ public class AddonSlashUtils {
             return jc;
         }
     }
-
 }

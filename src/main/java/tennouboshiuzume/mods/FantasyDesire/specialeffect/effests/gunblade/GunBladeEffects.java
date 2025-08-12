@@ -1,6 +1,8 @@
 package tennouboshiuzume.mods.FantasyDesire.specialeffect.effests.gunblade;
 
+import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -10,6 +12,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
+import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
@@ -38,7 +41,8 @@ public class GunBladeEffects {
         }
         fdState.setSpecialCharge(ammo - cost);
         System.out.println("fireing");
-        EntityFDPhantomSword sword = new EntityFDPhantomSword(player.level(),player,player.getLookAngle(),55,null,1f);
+        EntityFDPhantomSword sword = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
+        sword.setOwner(player);
         sword.setPos(player.position().x,player.position().y,player.position().z);
         sword.setDamage(1);
         sword.setColor(0xFF00FF);
