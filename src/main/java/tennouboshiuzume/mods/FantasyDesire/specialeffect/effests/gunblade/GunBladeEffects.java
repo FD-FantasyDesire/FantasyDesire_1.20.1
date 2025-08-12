@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
@@ -41,12 +42,20 @@ public class GunBladeEffects {
         }
         fdState.setSpecialCharge(ammo - cost);
         System.out.println("fireing");
-        EntityFDPhantomSword sword = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
-        sword.setOwner(player);
-        sword.setPos(player.position().x,player.position().y,player.position().z);
-        sword.setDamage(1);
-        sword.setColor(0xFF00FF);
-        player.level().addFreshEntity(sword);
+        EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
+        player.level().addFreshEntity(ss);
+        ss.setSpeed(3);
+        ss.setIsCritical(false);
+        ss.setOwner(player);
+        ss.setColor(state.getColorCode());
+        ss.setRoll(0);
+        ss.setDamage(1);
+        // force riding
+//        ss.startRiding(player, true);
+        ss.setDelay(21 + 1);
+        boolean isRight = ss.getDelay() % 2 == 0;
+        ss.setPos(player.position().add(0, 0, 1));
+        ss.setOffset(new Vec3(0, 0, 1));
         int color = state.getColorCode();
 
     }
