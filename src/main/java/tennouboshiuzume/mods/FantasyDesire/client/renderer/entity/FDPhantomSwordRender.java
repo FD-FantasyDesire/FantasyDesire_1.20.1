@@ -17,11 +17,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 
 import javax.annotation.Nullable;
 
 @OnlyIn(Dist.CLIENT)
-public class FDPhantomSwordRender<T extends EntityAbstractSummonedSword> extends EntityRenderer<T> {
+public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends EntityRenderer<T> {
 
     @Nullable
     @Override
@@ -54,7 +55,7 @@ public class FDPhantomSwordRender<T extends EntityAbstractSummonedSword> extends
 
             matrixStack.mulPose(Axis.XP.rotationDegrees(entity.getRoll()));
 
-            float scale = 0.0075f;
+            float scale = 0.0075f * entity.getScale();
             matrixStack.scale(scale, scale, scale);
             matrixStack.mulPose(Axis.YP.rotationDegrees(90.0F));
 

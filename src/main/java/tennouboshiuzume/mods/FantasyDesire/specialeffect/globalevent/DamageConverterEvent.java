@@ -55,7 +55,8 @@ public class DamageConverterEvent {
     public static void OnHurt(LivingHurtEvent event) {
 //        System.out.println(event.getAmount());
         DamageSource source = event.getSource();
-        LivingEntity player = (LivingEntity) source.getEntity(); // 攻击者
+        if (source.getEntity()==null) return;
+        if (!(source.getEntity() instanceof LivingEntity player)) return;// 攻击者
         LivingEntity target = event.getEntity(); // 受击者
         float original = event.getAmount();
 //        System.out.println(source.is(DamageTypeTags.BYPASSES_SHIELD));
