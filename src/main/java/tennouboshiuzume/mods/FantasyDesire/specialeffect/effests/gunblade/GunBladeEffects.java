@@ -4,6 +4,10 @@ import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -22,6 +26,7 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class GunBladeEffects {
@@ -38,14 +43,7 @@ public class GunBladeEffects {
         int ammo = fdState.getSpecialCharge();
         int cost = 0;
         if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TripleBullet, player, "item.fantasydesire.smart_pistol")) cost=1;
-//        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EnergyBullet, player, "item.fantasydesire.smart_pistol")) cost=6;
-//        if (ammo<cost){
-//            state.doChargeAction(player,0);
-//            reload(player,blade,fdState);
-//            return;
-//        }
-//        fdState.setSpecialCharge(ammo - cost);
-//        System.out.println("fireing");
+        if (!(player.level()instanceof ServerLevel)) return;
         for (int i=0;i<5;i++)
         {
             EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
@@ -55,19 +53,29 @@ public class GunBladeEffects {
             ss.setRoll(0);
             ss.setDamage(1);
             ss.setSpeed(1);
-            ss.setStandbyMode("WORLD");
+            ss.setStandbyMode("PLAYER");
+            ss.setMovingMode("SEEK");
             ss.setDelay(200);
-            ss.setDelayTicks(20);
+            ss.setDelayTicks(20+2*i);
+            ss.setSeekDelay(25+2*i);
+            ss.setNoClip(true);
+            ss.setMultipleHit(true);
+            ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
+            ss.setParticleType(ParticleTypes.END_ROD);
             RandomSource random = player.getRandom();
             ss.setScale(0.2f);
+            if (state.getTargetEntity(player.level())!=null){
+                ss.setTargetId(state.getTargetEntityId());
+            }else if (TargetUtils.getLockTarget(player).isPresent()){
+                ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
+            }
             // 设置待命角度：以玩家当前角度为基准展开
             ss.setStandbyYawPitch(-30 + i * 15f, 0);
             ss.setPos(player.position());
-            ss.setOffset(new Vec3(0,player.getEyeHeight(),0.5f).yRot(-(float) Math.toRadians(-30f + i * 15f)));
+            ss.setCenterOffset(new Vec3(0,player.getEyeHeight(),0));
+            ss.setOffset(new Vec3(0,0,0.75f).yRot(-(float) Math.toRadians(-30f + i * 15f)));
             player.level().addFreshEntity(ss);
         }
-        int color = state.getColorCode();
-
     }
 
     public static void reload(Player player,ItemStack blade, IFantasySlashBladeState fdState) {

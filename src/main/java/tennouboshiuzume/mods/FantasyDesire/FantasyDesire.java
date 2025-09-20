@@ -2,11 +2,16 @@ package tennouboshiuzume.mods.FantasyDesire;
 
 import com.google.common.base.CaseFormat;
 import com.mojang.logging.LogUtils;
+import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
+import mods.flammpfeil.slashblade.registry.slashblade.SlashBladeDefinition;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
@@ -18,15 +23,14 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
-import tennouboshiuzume.mods.FantasyDesire.client.ClientHandler;
+import net.minecraft.world.level.Level;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
-import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
-import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
-import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
+import tennouboshiuzume.mods.FantasyDesire.data.builtin.FantasySlashBladeBuiltInRegistry;
+import tennouboshiuzume.mods.FantasyDesire.init.*;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.CapabilityFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
-import tennouboshiuzume.mods.FantasyDesire.registry.creativetab.FdTab;
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.idletest;
+import net.minecraft.core.Registry;
 
 @Mod(FantasyDesire.MODID)
 public class FantasyDesire {
@@ -40,10 +44,11 @@ public class FantasyDesire {
     public FantasyDesire() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         FDEntitys.register(eventBus);
-//        ClientHandler.register(eventBus);
-        FDPotionEffects.register(eventBus);
+        FDCombo.COMBO_STATES.register(eventBus);
+        FDSpecialAttacks.SLASH_ARTS.register(eventBus);
         FDSpecialEffects.SPECIAL_EFFECT.register(eventBus);
-        FdTab.register(eventBus);
+        FDPotionEffects.register(eventBus);
+        FDTab.register(eventBus);
     }
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
@@ -81,7 +86,23 @@ public class FantasyDesire {
     }
 
 
+    public static Registry<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(Level level) {
+        if (level.isClientSide())
+            return getClientSlashBladeRegistry();
+        return level.registryAccess().registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
+    }
+    public static Registry<FantasySlashBladeDefinition> getClientSlashBladeRegistry() {
+        return Minecraft.getInstance().getConnection().registryAccess().registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
+    }
+
     public static HolderLookup.RegistryLookup<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(HolderLookup.Provider access) {
         return access.lookupOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
+    }
+    public static ItemStack getBladeAsRegistry(Level level,  ResourceKey<FantasySlashBladeDefinition> key){
+        if (level.isClientSide()) {
+            return getClientSlashBladeRegistry().get(key).getBlade();
+        }else {
+            return level.registryAccess().registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY).get(key).getBlade();
+        }
     }
 }

@@ -175,9 +175,6 @@ public class DamageConverterEvent {
 
     public static void resetInvulnerable(Entity target) {
         target.invulnerableTime = 0;
-//        if (target instanceof LivingEntity) {
-////            ((LivingEntity) target).hurtTime = 0;
-//        }
     }
 
 

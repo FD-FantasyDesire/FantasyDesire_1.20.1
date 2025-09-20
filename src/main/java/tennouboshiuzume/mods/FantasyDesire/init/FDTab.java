@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.registry.creativetab;
+package tennouboshiuzume.mods.FantasyDesire.init;
 
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
@@ -14,7 +14,7 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
 
-public class FdTab {
+public class FDTab {
     // 创建一个 `DeferredRegister` 用于注册创造模式物品栏
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, FantasyDesire.MODID);

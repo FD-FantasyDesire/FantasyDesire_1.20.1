@@ -1,7 +1,7 @@
 {
   "fantasy": {
     "max_special_charge": 36,
-    "special_charge_name": "ammo",
+    "special_charge_name": "Ammo",
     "special_type": "Gunblade"
   },
   "name": "fantasydesire:smart_pistol",

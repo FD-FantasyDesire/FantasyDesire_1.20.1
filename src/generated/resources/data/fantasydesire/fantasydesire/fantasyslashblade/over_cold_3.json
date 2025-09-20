@@ -1,10 +1,7 @@
 {
   "fantasy": {
-    "max_special_charge": 300000,
-    "special_attack_lore": 4,
+    "max_special_charge": 2147483647,
     "special_charge_name": "Evolution_3",
-    "special_effect_lore": 5,
-    "special_lore": 4,
     "special_type": "OverCold_3"
   },
   "name": "fantasydesire:over_cold",

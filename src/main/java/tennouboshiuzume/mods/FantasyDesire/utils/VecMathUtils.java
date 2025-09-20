@@ -1,5 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.utils;
 
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -30,7 +31,6 @@ public class VecMathUtils {
                 vec.z * cos + cross.z * sin + axis.z * dot * (1 - cos)
         );
     }
-
     public static Vec3 rotateAroundAxis(Vec3 vec, Vec3 axis, double angleRad,boolean isRad) {
         double cos = Math.cos(angleRad);
         double sin = Math.sin(angleRad);
@@ -53,23 +53,6 @@ public class VecMathUtils {
 
         return new float[]{yaw, pitch};
     }
-
-    /**
-     * 根据Yaw和Pitch获取单位方向向量
-     * @param yaw 偏航角（左右）
-     * @param pitch 俯仰角（上下）
-     * @return 方向向量
-     */
-    public static Vec3 getDirectionVector(float yaw, float pitch) {
-        float fYaw = (float) Math.toRadians(-yaw);
-        float fPitch = (float) Math.toRadians(-pitch);
-
-        float x = (float) (Math.sin(fYaw) * Math.cos(fPitch));
-        float y = (float) Math.sin(fPitch);
-        float z = (float) (Math.cos(fYaw) * Math.cos(fPitch));
-        return new Vec3(x, y, z);
-    }
-
 
     public static Vec3 calculateDirectionVec(LivingEntity player, Entity target) {
         // 获取玩家和目标实体的位置差值
@@ -103,6 +86,7 @@ public class VecMathUtils {
         // 返回单位向量（方向向量）
         return new Vec3(x, y, z);
     }
+
     public static Vec3 getReversedDirection(float yaw, float pitch) {
         float reversedYaw = -yaw;
         float reversedPitch = -pitch;
@@ -115,5 +99,20 @@ public class VecMathUtils {
         double z = Math.cos(radPitch) * Math.cos(radYaw);
 
         return new Vec3(x, y, z);
+    }
+
+    public static Vec3 rotateTowards(Vec3 from, Vec3 to, float maxRadians) {
+        Vec3 fromNorm = from.normalize();
+        Vec3 toNorm = to.normalize();
+
+        double dot = fromNorm.dot(toNorm);
+        dot = Mth.clamp(dot, -1.0, 1.0);
+        double angle = Math.acos(dot);
+
+        if (angle < maxRadians) return toNorm; // 直接对齐
+        double t = maxRadians / angle;
+
+        // 球面插值 (slerp)
+        return fromNorm.scale(1 - t).add(toNorm.scale(t)).normalize();
     }
 }

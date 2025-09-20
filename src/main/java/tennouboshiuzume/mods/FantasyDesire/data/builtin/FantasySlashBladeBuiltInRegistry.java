@@ -3,16 +3,19 @@ package tennouboshiuzume.mods.FantasyDesire.data.builtin;
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import mods.flammpfeil.slashblade.item.SwordType;
 import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
+import mods.flammpfeil.slashblade.registry.slashblade.EnchantmentDefinition;
 import mods.flammpfeil.slashblade.registry.slashblade.PropertiesDefinition;
 import mods.flammpfeil.slashblade.registry.slashblade.RenderDefinition;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.registries.ForgeRegistries;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasyDefinition;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
+import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialAttacks;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 
 import java.util.List;
@@ -50,6 +53,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .addSpecialEffect(FDSpecialEffects.TyrantStrike.getId())
                                 .addSpecialEffect(FDSpecialEffects.SoulShield.getId())
                                 .addSpecialEffect(FDSpecialEffects.ImmortalSoul.getId())
+                                .slashArtsType(FDSpecialAttacks.WING_TO_THE_FUTURE.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(100)
@@ -59,7 +63,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .specialType("Yarimono")
                                 .specialAttackEffect("dimension")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 10),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.BINDING_CURSE),1))
                 )
         );
         bootstrap.register(SmartPistol,
@@ -79,9 +84,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(36)
-                                .specialChargeName("ammo")
+                                .specialChargeName("Ammo")
                                 .specialType("Gunblade")
                                 .build(),
+
                         List.of()
                 )
         );
@@ -241,10 +247,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialChargeName("Evolution_3")
-                                .maxSpecialCharge(300000)
-                                .specialLore(4)
-                                .specialEffectLore(5)
-                                .specialAttackLore(4)
+                                .maxSpecialCharge(Integer.MAX_VALUE)
                                 .specialType("OverCold_3")
                                 .build(),
                         List.of()

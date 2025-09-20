@@ -93,6 +93,17 @@ public class ChikeFlareEffects {
             }
         }
     }
+    @SubscribeEvent
+    public static void OnHit(SlashBladeEvent.HitEvent event){
+        if (!(event.getUser() instanceof Player player)) return;
+        if (!(player.getMainHandItem().getItem() instanceof ItemFantasySlashBlade)) return;
+        ItemStack blade = player.getMainHandItem();
+        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
+        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
+        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TyrantStrike, player, "item.fantasydesire.chikeflare")) {
+
+        }
+    }
 //
 
 

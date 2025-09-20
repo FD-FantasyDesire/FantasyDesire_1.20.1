@@ -15,9 +15,13 @@
   "item.fantasydesire.chikeflare.desc2": "§e我到底会怎么样呢？,",
 
   "tooltip.fantasydesire.SpecialCharge":"%s§f: %s§f / %s",
-  "tooltip.fantasydesire.SpecialCharge.ammo":"§f电池弹药§f:§b%%s§f/§a%%s",
-  "tooltip.fantasydesire.SpecialCharge.Soul": "§6灵魂能量§f:§b%%s§f/§a%%s",
-  "tooltip.fantasydesire.SpecialCharge.BloodMess": "§4鲜血",
+  "tooltip.fantasydesire.SpecialCharge.Ammo":"§f智能弹药§f:§b%%s§f/§a%%s",
+  "tooltip.fantasydesire.SpecialCharge.Soul": "§6灵魂能量§f:§b%%s§f/§e%%s",
+  "tooltip.fantasydesire.SpecialCharge.BloodMess": "§4鲜血§f:§c%%s§f/§4%%s",
+  "tooltip.fantasydesire.SpecialCharge.Evolution_0": "§bKaroo > §3Andean-Saharan§f:§b%%s§f/§3%%s",
+  "tooltip.fantasydesire.SpecialCharge.Evolution_1": "§3Andean-Saharan > §9Cryogenian§f:§3%%s§f/§9%%s",
+  "tooltip.fantasydesire.SpecialCharge.Evolution_2": "§9Cryogenian > §1Huronian§f:§9%%s§f/§1%%s",
+  "tooltip.fantasydesire.SpecialCharge.Evolution_3": "§1Huronian - §8INFINITY§f:§1%%s§f/§8§k%%s",
 
   "tooltip.fantasydesire.AttackEffect": "§f攻击造成§l%s§f伤害",
   "tooltip.fantasydesire.AttackEffect.dimension": "§6次元",
@@ -85,6 +89,8 @@
 
   "effect.fantasydesire.void_strike": "虚空强袭",
   "effect.fantasydesire.immortal_soul": "不屈之魂",
+
+  "slash_art.fantasydesire.wing_to_the_future": "翱向未来之翼",
 
 
   "info.fantasydesire.Fantasy": "§e幻想",

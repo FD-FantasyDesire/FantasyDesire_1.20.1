@@ -31,9 +31,9 @@ public class CrimsonScytheEffects {
         boolean mainActive = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.CrimsonStrike, player, "item.fantasydesire.crimson_scythe");
         int color = state.getColorCode();
         if (mainActive) {
-            Vec3 forward = VecMathUtils.getDirectionVector(player.getYRot(), 0);
-            Vec3 baseForwardUp = VecMathUtils.getDirectionVector(player.getYRot(), -25);
-            Vec3 baseForwardDown = VecMathUtils.getDirectionVector(player.getYRot(), +25);
+            Vec3 forward = Vec3.directionFromRotation(0,player.getYRot());
+            Vec3 baseForwardUp = Vec3.directionFromRotation(-25,player.getYRot());
+            Vec3 baseForwardDown = Vec3.directionFromRotation(+25,player.getYRot());
             Vec3 rotatedUp = VecMathUtils.rotateAroundAxis(baseForwardUp, forward, -event.getRoll());
             Vec3 rotatedDown = VecMathUtils.rotateAroundAxis(baseForwardDown, forward, -event.getRoll());
             float[] upYawPitch = VecMathUtils.getYawPitchFromVec(rotatedUp);
