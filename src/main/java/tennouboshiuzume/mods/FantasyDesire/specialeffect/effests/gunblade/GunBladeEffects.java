@@ -20,6 +20,7 @@ import org.joml.Vector3d;
 import org.joml.Vector3dc;
 import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDDriveEx;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
@@ -44,38 +45,67 @@ public class GunBladeEffects {
         int cost = 0;
         if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TripleBullet, player, "item.fantasydesire.smart_pistol")) cost=1;
         if (!(player.level()instanceof ServerLevel)) return;
-        for (int i=0;i<5;i++)
-        {
-            EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
-            ss.setIsCritical(false);
-            ss.setOwner(player);
-            ss.setColor(state.getColorCode());
-            ss.setRoll(0);
-            ss.setDamage(1);
-            ss.setSpeed(1);
-            ss.setStandbyMode("PLAYER");
-            ss.setMovingMode("SEEK");
-            ss.setDelay(200);
-            ss.setDelayTicks(20+2*i);
-            ss.setSeekDelay(25+2*i);
-            ss.setNoClip(true);
-            ss.setMultipleHit(true);
-            ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
-            ss.setParticleType(ParticleTypes.END_ROD);
-            RandomSource random = player.getRandom();
-            ss.setScale(0.2f);
-            if (state.getTargetEntity(player.level())!=null){
-                ss.setTargetId(state.getTargetEntityId());
-            }else if (TargetUtils.getLockTarget(player).isPresent()){
-                ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
-            }
-            // 设置待命角度：以玩家当前角度为基准展开
-            ss.setStandbyYawPitch(-30 + i * 15f, 0);
-            ss.setPos(player.position());
-            ss.setCenterOffset(new Vec3(0,player.getEyeHeight(),0));
-            ss.setOffset(new Vec3(0,0,0.75f).yRot(-(float) Math.toRadians(-30f + i * 15f)));
-            player.level().addFreshEntity(ss);
-        }
+        for (int i=0;i<5;i++){}
+        event.setCanceled(true);
+//        {
+//            EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
+//            ss.setIsCritical(false);
+//            ss.setOwner(player);
+//            ss.setColor(state.getColorCode());
+//            ss.setRoll(0);
+//            ss.setDamage(1);
+//            ss.setSpeed(1);
+//            ss.setStandbyMode("PLAYER");
+//            ss.setMovingMode("SEEK");
+//            ss.setDelay(200);
+//            ss.setDelayTicks(20+2*i);
+//            ss.setSeekDelay(25+2*i);
+//            ss.setNoClip(true);
+//            ss.setMultipleHit(true);
+//            ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
+//            ss.setParticleType(ParticleTypes.END_ROD);
+//            RandomSource random = player.getRandom();
+//            ss.setScale(0.2f);
+//            if (state.getTargetEntity(player.level())!=null){
+//                ss.setTargetId(state.getTargetEntityId());
+//            }else if (TargetUtils.getLockTarget(player).isPresent()){
+//                ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
+//            }
+//            // 设置待命角度：以玩家当前角度为基准展开
+//            ss.setStandbyYawPitch(-30 + i * 15f, 0);
+//            ss.setPos(player.position());
+//            ss.setCenterOffset(new Vec3(0,player.getEyeHeight(),0));
+//            ss.setOffset(new Vec3(0,0,0.75f).yRot(-(float) Math.toRadians(-30f + i * 15f)));
+//            player.level().addFreshEntity(ss);
+//        }
+//        {
+//            EntityFDDriveEx ss = new EntityFDDriveEx(FDEntitys.FDDriveEx.get(),player.level());
+//            ss.setIsCritical(false);
+//            ss.setOwner(player);
+//            ss.setColor(state.getColorCode());
+//            ss.setRoll(0);
+//            ss.setDamage(1);
+//            ss.setSpeed(1);
+//            ss.setStandbyMode("PLAYER");
+//            ss.setDelay(200);
+//            ss.setDelayTicks(20+2*i);
+//            ss.setNoClip(true);
+//            ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
+//            ss.setParticleType(ParticleTypes.END_ROD);
+//            ss.setScale(1f);
+//            if (state.getTargetEntity(player.level())!=null){
+//                ss.setTargetId(state.getTargetEntityId());
+//            }else if (TargetUtils.getLockTarget(player).isPresent()){
+//                ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
+//            }
+//            // 设置待命角度：以玩家当前角度为基准展开
+//            ss.setStandbyYawPitch(-30 + i * 15f, 0);
+//            ss.setPos(player.position());
+//            ss.setCenterOffset(new Vec3(0,player.getEyeHeight(),0));
+//            ss.setOffset(new Vec3(0,0,0.75f).yRot(-(float) Math.toRadians(-30f + i * 15f)));
+//            player.level().addFreshEntity(ss);
+//        }
+
     }
 
     public static void reload(Player player,ItemStack blade, IFantasySlashBladeState fdState) {

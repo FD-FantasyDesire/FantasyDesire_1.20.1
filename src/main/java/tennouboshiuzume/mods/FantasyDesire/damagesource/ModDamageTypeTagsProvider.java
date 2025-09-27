@@ -20,47 +20,52 @@ public class ModDamageTypeTagsProvider extends DamageTypeTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
 //      无视护甲
         this.tag(DamageTypeTags.BYPASSES_ARMOR)
-                .add(FDDamageTypes.DIMENSION)
-                .add(FDDamageTypes.LUST)
-                .add(FDDamageTypes.OMEGA)
-                .add(FDDamageTypes.ETERNITY)
+                .add(FDDamageSource.DIMENSION)
+                .add(FDDamageSource.LUST)
+                .add(FDDamageSource.OMEGA)
+                .add(FDDamageSource.ETERNITY)
         ;
 //      无视无敌帧
         this.tag(DamageTypeTags.BYPASSES_INVULNERABILITY)
-                .add(FDDamageTypes.DIMENSION)
-                .add(FDDamageTypes.OMEGA)
-                .add(FDDamageTypes.ETERNITY)
-                .add(FDDamageTypes.ECHO)
-                .add(FDDamageTypes.WRATH)
-                .add(FDDamageTypes.LUST)
-                .add(FDDamageTypes.SLOTH)
-                .add(FDDamageTypes.GLUTTONY)
-                .add(FDDamageTypes.GLOOM)
-                .add(FDDamageTypes.PRIDE)
-                .add(FDDamageTypes.ENVY)
+                .add(FDDamageSource.DIMENSION)
+                .add(FDDamageSource.OMEGA)
+                .add(FDDamageSource.ETERNITY)
+                .add(FDDamageSource.RESOLUTION)
+                .add(FDDamageSource.ECHO)
+                .add(FDDamageSource.WRATH)
+                .add(FDDamageSource.LUST)
+                .add(FDDamageSource.SLOTH)
+                .add(FDDamageSource.GLUTTONY)
+                .add(FDDamageSource.GLOOM)
+                .add(FDDamageSource.PRIDE)
+                .add(FDDamageSource.ENVY)
         ;
 //      无视盾牌
         this.tag(DamageTypeTags.BYPASSES_SHIELD)
-                .add(FDDamageTypes.DIMENSION)
-                .add(FDDamageTypes.ECHO)
-                .add(FDDamageTypes.WRATH);
+                .add(FDDamageSource.OMEGA)
+                .add(FDDamageSource.DIMENSION)
+                .add(FDDamageSource.WRATH);
 
 //      火焰伤害
         this.tag(DamageTypeTags.IS_FIRE)
-                .add(FDDamageTypes.WRATH);
+                .add(FDDamageSource.WRATH);
+
 //      射弹伤害
         this.tag(DamageTypeTags.IS_PROJECTILE)
-                .add(FDDamageTypes.LUST);
-//      冰冻伤害
-        this.tag(DamageTypeTags.IS_FREEZING).
-                add(FDDamageTypes.SLOTH);
-//      溺水
-        this.tag(DamageTypeTags.IS_DROWNING)
-                .add(FDDamageTypes.GLOOM);
-//      无视伤害抗性
-        this.tag(DamageTypeTags.BYPASSES_RESISTANCE)
-                .add(FDDamageTypes.GLUTTONY);
-    }
-// 也许我需要一个测试武器来校验每种伤害对敌人的效果，但不是现在
+                .add(FDDamageSource.LUST);
 
+//      冰冻伤害
+        this.tag(DamageTypeTags.IS_FREEZING)
+                .add(FDDamageSource.SLOTH);
+
+//      溺水伤害
+        this.tag(DamageTypeTags.IS_DROWNING)
+                .add(FDDamageSource.GLOOM);
+
+//      无视抗性药水效果
+        this.tag(DamageTypeTags.BYPASSES_RESISTANCE)
+                .add(FDDamageSource.OMEGA)
+                .add(FDDamageSource.GLUTTONY)
+                .add(FDDamageSource.DIMENSION);
+    }
 }

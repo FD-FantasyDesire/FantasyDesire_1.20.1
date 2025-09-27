@@ -1,4 +1,18 @@
 {
+  "enchantments": [
+    {
+      "id": "minecraft:frost_walker",
+      "lvl": 5
+    },
+    {
+      "id": "minecraft:fire_protection",
+      "lvl": 3
+    },
+    {
+      "id": "minecraft:unbreaking",
+      "lvl": 3
+    }
+  ],
   "fantasy": {
     "max_special_charge": 300,
     "special_charge_name": "Evolution_0",
@@ -8,6 +22,7 @@
   "properties": {
     "attack_base": 3.2,
     "max_damage": 144,
+    "slash_art": "fantasydesire:freeze_zero",
     "special_effects": [
       "fantasydesire:evolution_ice",
       "fantasydesire:cold_leak"

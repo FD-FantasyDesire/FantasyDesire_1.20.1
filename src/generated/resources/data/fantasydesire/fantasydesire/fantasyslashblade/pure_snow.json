@@ -1,4 +1,27 @@
 {
+  "enchantments": [
+    {
+      "id": "minecraft:power"
+    },
+    {
+      "id": "minecraft:smite"
+    },
+    {
+      "id": "minecraft:bane_of_arthropods"
+    },
+    {
+      "id": "minecraft:sharpness"
+    },
+    {
+      "id": "minecraft:piercing"
+    },
+    {
+      "id": "minecraft:fortune"
+    },
+    {
+      "id": "minecraft:impaling"
+    }
+  ],
   "fantasy": {
     "special_type": "PureSnow"
   },
@@ -6,6 +29,7 @@
   "properties": {
     "attack_base": 2.8,
     "max_damage": 50,
+    "slash_art": "fantasydesire:rainbow_star",
     "special_effects": [
       "fantasydesire:rainbow_flux",
       "fantasydesire:color_flux"

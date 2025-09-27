@@ -25,11 +25,11 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.FDSpecialEffectBase;
+import tennouboshiuzume.mods.FantasyDesire.TextUtils.TagTextParser;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
 
 public class ItemFantasySlashBlade extends ItemSlashBlade {
     public static final Capability<IFantasySlashBladeState> FDBLADESTATE = CapabilityManager.get(new CapabilityToken<IFantasySlashBladeState>() {
@@ -39,6 +39,26 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
 
     public ItemFantasySlashBlade(Tier tier, int attackDamageIn, float attackSpeedIn, Properties builder) {
         super(tier, attackDamageIn, attackSpeedIn, builder);
+    }
+
+    @Override
+    public Component getName(ItemStack p_41458_) {
+        String raw = "<FancyStyle>" +
+                "<b>粗体</b> <i>斜体</i> <u>下划线</u> <s>删除线</s> " +
+                "<anim type=\"static_gradient\"><color=#FF0000,#00FF00,#0000FF>静态渐变动画</color></anim> " +
+                "<anim type=\"dynamic_gradient\" speed=\"0.1\"><color=#FF0000,#00FF00,#0000FF>动态渐变动画</color></anim> " +
+                "<anim type=\"rainbow\" speed=\"0.1\">彩虹动画</anim>" +
+                "</FancyStyle>";
+        long tick = 0;
+        try {
+            if (net.minecraft.client.Minecraft.getInstance().level != null)
+                tick = net.minecraft.client.Minecraft.getInstance().level.getGameTime();
+            else
+                tick = System.currentTimeMillis() / 50L; // fallback
+        } catch (Exception ex) {
+            tick = System.currentTimeMillis() / 50L;
+        }
+        return TagTextParser.parseWithTick(raw, tick);
     }
 
     @Override
@@ -181,6 +201,8 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 Component attackEffect = Component.translatable("tooltip.fantasydesire.AttackEffect." + ae);
                 Component damageText = Component.translatable("tooltip.fantasydesire.AttackEffect", attackEffect);
                 tooltip.add(damageText);
+                Component attackEffectDesc = Component.translatable("tooltip.fantasydesire.AttackEffect."+ae+".desc");
+                tooltip.add(attackEffectDesc);
             }
         });
     }

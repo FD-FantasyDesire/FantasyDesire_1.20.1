@@ -1,4 +1,30 @@
 {
+  "enchantments": [
+    {
+      "id": "minecraft:sharpness",
+      "lvl": 6
+    },
+    {
+      "id": "minecraft:thorns",
+      "lvl": 6
+    },
+    {
+      "id": "minecraft:looting",
+      "lvl": 6
+    },
+    {
+      "id": "minecraft:unbreaking",
+      "lvl": 6
+    },
+    {
+      "id": "minecraft:fire_aspect",
+      "lvl": 6
+    },
+    {
+      "id": "minecraft:fire_protection",
+      "lvl": 6
+    }
+  ],
   "fantasy": {
     "max_special_charge": 150,
     "special_attack_effect": "absorb",
@@ -8,6 +34,7 @@
   "properties": {
     "attack_base": 4.5,
     "max_damage": 60,
+    "slash_art": "fantasydesire:crimson_strike",
     "special_effects": [
       "fantasydesire:blood_drain",
       "fantasydesire:crimson_strike"

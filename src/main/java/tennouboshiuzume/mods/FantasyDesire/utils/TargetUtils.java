@@ -1,21 +1,31 @@
 package tennouboshiuzume.mods.FantasyDesire.utils;
 
+import com.google.common.collect.Lists;
 import mods.flammpfeil.slashblade.entity.IShootable;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
+import net.minecraft.world.entity.monster.Zombie;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.entity.PartEntity;
 
+import javax.annotation.Nullable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class TargetUtils {
+public class TargetUtils extends TargetSelector {
     public static List<LivingEntity> getNearbyLivingEntities(Entity center, double radius, List<LivingEntity> excludeEntitys) {
         if (center == null || center.level().isClientSide) return List.of();
 
@@ -36,6 +46,7 @@ public class TargetUtils {
 
     /**
      * 尝试获取玩家的锁定目标
+     *
      * @param sender 发射者（通常是玩家）
      * @return 可选的目标实体
      */
@@ -80,4 +91,24 @@ public class TargetUtils {
                 })
                 .map(r -> ((EntityHitResult) r).getEntity());
     }
+
+    public static List<LivingEntity> getLivingEntitiesInRadius(Level world, Vec3 pos, double range,
+                                                               @Nullable List<Entity> exclude) {
+        AABB aabb = new AABB(
+                pos.x - range, pos.y - range, pos.z - range,
+                pos.x + range, pos.y + range, pos.z + range
+        );
+
+        List<LivingEntity> entities = world.getEntitiesOfClass(LivingEntity.class, aabb).stream()
+                // 距离判定
+                .filter(e -> e.distanceToSqr(pos) <= range * range)
+                // isAttackable 标签过滤
+                .filter(Entity::isAttackable)
+                // 排除指定实体
+                .filter(e -> exclude == null || !exclude.contains(e))
+                .collect(Collectors.toList());
+
+        return entities;
+    }
+
 }

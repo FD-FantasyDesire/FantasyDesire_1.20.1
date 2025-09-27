@@ -17,12 +17,10 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -40,15 +38,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.registries.ForgeRegistries;
 import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 
 public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
@@ -78,8 +74,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     private static final EntityDataAccessor<Boolean> IT_FIRED = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.BOOLEAN);
     //    发射速度
     private static final EntityDataAccessor<Float> SPEED = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.FLOAT);
-    //    生命周期时长
-    private static final EntityDataAccessor<Integer> LIFETIME = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.INT);
     //    爆炸半径
     private static final EntityDataAccessor<Float> EXP_RADIUS = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.FLOAT);
     //    伤害类型
@@ -92,8 +86,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     protected SoundEvent fireSound = null;
     protected float fireSoundVolume = 1;
     protected float fireSoundRate = 1;
-    protected final Int2IntOpenHashMap hitCooldowns = new Int2IntOpenHashMap();
-
     public EntityFDPhantomSword(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
@@ -115,7 +107,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.define(IT_FIRED, false);
         this.entityData.define(MULTIPLE_HIT, false);
         this.entityData.define(SPEED, 3f);
-        this.entityData.define(LIFETIME, 300);
         this.entityData.define(EXP_RADIUS, 0f);
         this.entityData.define(DAMAGE_TYPE, "Null");
     }
@@ -177,6 +168,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                 this.isSeeking = false;
             }
             flyticking();
+            if (this.level().isClientSide) trail();
         }
         if (!getInGround() && (getPierce() > 0 || getHitEntity() == null)) playparticle();
     }
@@ -215,6 +207,8 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                     0.05 * getScale()
             );
         }
+    }
+    private void trail(){
     }
 
     private void flyticking() {
@@ -277,7 +271,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                 }
 
                 while (this.isAlive()) {
-                    EntityHitResult entityraytraceresult = this.getRayTrace(positionVec, movedVec.scale(getScale()));
+                    EntityHitResult entityraytraceresult = this.getRayTrace(positionVec, movedVec);
                     if (entityraytraceresult != null) {
                         raytraceresult = entityraytraceresult;
                     }
@@ -485,7 +479,9 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         }
         if (this.entityData.get(EXP_RADIUS)>0){
             this.level().explode(this, this.getX(), this.getY(), this.getZ(), this.entityData.get(EXP_RADIUS), Level.ExplosionInteraction.NONE);
+            targetEntity.invulnerableTime=0;
             this.burst();
+            targetEntity.invulnerableTime=0;
         }
     }
     @Override
@@ -536,7 +532,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         tag.putBoolean("ItFired", this.entityData.get(IT_FIRED));
         tag.putBoolean("MultipleHit", this.entityData.get(MULTIPLE_HIT));
         tag.putFloat("Speed", this.entityData.get(SPEED));
-        tag.putInt("Lifetime", this.entityData.get(LIFETIME));
         tag.putFloat("ExpRadius", this.entityData.get(EXP_RADIUS));
         tag.putString("DamageType", this.entityData.get(DAMAGE_TYPE));
     }
@@ -576,7 +571,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(IT_FIRED, tag.getBoolean("ItFired"));
         this.entityData.set(MULTIPLE_HIT, tag.getBoolean("MultipleHit"));
         this.entityData.set(SPEED, tag.getFloat("Speed"));
-        this.entityData.set(LIFETIME, tag.getInt("Lifetime"));
         this.entityData.set(EXP_RADIUS, tag.getFloat("ExpRadius"));
         this.entityData.set(DAMAGE_TYPE, tag.getString("DamageType"));
     }
@@ -657,7 +651,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     private void tryInit() {
         if (this.getStandbyMode().equals("WORLD")) {
             this.yRotO = getStandbyYawPitch()[0];
-            this.xRotO = getStandbyYawPitch()[1];
+            this.xRotO = -getStandbyYawPitch()[1];
             this.setYRot(this.yRotO);
             this.setXRot(this.xRotO);
             inited = true;
@@ -753,6 +747,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     // 飞行粒子
     public ParticleOptions getParticleType() {
         String id = this.entityData.get(PARTICLE_TYPES);
+        if (id.equals("Null")||id.isBlank()) return null;
         ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(new ResourceLocation(id));
         if (type instanceof SimpleParticleType) {
             return (SimpleParticleType) type;
@@ -807,7 +802,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     public boolean getMultipleHit() {
         return this.entityData.get(MULTIPLE_HIT);
     }
-
     //////////////////////////
     //       我讨厌反射       //
     //////////////////////////
@@ -864,6 +858,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             throw new RuntimeException(e);
         }
     }
+
 
     // 修改父类字段
     public void setInGround(boolean value) {

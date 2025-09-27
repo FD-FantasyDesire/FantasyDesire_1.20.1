@@ -11,7 +11,7 @@ import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageTypes;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.ModDamageTypeTagsProvider;
 import tennouboshiuzume.mods.FantasyDesire.data.builtin.FantasySlashBladeBuiltInRegistry;
 
@@ -30,7 +30,7 @@ public class DataGen {
         // 注册拔刀剑和伤害
         final RegistrySetBuilder fantasybladeBuilder = new RegistrySetBuilder()
                 .add(FantasySlashBladeDefinition.REGISTRY_KEY, FantasySlashBladeBuiltInRegistry::registerAll)
-                .add(Registries.DAMAGE_TYPE, FDDamageTypes::bootstrap);
+                .add(Registries.DAMAGE_TYPE, FDDamageSource::bootstrap);
 
         // 创建 DatapackBuiltinEntriesProvider，用于同步 RegistrySetBuilder
         DatapackBuiltinEntriesProvider entriesProvider =

@@ -1,4 +1,21 @@
 {
+  "enchantments": [
+    {
+      "id": "minecraft:unbreaking",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:sharpness",
+      "lvl": 5
+    },
+    {
+      "id": "minecraft:power",
+      "lvl": 3
+    },
+    {
+      "id": "minecraft:mending"
+    }
+  ],
   "fantasy": {
     "special_attack_effect": "echo",
     "special_type": "StarlessNight"

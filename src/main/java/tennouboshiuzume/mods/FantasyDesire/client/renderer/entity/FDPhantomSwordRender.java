@@ -2,6 +2,7 @@
 package tennouboshiuzume.mods.FantasyDesire.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
@@ -9,17 +10,24 @@ import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import mods.flammpfeil.slashblade.client.renderer.util.MSAutoCloser;
 import mods.flammpfeil.slashblade.entity.EntityAbstractSummonedSword;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 
 import javax.annotation.Nullable;
+import java.util.LinkedList;
+import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends EntityRenderer<T> {
@@ -69,5 +77,6 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
             BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "ss", getTextureLocation(entity),
                     matrixStack, bufferIn, packedLightIn);
         }
+
     }
 }

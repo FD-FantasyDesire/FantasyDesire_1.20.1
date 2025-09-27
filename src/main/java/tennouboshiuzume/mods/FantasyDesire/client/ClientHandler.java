@@ -32,6 +32,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDDriveExRender;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDPhantomSwordRender;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
@@ -77,5 +78,7 @@ public class ClientHandler {
     @SubscribeEvent
     public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(FDEntitys.FDPhantomSword.get(), FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDDriveEx.get(), FDDriveExRender::new);
+        event.registerEntityRenderer(FDEntitys.FDRainbowPhantomSword.get(),FDPhantomSwordRender::new);
     }
 }

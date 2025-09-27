@@ -2,14 +2,11 @@ package tennouboshiuzume.mods.FantasyDesire.utils;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
-import mods.flammpfeil.slashblade.entity.EntityDrive;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.VectorHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-
-import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 
 import static tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils.rotateAroundAxis;
 

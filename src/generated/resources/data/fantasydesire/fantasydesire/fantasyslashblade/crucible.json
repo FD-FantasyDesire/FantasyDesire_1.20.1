@@ -1,0 +1,33 @@
+{
+  "enchantments": [
+    {
+      "id": "minecraft:smite",
+      "lvl": 10
+    },
+    {
+      "id": "minecraft:unbreaking",
+      "lvl": 5
+    },
+    {
+      "id": "minecraft:mending"
+    }
+  ],
+  "fantasy": {
+    "special_attack_effect": "omega",
+    "special_type": "crucible"
+  },
+  "name": "fantasydesire:crucible",
+  "properties": {
+    "attack_base": 14.0,
+    "max_damage": 1561,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "rninja",
+    "model": "fantasydesire:models/crucible.obj",
+    "summon_sword_color": 16711680,
+    "texture": "fantasydesire:models/crucible.png"
+  }
+}

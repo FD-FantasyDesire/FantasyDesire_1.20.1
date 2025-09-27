@@ -1,12 +1,30 @@
 {
+  "enchantments": [
+    {
+      "id": "minecraft:flame",
+      "lvl": 5
+    },
+    {
+      "id": "minecraft:blast_protection",
+      "lvl": 3
+    },
+    {
+      "id": "minecraft:fire_protection",
+      "lvl": 3
+    },
+    {
+      "id": "minecraft:infinity"
+    }
+  ],
   "fantasy": {
-    "special_attack_effect": "omega",
+    "special_attack_effect": "resolution",
     "special_type": "TwinBladeR"
   },
   "name": "fantasydesire:twin_blade",
   "properties": {
     "attack_base": 2.5,
     "max_damage": 100,
+    "slash_art": "fantasydesire:twin_system_r",
     "special_effects": [
       "fantasydesire:twin_set"
     ],

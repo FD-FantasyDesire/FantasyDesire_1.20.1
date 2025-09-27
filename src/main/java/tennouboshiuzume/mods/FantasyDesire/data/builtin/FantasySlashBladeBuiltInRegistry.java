@@ -22,7 +22,8 @@ import java.util.List;
 
 public class FantasySlashBladeBuiltInRegistry {
     public static final ResourceKey<FantasySlashBladeDefinition> ChikeFlare = register("chikeflare");
-    public static final ResourceKey<FantasySlashBladeDefinition> SmartPistol = register("smart_pistol");
+    public static final ResourceKey<FantasySlashBladeDefinition> SmartPistolA = register("smart_pistol_a");
+    public static final ResourceKey<FantasySlashBladeDefinition> SmartPistolB = register("smart_pistol_b");
     public static final ResourceKey<FantasySlashBladeDefinition> CrimsonScythe = register("crimson_scythe");
     public static final ResourceKey<FantasySlashBladeDefinition> TwinBladeL = register("twin_blade_l");
     public static final ResourceKey<FantasySlashBladeDefinition> TwinBladeR = register("twin_blade_r");
@@ -33,6 +34,7 @@ public class FantasySlashBladeBuiltInRegistry {
     public static final ResourceKey<FantasySlashBladeDefinition> PureSnow = register("pure_snow");
     public static final ResourceKey<FantasySlashBladeDefinition> ArdorBlossomStar = register("ardor_blossom_star");
     public static final ResourceKey<FantasySlashBladeDefinition> StarlessNight = register("starless_night");
+    public static final ResourceKey<FantasySlashBladeDefinition> Crucible = register("crucible");
 
     public static void registerAll(BootstapContext<FantasySlashBladeDefinition> bootstrap) {
         System.out.println("==== 开始注册数据 ====");
@@ -64,10 +66,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .specialAttackEffect("dimension")
                                 .build(),
                         List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 10),
-                                new EnchantmentDefinition(getEnchantmentID(Enchantments.BINDING_CURSE),1))
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.BINDING_CURSE), 1))
                 )
         );
-        bootstrap.register(SmartPistol,
+        bootstrap.register(SmartPistolA,
                 new FantasySlashBladeDefinition(FantasyDesire.prefix("smart_pistol"),
                         RenderDefinition.Builder.newInstance()
                                 .effectColor(0x00FFFF)
@@ -81,14 +83,44 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .maxDamage(256)
                                 .addSpecialEffect(FDSpecialEffects.EnergyBullet.getId())
                                 .addSpecialEffect(FDSpecialEffects.TripleBullet.getId())
+                                .slashArtsType(FDSpecialAttacks.CHARGE_SHOT.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(36)
                                 .specialChargeName("Ammo")
                                 .specialType("Gunblade")
                                 .build(),
-
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.POWER_ARROWS), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FALL_PROTECTION), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 5)
+                        )
+                )
+        );
+        bootstrap.register(SmartPistolB,
+                new FantasySlashBladeDefinition(FantasyDesire.prefix("smart_pistol"),
+                        RenderDefinition.Builder.newInstance()
+                                .effectColor(0x99FF00)
+                                .textureName(FantasyDesire.prefix("models/smartpistol_oc.png"))
+                                .modelName(FantasyDesire.prefix("models/smartpistol.obj"))
+                                .standbyRenderType(CarryType.KATANA)
+                                .build(),
+                        PropertiesDefinition.Builder.newInstance()
+                                .baseAttackModifier(3.0F)
+                                .defaultSwordType(List.of(SwordType.BEWITCHED))
+                                .maxDamage(256)
+                                .addSpecialEffect(FDSpecialEffects.EnergyBullet.getId())
+                                .addSpecialEffect(FDSpecialEffects.TripleBullet.getId())
+                                .slashArtsType(FDSpecialAttacks.OVER_CHARGE.getId())
+                                .build(),
+                        FantasyDefinition.Builder.newInstance()
+                                .maxSpecialCharge(36)
+                                .specialChargeName("Ammo")
+                                .specialType("Gunblade")
+                                .build(),
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.POWER_ARROWS), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FALL_PROTECTION), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 5)
+                        )
                 )
         );
 
@@ -106,13 +138,20 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .maxDamage(60)
                                 .addSpecialEffect(FDSpecialEffects.BloodDrain.getId())
                                 .addSpecialEffect(FDSpecialEffects.CrimsonStrike.getId())
+                                .slashArtsType(FDSpecialAttacks.CRIMSON_STRIKE.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .maxSpecialCharge(150)
                                 .specialType("CrimsonScythe")
                                 .specialAttackEffect("absorb")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.SHARPNESS), 6),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.THORNS), 6),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.MOB_LOOTING), 6),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 6),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_ASPECT), 6),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_PROTECTION), 6)
+                        )
                 )
         );
 
@@ -129,12 +168,17 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .maxDamage(400)
                                 .addSpecialEffect(FDSpecialEffects.TwinSet.getId())
+                                .slashArtsType(FDSpecialAttacks.TWIN_SYSTEM_L.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("TwinBladeL")
                                 .specialAttackEffect("resolution")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.FLAMING_ARROWS), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.BLAST_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.INFINITY_ARROWS), 1)
+                        )
                 )
         );
 
@@ -151,12 +195,17 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .maxDamage(100)
                                 .addSpecialEffect(FDSpecialEffects.TwinSet.getId())
+                                .slashArtsType(FDSpecialAttacks.TWIN_SYSTEM_R.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("TwinBladeR")
-                                .specialAttackEffect("omega")
+                                .specialAttackEffect("resolution")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.FLAMING_ARROWS), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.BLAST_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.INFINITY_ARROWS), 1)
+                        )
                 )
         );
 
@@ -174,13 +223,17 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .maxDamage(144)
                                 .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
                                 .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
+                                .slashArtsType(FDSpecialAttacks.FREEZE_ZERO.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialChargeName("Evolution_0")
                                 .maxSpecialCharge(300)
                                 .specialType("OverCold_0")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.FROST_WALKER), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 3)
+                        )
                 )
         );
         bootstrap.register(OverColdP1,
@@ -194,16 +247,20 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
+                                .maxDamage(144)
                                 .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
                                 .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
-                                .maxDamage(144)
+                                .slashArtsType(FDSpecialAttacks.FREEZE_ZERO.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialChargeName("Evolution_1")
                                 .maxSpecialCharge(3000)
                                 .specialType("OverCold_1")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.FROST_WALKER), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 3)
+                        )
                 )
         );
         bootstrap.register(OverColdP2,
@@ -217,16 +274,20 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
+                                .maxDamage(144)
                                 .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
                                 .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
-                                .maxDamage(144)
+                                .slashArtsType(FDSpecialAttacks.FREEZE_ZERO.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialChargeName("Evolution_2")
                                 .maxSpecialCharge(30000)
                                 .specialType("OverCold_2")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.FROST_WALKER), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 3)
+                        )
                 )
         );
 
@@ -241,16 +302,20 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(3.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
+                                .maxDamage(144)
                                 .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
                                 .addSpecialEffect(FDSpecialEffects.ColdLeak.getId())
-                                .maxDamage(144)
+                                .slashArtsType(FDSpecialAttacks.FREEZE_ZERO.getId())
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialChargeName("Evolution_3")
                                 .maxSpecialCharge(Integer.MAX_VALUE)
                                 .specialType("OverCold_3")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.FROST_WALKER), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.FIRE_PROTECTION), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 3)
+                        )
                 )
         );
 
@@ -267,13 +332,19 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .addSpecialEffect(FDSpecialEffects.RainbowFlux.getId())
                                 .addSpecialEffect(FDSpecialEffects.ColorFlux.getId())
+                                .slashArtsType(FDSpecialAttacks.RAINBOW_STAR.getId())
                                 .maxDamage(50)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()
                                 .specialType("PureSnow")
                                 .build(),
-                        List.of(
-
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.POWER_ARROWS), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.SMITE), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.BANE_OF_ARTHROPODS), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.SHARPNESS), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.PIERCING), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.BLOCK_FORTUNE), 1),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.IMPALING), 1)
                         )
                 )
         );
@@ -326,12 +397,46 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .specialType("StarlessNight")
                                 .specialAttackEffect("echo")
                                 .build(),
-                        List.of()
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 10),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.SHARPNESS), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.POWER_ARROWS), 3),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.MENDING),1)
+                        )
+                )
+        );
+
+        bootstrap.register(Crucible,
+                new FantasySlashBladeDefinition(FantasyDesire.prefix("crucible"),
+                        RenderDefinition.Builder.newInstance()
+                                .effectColor(0xff0000)
+                                .textureName(FantasyDesire.prefix("models/crucible.png"))
+                                .modelName(FantasyDesire.prefix("models/crucible.obj"))
+                                .standbyRenderType(CarryType.RNINJA)
+                                .build(),
+                        PropertiesDefinition.Builder.newInstance()
+                                .baseAttackModifier(14.0F)
+                                .defaultSwordType(List.of(SwordType.BEWITCHED))
+//                                .slashArtsType(SlashArtsRegistry.SAKURA_BLAST.getId())
+                                .maxDamage(1561)
+                                .build(),
+                        FantasyDefinition.Builder.newInstance()
+//                                .maxSpecialCharge(140)
+//                                .specialLore(4)
+//                                .specialEffectLore(6)
+//                                .specialAttackLore(5)
+                                .specialType("crucible")
+                                .specialAttackEffect("omega")
+                                .build(),
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.SMITE), 10),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.MENDING),1)
+                        )
                 )
         );
 
         System.out.println("==== 数据注册完成 ====");
     }
+
     private static ResourceKey<FantasySlashBladeDefinition> register(String id) {
         ResourceKey<FantasySlashBladeDefinition> loc = ResourceKey.create(FantasySlashBladeDefinition.REGISTRY_KEY,
                 FantasyDesire.prefix(id));

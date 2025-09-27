@@ -1,36 +1,40 @@
 package tennouboshiuzume.mods.FantasyDesire.specialeffect.globalevent;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.event.SlashBladeEvent;
+import mods.flammpfeil.slashblade.util.AttackManager;
+import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.core.Holder;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.CriticalHitEvent;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageTypes;
-import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
-import tennouboshiuzume.mods.FantasyDesire.utils.DamageUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDAttackManager;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class DamageConverterEvent {
@@ -38,8 +42,9 @@ public class DamageConverterEvent {
     });
     public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager.get(new CapabilityToken<ISlashBladeState>() {
     });
-//    根据伤害类型作出不同的修正
-//    暴怒 对持盾3倍，穿透
+    static UUID ETERNITY_HEALTH_MODIFIER = UUID.fromString("a5b1b2f0-2f3c-4e3b-8a71-123456789abc");
+//    根据伤害类型作出不同的效果追加
+//    暴怒 对持盾敌人造成3倍，穿透护甲的伤害
 //    色欲 使攻击者回复0.2生命值
 //    暴食 使攻击者回复0.2饥饿值
 //    忧郁 消耗敌人的氧气条
@@ -49,137 +54,179 @@ public class DamageConverterEvent {
 //    永劫 伤害的10%转化为生命值上限削减
 //    吸收 使攻击者吸收同等生命值，溢出部分的10%转化为额外生命，最大100
 //    决断 伤害的20%转化为真实伤害
-//    回响 造成伤害的300%传播至附近敌人
-
-    @SubscribeEvent
-    public static void OnHurt(LivingHurtEvent event) {
-//        System.out.println(event.getAmount());
-        DamageSource source = event.getSource();
-        if (source.getEntity()==null) return;
-        if (!(source.getEntity() instanceof LivingEntity player)) return;// 攻击者
-        LivingEntity target = event.getEntity(); // 受击者
-        float original = event.getAmount();
-//        System.out.println(source.is(DamageTypeTags.BYPASSES_SHIELD));
-        if (player instanceof Player) {
-            Holder<DamageType> holder = source.typeHolder();
-//            holder.unwrapKey().ifPresent(key -> System.out.println("伤害类型ID: " + key.location()));
-            if (holder.unwrapKey().map(key ->
-                    key.location().getNamespace().equals(FantasyDesire.MODID)
-            ).orElse(false)) {
-                return;
+//    回响 造成伤害的同时，使目标浸染虚空侵蚀
+    
+//      伤害替换事件，用改进后的FDAttackManager处理特殊类型伤害
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void OnSlash(SlashBladeEvent.DoSlashEvent event) {
+        if (event.getBlade().getItem() instanceof ItemFantasySlashBlade) {
+            ItemStack blade = event.getBlade();
+            LivingEntity livingEntity = event.getUser();
+            Optional<ISlashBladeState> stateOpt = blade.getCapability(BLADESTATE).resolve();
+            Optional<IFantasySlashBladeState> fdStateOpt = blade.getCapability(FDBLADESTATE).resolve();
+            if (stateOpt.isEmpty() || fdStateOpt.isEmpty()) return;
+            ISlashBladeState state = stateOpt.get();
+            IFantasySlashBladeState fdState = fdStateOpt.get();
+            String fdDamageType = fdState.getSpecialAttackEffect();
+            System.out.println(fdDamageType);
+            if (fdDamageType!=null&&!fdDamageType.equals("Null")){
+                DamageSource fds = FDDamageSource.getEntityDamageSource(livingEntity.level(),FDDamageSource.fromString(fdDamageType),livingEntity);
+                FDAttackManager.areaAttackWithSource(event.getUser(), KnockBacks.cancel.action, (float) event.getDamage(), true, true, false, null, fds);
+                event.setDamage(0d);
             }
-            ItemStack blade = ((Player) player).getMainHandItem();
-            if (blade.getItem() instanceof ItemFantasySlashBlade) {
-                Optional<ISlashBladeState> stateOpt = blade.getCapability(BLADESTATE).resolve();
-                Optional<IFantasySlashBladeState> fdStateOpt = blade.getCapability(FDBLADESTATE).resolve();
-                if (stateOpt.isEmpty() || fdStateOpt.isEmpty()) return;
-                ISlashBladeState state = stateOpt.get();
-                IFantasySlashBladeState fdState = fdStateOpt.get();
+        }
+    }
+//    重置无敌帧
+    public static void resetInvulnerable(Entity target) {
+        target.invulnerableTime = 0;
+    }
+//    伤害造成前事件处理
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onAttack(LivingAttackEvent event) {
+        DamageSource source = event.getSource();
+        LivingEntity target = event.getEntity();
+        float amount = event.getAmount();
+        // 攻击者
+        Entity attacker = source.getEntity();
+        if (!(attacker instanceof LivingEntity)) return;
+        LivingEntity attackerLiving = (LivingEntity) attacker;
+        if (source.is(FDDamageSource.OMEGA)){
+            if (target instanceof Player){
 
-                if (fdState.getSpecialAttackEffect().equals("dimension") && state.getTranslationKey().equals("item.fantasydesire.chikeflare")) {
-                    event.setAmount(original * 0.5f);
-                    resetInvulnerable(target);
-                    target.hurt(DamageUtils.createWithEntity(FDDamageTypes.DIMENSION, (LivingEntity) player, player.level().registryAccess()), original * 0.5f);
-                }
-                if (state.getTranslationKey().equals("item.fantasydesire.pure_snow")) {
-                    String effect = fdState.getSpecialAttackEffect();
-                    float damageConvert = 0.8f;
-                    event.setAmount(original * (1-damageConvert));
-                    float damageRemain = original * damageConvert;
-//                            剩余一半伤害转换为对应罪孽伤害
-                    if ("wrath".equals(effect)) {
-//                                暴怒，对格挡敌人造成三倍伤害
-//                                算作火焰伤害
-                        float multiple = target.isBlocking() ? 3 : 1;
-                        resetInvulnerable(target);
-                        target.hurt(DamageUtils.createWithEntity(FDDamageTypes.WRATH, (LivingEntity) player, player.level().registryAccess()), damageRemain * multiple);
-                    } else if ("lust".equals(effect)) {
-//                                色欲，将伤害的一部分转换为生命值
-//                                算作凋零伤害
-                        resetInvulnerable(target);
-                        target.hurt(DamageUtils.createWithEntity(FDDamageTypes.LUST, (LivingEntity) player, player.level().registryAccess()), damageRemain * 0.8f);
-                        player.heal(original * 0.2f);
-                    } else if ("sloth".equals(effect)) {
-//                                 怠惰，玩家的移动速度越低，伤害倍率越高
-//                                 算作摔落伤害
-                        double attackerSpeed = player.getDeltaMovement().length();
-                        double targetSpeed = target.getDeltaMovement().length();
-                        double safeTargetSpeed = Math.max(targetSpeed, 0.05);
-                        double speedRatio = Math.min(attackerSpeed / safeTargetSpeed, 3.0);
-                        resetInvulnerable(target);
-                        target.hurt(DamageUtils.createWithEntity(FDDamageTypes.SLOTH, (LivingEntity) player, player.level().registryAccess()), (float) speedRatio * damageRemain);
-                    } else if ("gluttony".equals(effect)) {
-//                                暴食，伤害的一半转化为玩家的饱食度和饱和度
-//                                算作饥饿伤害，无视药水伤害抗性
-                        resetInvulnerable(target);
-                        target.hurt(DamageUtils.createWithEntity(FDDamageTypes.GLUTTONY, (LivingEntity) player, player.level().registryAccess()), damageRemain * 0.5f);
-                        ((Player) player).getFoodData().eat((int) (original * 0.3f), original * 0.2f);
-                    } else if ("gloom".equals(effect)) {
-//                                忧郁，优先消耗敌人的氧气，如果没有氧气则造成两倍伤害
-//                                算作溺水伤害
-                        int currentAir = target.getAirSupply();
-                        resetInvulnerable(target);
-                        if (currentAir <= 0) {
-                            target.hurt(DamageUtils.createWithEntity(FDDamageTypes.GLOOM, (LivingEntity) player, player.level().registryAccess()), damageRemain * 2);
-                        } else {
-                            target.setAirSupply((int) (currentAir - original));
-                        }
-                    } else if ("pride".equals(effect)) {
-//                                傲慢，对拥有护甲的敌人或生命上限是你五倍以上的敌人造成三倍伤害，同时具备两种属性会叠乘
-//                                算作魔法伤害
-                        float multiple = 1;
-                        if (target.getArmorValue() > 0) multiple *= 3;
-                        if (target.getMaxHealth() / player.getMaxHealth() >= 5) multiple *= 3;
-                        resetInvulnerable(target);
-                        target.hurt(DamageUtils.createWithEntity(FDDamageTypes.PRIDE, (LivingEntity) player, player.level().registryAccess()), damageRemain * multiple);
-                    } else if ("envy".equals(effect)) {
-//                                嫉妒，对当前血量比你高的敌人造成1.5倍伤害
-//                                算作荆棘伤害
-                        float multiple = target.getHealth() > player.getHealth() ? 1.5f : 1.0f;
-                        resetInvulnerable(target);
-                        target.hurt(DamageUtils.createWithEntity(FDDamageTypes.ENVY, (LivingEntity) player, player.level().registryAccess()), damageRemain * multiple);
-                    }
-                }
-                if (fdState.getSpecialAttackEffect().equals("echo") && state.getTranslationKey().equals("item.fantasydesire.starless_night")) {
-//                    回响伤害
-                    int voidlevel = 0;
-                    MobEffectInstance effect = player.getEffect(FDPotionEffects.VOID_STRIKE.get());
-                    if (effect != null) {
-                        voidlevel = effect.getAmplifier();
-                        player.addEffect(new MobEffectInstance(FDPotionEffects.VOID_STRIKE.get(), 20 * 10, Math.min(5, voidlevel + 1)));
-                    }else {
-                        player.addEffect(new MobEffectInstance(FDPotionEffects.VOID_STRIKE.get(), 20 * 10, 0));
-                    }
-                    event.setAmount(original * (1 + voidlevel));
-                    resetInvulnerable(target);
-//                    TODO :转移至专门的SE效果
-                    List<LivingEntity> targetList = TargetUtils.getNearbyLivingEntities(target, 5.0, Collections.singletonList(player));
-                    ParticleUtils.generateRingParticles(ParticleTypes.END_ROD,player.level(),target.getX(),target.getY()+0.2f,target.getZ(),5,20);
-                    player.level().playSound(null,target.getX(),target.getY(),target.getZ(), SoundEvents.RESPAWN_ANCHOR_DEPLETE.get(), SoundSource.PLAYERS,0.5f,0.5f);
-                    for (LivingEntity areatarget : targetList) {
-                        areatarget.hurt(DamageUtils.createWithEntity(FDDamageTypes.ECHO, (LivingEntity) player, player.level().registryAccess()), event.getAmount() * 3f);
-                    }
+            }
+        }
+    }
+//    伤害造成时事件处理
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void OnHurt(LivingHurtEvent event){
+        DamageSource source = event.getSource();
+        LivingEntity target = event.getEntity();
+        float amount = event.getAmount();
+
+        // 攻击者
+        Entity attacker = source.getEntity();
+        if (!(attacker instanceof LivingEntity)) return;
+        LivingEntity attackerLiving = (LivingEntity) attacker;
+        // 决断 (Resolution)
+        if (source.is(FDDamageSource.RESOLUTION)) {
+            float diff = target.getMaxHealth() - attackerLiving.getHealth();
+            float extraDamage = diff * 0.25f;
+            if (attackerLiving instanceof Player){
+                target.hurt(attackerLiving.damageSources().playerAttack((Player) attackerLiving),extraDamage);
+            }else {
+                target.hurt(attackerLiving.damageSources().mobAttack(attackerLiving),extraDamage);
+            }
+        }
+        // 暴怒 (Wrath)
+        if (source.is(FDDamageSource.WRATH)) {
+            if (target.isBlocking()) {
+                event.setAmount(amount * 3f);
+            }
+        }
+        // 色欲 (Lust)
+        if (source.is(FDDamageSource.LUST)) {
+            attackerLiving.heal(0.2f);
+        }
+        // 怠惰 (Sloth)
+        if (source.is(FDDamageSource.SLOTH)) {
+            double moveSpeed = attackerLiving.getDeltaMovement().length();
+            double factor = 1.0 + (0.2 / Math.max(0.1, moveSpeed)); // 越慢倍率越高
+            event.setAmount((float)(amount * factor));
+        }
+        // 暴食 (Gluttony)
+        if (source.is(FDDamageSource.GLUTTONY)) {
+            if (attackerLiving instanceof Player player) {
+                player.getFoodData().eat(1, 0.2f);
+            }
+        }
+        // 忧郁 (Gloom)
+        if (source.is(FDDamageSource.GLOOM)) {
+            int oxygen = target.getAirSupply();
+            target.setAirSupply(Math.max(0, oxygen - (int)(amount * 3)));
+        }
+        // 傲慢 (Pride)
+        if (source.is(FDDamageSource.PRIDE)) {
+            if (target.getArmorValue() > 0) {
+                event.setAmount(amount * 1.5f);
+            }
+        }
+        // 嫉妒 (Envy)
+        if (source.is(FDDamageSource.ENVY)) {
+            if (target.getHealth() > attackerLiving.getHealth()) {
+                event.setAmount(amount * 3f);
+            }
+        }
+    }
+//    伤害最终结算（护甲后，实体更新前）事件处理
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void OnDamage(LivingDamageEvent event){
+        DamageSource source = event.getSource();
+        LivingEntity target = event.getEntity();
+        float amount = event.getAmount();
+
+        // 攻击者
+        Entity attacker = source.getEntity();
+        if (!(attacker instanceof LivingEntity)) return;
+        LivingEntity attackerLiving = (LivingEntity) attacker;
+        // 永劫 (Eternity)
+        if (source.is(FDDamageSource.ETERNITY)) {
+            // 附加效果：削减目标最大生命值
+            float reduce = amount * 0.1f;
+            AttributeInstance maxHealth = target.getAttribute(Attributes.MAX_HEALTH);
+            if (maxHealth != null) {
+                maxHealth.removeModifier(ETERNITY_HEALTH_MODIFIER); // 先清理旧的
+                AttributeModifier mod = new AttributeModifier(
+                        ETERNITY_HEALTH_MODIFIER,
+                        "eternity_reduce",
+                        -reduce, // 负数就是减血上限
+                        AttributeModifier.Operation.ADDITION
+                );
+                maxHealth.addPermanentModifier(mod);
+            }
+        }
+        //吸收（Absorb）
+        if (source.is(FDDamageSource.ABSORB)) {
+            float heal = amount;
+            float missing = attackerLiving.getMaxHealth() - attackerLiving.getHealth();
+            float overflow = Math.max(0, heal - missing);
+            attackerLiving.heal(heal);
+            if (overflow > 0) {
+                float bonus = overflow * 0.1f;
+                float newAbsorb = Math.min(20f, attackerLiving.getAbsorptionAmount() + bonus);
+                attackerLiving.setAbsorptionAmount(newAbsorb);
+            }
+        }
+        // 回响 (Echo)
+        if (source.is(FDDamageSource.ECHO)) {
+            float spreadDamage = amount * 3.0f; // 最终伤害300%
+            List<LivingEntity> nearby = target.level().getEntitiesOfClass(LivingEntity.class,
+                    target.getBoundingBox().inflate(5), e -> e != target && e != attackerLiving);
+            for (LivingEntity e : nearby) {
+                if (attackerLiving instanceof Player){
+                    e.hurt(attackerLiving.damageSources().playerAttack((Player) attackerLiving),spreadDamage);
+                }else {
+                    e.hurt(attackerLiving.damageSources().mobAttack(attackerLiving),spreadDamage);
                 }
             }
         }
     }
-
+    // 在玩家死亡时清理
     @SubscribeEvent
-    public static void OnDamage(LivingDamageEvent event) {
-        DamageSource source = event.getSource();
-        Entity attacker = source.getEntity();
-        LivingEntity target = event.getEntity();
-        Holder<DamageType> holder = source.typeHolder();
-        float original = event.getAmount();
+    public static void onDeath(LivingDeathEvent event) {
+        if (event.getEntity() instanceof Player player) {
+            clearEternity(player);
+        }
     }
-
-    public static void resetInvulnerable(Entity target) {
-        target.invulnerableTime = 0;
+    // 在玩家上床时清理
+    @SubscribeEvent
+    public static void onSleep(PlayerSleepInBedEvent event) {
+        clearEternity(event.getEntity());
     }
-
-
-
-
-    public static String[] damageTypes = {"wrath", "lust", "sloth", "gluttony", "gloom", "pride", "envy"};
-
+    //用于清理永劫计数
+    public static void clearEternity(LivingEntity entity) {
+        AttributeInstance maxHealth = entity.getAttribute(Attributes.MAX_HEALTH);
+        if (maxHealth != null && maxHealth.getModifier(ETERNITY_HEALTH_MODIFIER) != null) {
+            maxHealth.removeModifier(ETERNITY_HEALTH_MODIFIER);
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.potioneffect;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -14,23 +13,18 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 
 import javax.annotation.Nullable;
 
-public class VoidStrikeEffect extends MobEffect {
-    public VoidStrikeEffect() {
-        super(MobEffectCategory.BENEFICIAL, 0x5500AA); // 紫黑色
+public class RainbowSevenEdgeEffect extends MobEffect {
+    public RainbowSevenEdgeEffect() {
+        super(MobEffectCategory.BENEFICIAL,0xFFFFFF); //纯白
     }
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        if (!entity.level().isClientSide()) {
-            ServerLevel sl = (ServerLevel) entity.level();
-            sl.sendParticles(dust, entity.position().x, entity.position().y+entity.getBbHeight()/2, entity.position().z, 2*amplifier, entity.getBbWidth() / 2, entity.getBbHeight() / 2, entity.getBbWidth() / 2, 0.05);
-            sl.playSound(null, entity.blockPosition(), SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.AMBIENT, 0.5f, 0.5f);
-        }
     }
 
     @Override
     public boolean isDurationEffectTick(int duration, int amplifier) {
-        return duration % 40 == 0;
+        return false;
     }
 
     public @Nullable ResourceLocation getIcon() {
