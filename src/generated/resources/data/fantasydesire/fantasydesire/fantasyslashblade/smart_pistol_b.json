@@ -1,0 +1,39 @@
+{
+  "enchantments": [
+    {
+      "id": "minecraft:power"
+    },
+    {
+      "id": "minecraft:feather_falling",
+      "lvl": 5
+    },
+    {
+      "id": "minecraft:unbreaking",
+      "lvl": 5
+    }
+  ],
+  "fantasy": {
+    "max_special_charge": 36,
+    "special_charge_name": "Ammo",
+    "special_type": "Gunblade"
+  },
+  "name": "fantasydesire:smart_pistol",
+  "properties": {
+    "attack_base": 3.0,
+    "max_damage": 256,
+    "slash_art": "fantasydesire:over_charge",
+    "special_effects": [
+      "fantasydesire:energy_bullet",
+      "fantasydesire:triple_bullet"
+    ],
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "katana",
+    "model": "fantasydesire:models/smartpistol.obj",
+    "summon_sword_color": 10092288,
+    "texture": "fantasydesire:models/smartpistol_oc.png"
+  }
+}
