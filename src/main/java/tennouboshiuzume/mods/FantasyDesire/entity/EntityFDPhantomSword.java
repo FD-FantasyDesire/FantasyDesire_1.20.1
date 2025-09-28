@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.entity;
 
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import mods.flammpfeil.slashblade.SlashBladeConfig;
 import mods.flammpfeil.slashblade.ability.StunManager;
@@ -10,7 +9,10 @@ import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.*;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -44,7 +46,6 @@ import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
-import java.util.*;
 
 
 public class EntityFDPhantomSword extends EntityAbstractSummonedSword {

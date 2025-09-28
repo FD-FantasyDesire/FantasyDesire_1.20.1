@@ -1,7 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.damagesource;
 
 import net.minecraft.core.Holder;
-
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.network.chat.Component;
@@ -19,7 +18,6 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class FDDamageSource extends DamageSource {
     public static final ResourceKey<DamageType> DIMENSION = register("dimension");

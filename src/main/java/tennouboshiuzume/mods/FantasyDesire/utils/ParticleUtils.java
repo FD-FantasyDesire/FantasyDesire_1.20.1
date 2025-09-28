@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.utils;
 
-import net.minecraft.client.particle.FireworkParticles;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;

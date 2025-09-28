@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.potioneffect;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.DustColorTransitionOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;

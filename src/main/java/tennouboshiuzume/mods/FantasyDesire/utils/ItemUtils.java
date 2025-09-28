@@ -3,21 +3,16 @@ package tennouboshiuzume.mods.FantasyDesire.utils;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import mods.flammpfeil.slashblade.registry.SpecialEffectsRegistry;
 import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
-import tennouboshiuzume.mods.FantasyDesire.data.builtin.FantasySlashBladeBuiltInRegistry;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 
 //用于填充创造物品栏和获取物品的工具类
 public class ItemUtils {

@@ -24,8 +24,10 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextNode;
+import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextParser;
+import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextRenderer;
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.FDSpecialEffectBase;
-import tennouboshiuzume.mods.FantasyDesire.TextUtils.TagTextParser;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -42,25 +44,20 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
     }
 
     @Override
-    public Component getName(ItemStack p_41458_) {
-        String raw = "<FancyStyle>" +
-                "<b>粗体</b> <i>斜体</i> <u>下划线</u> <s>删除线</s> " +
-                "<anim type=\"static_gradient\"><color=#FF0000,#00FF00,#0000FF>静态渐变动画</color></anim> " +
-                "<anim type=\"dynamic_gradient\" speed=\"0.1\"><color=#FF0000,#00FF00,#0000FF>动态渐变动画</color></anim> " +
-                "<anim type=\"rainbow\" speed=\"0.1\">彩虹动画</anim>" +
-                "</FancyStyle>";
-        long tick = 0;
-        try {
-            if (net.minecraft.client.Minecraft.getInstance().level != null)
-                tick = net.minecraft.client.Minecraft.getInstance().level.getGameTime();
-            else
-                tick = System.currentTimeMillis() / 50L; // fallback
-        } catch (Exception ex) {
-            tick = System.currentTimeMillis() / 50L;
-        }
-        return TagTextParser.parseWithTick(raw, tick);
-    }
+    public Component getName(ItemStack stack) {
+        String raw = "<Style Type=\"dynamicgradient\" Speed=\"1\" Color=\"#FFFFFF\",\"#FF0000\",\"#000000\">毁灭战士的裁决剑</Style>";
 
+        // 1. 解析成 AST
+        TextParser parser = new TextParser();
+        List<TextNode> roots = parser.parseMultipleTrees(raw);
+
+        long tick = 0;
+        if (Minecraft.getInstance().level != null) {
+            tick = Minecraft.getInstance().level.getGameTime();
+        }
+
+        return TextRenderer.render(roots, tick);
+    }
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendSwordType(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
@@ -69,7 +66,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         LazyOptional<IFantasySlashBladeState> state = stack.getCapability(FDBLADESTATE);
         state.ifPresent((s) -> {
             String specialType = s.getSpecialType();
-            if (!specialType.isBlank()&& !specialType.equals("Null")) {
+            if (!specialType.isBlank() && !specialType.equals("Null")) {
                 tooltip.add(Component.translatable(String.format("info.fantasydesire." + specialType)));
             } else {
                 if (swordType.contains(SwordType.BEWITCHED)) {
@@ -177,7 +174,8 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
         }
     }
-//    用于显示“特殊充能”
+
+    //    用于显示“特殊充能”
     @OnlyIn(Dist.CLIENT)
     private void appendSpecialCharge(List<Component> tooltip, ItemStack stack) {
         stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
@@ -201,7 +199,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 Component attackEffect = Component.translatable("tooltip.fantasydesire.AttackEffect." + ae);
                 Component damageText = Component.translatable("tooltip.fantasydesire.AttackEffect", attackEffect);
                 tooltip.add(damageText);
-                Component attackEffectDesc = Component.translatable("tooltip.fantasydesire.AttackEffect."+ae+".desc");
+                Component attackEffectDesc = Component.translatable("tooltip.fantasydesire.AttackEffect." + ae + ".desc");
                 tooltip.add(attackEffectDesc);
             }
         });

@@ -8,8 +8,6 @@ import mods.flammpfeil.slashblade.util.VectorHelper;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 
-import static tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils.rotateAroundAxis;
-
 public class AddonSlashUtils {
     public static EntitySlashEffect doAddonSlash(LivingEntity playerIn, float roll, float YRot, float XRot, int colorCode, Vec3 centerOffset, boolean mute, boolean critical, double damage, KnockBacks knockback) {
         if (playerIn.level().isClientSide()) {

@@ -27,9 +27,7 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySl
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
-import java.awt.*;
 import java.util.Optional;
-import java.util.Random;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TwinBladeEffects {

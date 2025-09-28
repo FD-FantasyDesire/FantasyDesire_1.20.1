@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.init;
 
-import cn.mmf.slashblade_addon.specialattacks.RapidBlisteringSwords;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.init.DefaultResources;
