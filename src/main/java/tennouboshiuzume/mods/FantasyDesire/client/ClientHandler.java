@@ -21,6 +21,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -28,10 +29,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleProvider;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDDriveExRender;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDPhantomSwordRender;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
+import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
 
 
 @Mod.EventBusSubscriber(modid = "fantasydesire",value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -53,8 +56,7 @@ public class ClientHandler {
         ItemProperties.register(FDItems.fantasyslashblade, new ResourceLocation("slashblade:user"),
                 new ClampedItemPropertyFunction() {
                     @Override
-                    public float unclampedCall(ItemStack p_174564_, @Nullable ClientLevel p_174565_,
-                                               @Nullable LivingEntity p_174566_, int p_174567_) {
+                    public float unclampedCall(ItemStack p_174564_, @Nullable ClientLevel p_174565_,@Nullable LivingEntity p_174566_, int p_174567_) {
                         BladeModel.user = p_174566_;
                         return 0;
                     }
@@ -76,5 +78,9 @@ public class ClientHandler {
         event.registerEntityRenderer(FDEntitys.FDPhantomSword.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDDriveEx.get(), FDDriveExRender::new);
         event.registerEntityRenderer(FDEntitys.FDRainbowPhantomSword.get(),FDPhantomSwordRender::new);
+    }
+    @SubscribeEvent
+    public static void onRegisterFactories(RegisterParticleProvidersEvent event) {
+        event.registerSpecial(FDParticles.GLOWING_LINE.get(), new GlowingLineParticleProvider());
     }
 }

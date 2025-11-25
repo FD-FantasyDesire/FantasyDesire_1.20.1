@@ -6,13 +6,13 @@ import mods.flammpfeil.slashblade.util.RayTraceHelper;
 import mods.flammpfeil.slashblade.util.TargetSelector;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.*;
 
 import javax.annotation.Nullable;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,24 +36,13 @@ public class TargetUtils extends TargetSelector {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * 尝试获取玩家的锁定目标
-     *
-     * @param sender 发射者（通常是玩家）
-     * @return 可选的目标实体
-     */
-
     public static Optional<Entity> getLockTarget(LivingEntity sender) {
         Level worldIn = sender.level();
-
-        // 从Capability里获取目标
         Entity lockTarget = sender.getMainHandItem()
                 .getCapability(ItemSlashBlade.BLADESTATE)
                 .filter(state -> state.getTargetEntity(worldIn) != null)
                 .map(state -> state.getTargetEntity(worldIn))
                 .orElse(null);
-
-        // 如果武器里有目标，直接返回
         if (lockTarget != null) {
             return Optional.of(lockTarget);
         }
@@ -90,7 +79,7 @@ public class TargetUtils extends TargetSelector {
                 pos.x - range, pos.y - range, pos.z - range,
                 pos.x + range, pos.y + range, pos.z + range
         );
-
+        TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
         List<LivingEntity> entities = world.getEntitiesOfClass(LivingEntity.class, aabb).stream()
                 // 距离判定
                 .filter(e -> e.distanceToSqr(pos) <= range * range)
@@ -98,9 +87,96 @@ public class TargetUtils extends TargetSelector {
                 .filter(Entity::isAttackable)
                 // 排除指定实体
                 .filter(e -> exclude == null || !exclude.contains(e))
+                .filter(predicate::test) //适用拔刀剑配置可攻击对象
                 .collect(Collectors.toList());
 
         return entities;
     }
+
+
+    public static List<LivingEntity> getTargetsInSight(Player player, double maxDistance, double radius, boolean requireVisible,@Nullable List<Entity> exclude) {
+        Level level = player.level();
+
+        Vec3 eyePos = player.getEyePosition(1.0f);
+        Vec3 lookVec = player.getViewVector(1.0f);
+
+        Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
+        ClipContext context = new ClipContext(eyePos, endPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player);
+        BlockHitResult result = level.clip(context);
+
+        // 使用 Vec3 位置，不必转 BlockPos
+        Vec3 targetPos = result.getType() == HitResult.Type.BLOCK ? result.getLocation() : endPos;
+
+        // 构造 AABB 进行范围搜索
+        AABB searchBox = new AABB(targetPos.x - radius, targetPos.y - radius, targetPos.z - radius,
+                targetPos.x + radius, targetPos.y + radius, targetPos.z + radius);
+        TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
+        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != player).stream()
+                .filter(e -> e.distanceToSqr(targetPos) <= radius * radius)
+                // isAttackable 标签过滤
+                .filter(Entity::isAttackable)
+                // 排除指定实体
+                .filter(e -> exclude == null || !exclude.contains(e))
+                .filter(predicate::test) //适用拔刀剑配置可攻击对象
+                .filter(e-> !requireVisible || canSee(player, e))
+                .collect(Collectors.toList());
+        return entities;
+    }
+    @Nullable
+    public static LivingEntity getNearestTargetInSight(Player player, double maxDistance, double radius, boolean requireVisible, @Nullable List<Entity> exclude) {
+        Level level = player.level();
+
+        Vec3 eyePos = player.getEyePosition(1.0f);
+        Vec3 lookVec = player.getViewVector(1.0f);
+
+        // 计算视线终点
+        Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
+        ClipContext context = new ClipContext(eyePos, endPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player);
+        BlockHitResult result = level.clip(context);
+
+        // 落点（若视线没打到方块，则用最远点）
+        Vec3 targetPos = result.getType() == HitResult.Type.BLOCK ? result.getLocation() : endPos;
+
+        // 构造搜索范围
+        AABB searchBox = new AABB(
+                targetPos.x - radius, targetPos.y - radius, targetPos.z - radius,
+                targetPos.x + radius, targetPos.y + radius, targetPos.z + radius
+        );
+
+        TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
+
+        // 搜索并筛选符合条件的实体
+        return level.getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != player).stream()
+                .filter(Entity::isAttackable)
+                .filter(e -> exclude == null || !exclude.contains(e))
+                .filter(predicate::test) // 拔刀剑可攻击判定
+                .filter(e -> e.distanceToSqr(targetPos) <= radius * radius)
+                .filter(e -> !requireVisible || canSee(player, e))
+                // ✅ 选取距离“视线落点”最近的实体
+                .min(Comparator.comparingDouble(e -> e.distanceToSqr(targetPos)))
+                .orElse(null);
+    }
+    // 视线检测判定，参考自Warframe
+    public static boolean canSee(Entity looker, Entity entity) {
+        Level level = looker.level();
+        Vec3 eyePos = looker.getEyePosition(0f);
+        AABB box = entity.getBoundingBox();
+        // 碰撞箱底、中、顶三个点
+        Vec3 bottom = entity.position().add(0,0.2,0);
+        Vec3 middle = entity.position().add(0,entity.getBbHeight()/2,0);
+        Vec3 top = entity.position().add(0,entity.getBbHeight(),0);
+        Vec3[] points = { bottom, middle, top };
+
+        for (Vec3 point : points) {
+            ClipContext context = new ClipContext(eyePos, point, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, looker);
+            BlockHitResult result = level.clip(context);
+            if (result.getType() == HitResult.Type.MISS) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 
 }

@@ -232,7 +232,6 @@ public class EntityFDDriveEx extends EntityFDPhantomSword {
             targetEntity.setSecondsOnFire(5);
         }
 
-        // todo: attack manager
         targetEntity.invulnerableTime = 0;
         if(this.getOwner() instanceof LivingEntity living) {
             damageValue *= living.getAttributeValue(Attributes.ATTACK_DAMAGE);

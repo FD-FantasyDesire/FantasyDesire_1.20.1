@@ -18,7 +18,7 @@
   },
   "name": "fantasydesire:chikeflare",
   "properties": {
-    "attack_base": 2.0,
+    "attack_base": 0.2,
     "slash_art": "fantasydesire:wing_to_the_future",
     "special_effects": [
       "fantasydesire:cheat_rumble",

@@ -26,11 +26,14 @@ public class CapabilityUtils {
         Optional<IFantasySlashBladeState> fdStateOpt = blade.getCapability(FDBLADESTATE).resolve();
         return fdStateOpt.get();
     }
-    public static Boolean isSpecialEffectActive(ISlashBladeState state, RegistryObject<SpecialEffect> effect, LivingEntity entity){
+    public static boolean isSpecialEffectActive(ISlashBladeState state, RegistryObject<SpecialEffect> effect, LivingEntity entity){
         if (entity instanceof Player player) {
             return (SpecialEffect.isEffective(effect.getId(), player.experienceLevel)&&state.hasSpecialEffect(effect.getId()));
         }
         return false;
+    }
+    public static boolean isRightTranslationKey(ISlashBladeState state, String itemTranslationKey){
+       return state.getTranslationKey().equals(itemTranslationKey);
     }
     public static boolean isSpecialEffectActiveForItem(ISlashBladeState state,  RegistryObject<SpecialEffect> effect, Player player, String itemTranslationKey) {
         // 检查物品是否激活特效并匹配翻译键

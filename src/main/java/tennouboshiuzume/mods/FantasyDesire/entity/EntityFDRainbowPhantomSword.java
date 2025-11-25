@@ -125,7 +125,7 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword{
         excludeList.add(player);
         List<LivingEntity> target = TargetUtils.getLivingEntitiesInRadius(player.level(),this.position(), 5.0,excludeList);
         for (LivingEntity targetEntity : target){
-            AttackManager.doMeleeAttack(player,targetEntity,true,true,7f);
+            AttackManager.doMeleeAttack(player,targetEntity,true,true,3.5f);
         }
     }
 

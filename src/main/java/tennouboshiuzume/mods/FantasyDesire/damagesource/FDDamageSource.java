@@ -34,20 +34,6 @@ public class FDDamageSource extends DamageSource {
     public static final ResourceKey<DamageType> ENVY = register("envy");
     public static final ResourceKey<DamageType> ECHO = register("echo");
 
-    public FDDamageSource(Holder<DamageType> p_270906_, @Nullable Entity p_270796_, @Nullable Entity p_270459_, @Nullable Vec3 p_270623_) {
-        super(p_270906_, p_270796_, p_270459_, p_270623_);
-    }
-
-
-    private static ResourceKey<DamageType> register(String name)
-    {
-        return ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(FantasyDesire.MODID, name));
-    }
-
-    public static ResourceKey<DamageType> fromString(String id) {
-        return register(id);
-    }
-
     public static void bootstrap(BootstapContext<DamageType> context) {
         context.register(DIMENSION, new DamageType(FantasyDesire.MODID + ".dimension", 0f));
         context.register(OMEGA, new DamageType(FantasyDesire.MODID + ".omega", 0f));
@@ -63,6 +49,21 @@ public class FDDamageSource extends DamageSource {
         context.register(ENVY, new DamageType(FantasyDesire.MODID + ".envy", 0f));
         context.register(ECHO, new DamageType(FantasyDesire.MODID + ".echo", 0f));
     }
+
+
+    public FDDamageSource(Holder<DamageType> p_270906_, @Nullable Entity p_270796_, @Nullable Entity p_270459_, @Nullable Vec3 p_270623_) {
+        super(p_270906_, p_270796_, p_270459_, p_270623_);
+    }
+
+    private static ResourceKey<DamageType> register(String name)
+    {
+        return ResourceKey.create(Registries.DAMAGE_TYPE, new ResourceLocation(FantasyDesire.MODID, name));
+    }
+
+    public static ResourceKey<DamageType> fromString(String id) {
+        return register(id);
+    }
+
     public static DamageSource getDamageSource(Level level, ResourceKey<DamageType> type, EntityType<?>... toIgnore) {
         return getEntityDamageSource(level, type, null, toIgnore);
     }

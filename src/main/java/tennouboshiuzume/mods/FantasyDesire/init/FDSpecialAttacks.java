@@ -17,9 +17,9 @@ public class FDSpecialAttacks {
     public static final RegistryObject<SlashArts> CRIMSON_STRIKE = SLASH_ARTS.register("crimson_strike",
             () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(),1));
     public static final RegistryObject<SlashArts> TWIN_SYSTEM_L = SLASH_ARTS.register("twin_system_l",
-            () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(),1));
+            () -> new FDSlashArts((e) -> FDCombo.MOOD_SLASH.getId(),1));
     public static final RegistryObject<SlashArts> TWIN_SYSTEM_R = SLASH_ARTS.register("twin_system_r",
-            () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(),1));
+            () -> new FDSlashArts((e) -> FDCombo.DOOM_SLASH.getId(),1));
     public static final RegistryObject<SlashArts> CHARGE_SHOT = SLASH_ARTS.register("charge_shot",
             () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(),1));
     public static final RegistryObject<SlashArts> OVER_CHARGE = SLASH_ARTS.register("over_charge",

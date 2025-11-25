@@ -87,6 +87,7 @@ public class VecMathUtils {
         return new Vec3(x, y, z);
     }
 
+
     public static Vec3 getReversedDirection(float yaw, float pitch) {
         float reversedYaw = -yaw;
         float reversedPitch = -pitch;

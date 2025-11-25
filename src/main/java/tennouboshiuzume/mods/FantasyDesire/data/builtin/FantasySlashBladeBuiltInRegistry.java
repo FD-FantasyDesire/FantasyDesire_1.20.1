@@ -2,7 +2,6 @@ package tennouboshiuzume.mods.FantasyDesire.data.builtin;
 
 import mods.flammpfeil.slashblade.client.renderer.CarryType;
 import mods.flammpfeil.slashblade.item.SwordType;
-import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
 import mods.flammpfeil.slashblade.registry.slashblade.EnchantmentDefinition;
 import mods.flammpfeil.slashblade.registry.slashblade.PropertiesDefinition;
 import mods.flammpfeil.slashblade.registry.slashblade.RenderDefinition;
@@ -35,6 +34,7 @@ public class FantasySlashBladeBuiltInRegistry {
     public static final ResourceKey<FantasySlashBladeDefinition> ArdorBlossomStar = register("ardor_blossom_star");
     public static final ResourceKey<FantasySlashBladeDefinition> StarlessNight = register("starless_night");
     public static final ResourceKey<FantasySlashBladeDefinition> Crucible = register("crucible");
+    public static final ResourceKey<FantasySlashBladeDefinition> GireiKen = register("gireiken");
 
     public static void registerAll(BootstapContext<FantasySlashBladeDefinition> bootstrap) {
         System.out.println("==== 开始注册数据 ====");
@@ -47,9 +47,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .standbyRenderType(CarryType.PSO2)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
-                                .baseAttackModifier(2.0F)
+                                .baseAttackModifier(0.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .slashArtsType(SlashArtsRegistry.SAKURA_END.getId())
                                 .maxDamage(40)
                                 .addSpecialEffect(FDSpecialEffects.CheatRumble.getId())
                                 .addSpecialEffect(FDSpecialEffects.TyrantStrike.getId())
@@ -135,7 +134,7 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(4.5F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(60)
+                                .maxDamage(150)
                                 .addSpecialEffect(FDSpecialEffects.BloodDrain.getId())
                                 .addSpecialEffect(FDSpecialEffects.CrimsonStrike.getId())
                                 .slashArtsType(FDSpecialAttacks.CRIMSON_STRIKE.getId())
@@ -166,7 +165,7 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(2.5F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(400)
+                                .maxDamage(1024)
                                 .addSpecialEffect(FDSpecialEffects.TwinSet.getId())
                                 .slashArtsType(FDSpecialAttacks.TWIN_SYSTEM_L.getId())
                                 .build(),
@@ -193,7 +192,7 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(2.5F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                .maxDamage(100)
+                                .maxDamage(1024)
                                 .addSpecialEffect(FDSpecialEffects.TwinSet.getId())
                                 .slashArtsType(FDSpecialAttacks.TWIN_SYSTEM_R.getId())
                                 .build(),
@@ -245,7 +244,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .standbyRenderType(CarryType.RNINJA)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
-                                .baseAttackModifier(3.2F)
+                                .baseAttackModifier(4.0F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .maxDamage(144)
                                 .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
@@ -272,7 +271,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .standbyRenderType(CarryType.RNINJA)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
-                                .baseAttackModifier(3.2F)
+                                .baseAttackModifier(7.2F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .maxDamage(144)
                                 .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
@@ -300,7 +299,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                 .standbyRenderType(CarryType.RNINJA)
                                 .build(),
                         PropertiesDefinition.Builder.newInstance()
-                                .baseAttackModifier(3.2F)
+                                .baseAttackModifier(13.0F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                 .maxDamage(144)
                                 .addSpecialEffect(FDSpecialEffects.EvolutionIce.getId())
@@ -425,7 +424,36 @@ public class FantasySlashBladeBuiltInRegistry {
 //                                .specialEffectLore(6)
 //                                .specialAttackLore(5)
                                 .specialType("crucible")
-                                .specialAttackEffect("omega")
+                                .specialAttackEffect("eternity")
+                                .build(),
+                        List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.SMITE), 10),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 5),
+                                new EnchantmentDefinition(getEnchantmentID(Enchantments.MENDING),1)
+                        )
+                )
+        );
+
+        bootstrap.register(GireiKen,
+                new FantasySlashBladeDefinition(FantasyDesire.prefix("gireiken"),
+                        RenderDefinition.Builder.newInstance()
+                                .effectColor(0xff0000)
+                                .textureName(FantasyDesire.prefix("models/gireiken.png"))
+                                .modelName(FantasyDesire.prefix("models/gireiken.obj"))
+                                .standbyRenderType(CarryType.RNINJA)
+                                .build(),
+                        PropertiesDefinition.Builder.newInstance()
+                                .baseAttackModifier(14.0F)
+                                .defaultSwordType(List.of(SwordType.BEWITCHED))
+//                                .slashArtsType(SlashArtsRegistry.SAKURA_BLAST.getId())
+                                .maxDamage(1561)
+                                .build(),
+                        FantasyDefinition.Builder.newInstance()
+//                                .maxSpecialCharge(140)
+//                                .specialLore(4)
+//                                .specialEffectLore(6)
+//                                .specialAttackLore(5)
+                                .specialType("gireiken")
+                                .specialAttackEffect("eternity")
                                 .build(),
                         List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.SMITE), 10),
                                 new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING), 5),

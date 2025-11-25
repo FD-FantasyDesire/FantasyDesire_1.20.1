@@ -15,7 +15,7 @@ import javax.annotation.Nullable;
 
 public class VoidStrikeEffect extends MobEffect {
     public VoidStrikeEffect() {
-        super(MobEffectCategory.BENEFICIAL, 0x5500AA); // 紫黑色
+        super(MobEffectCategory.HARMFUL, 0x5500AA); // 紫黑色
     }
 
     @Override
@@ -23,7 +23,7 @@ public class VoidStrikeEffect extends MobEffect {
         if (!entity.level().isClientSide()) {
             ServerLevel sl = (ServerLevel) entity.level();
             sl.sendParticles(dust, entity.position().x, entity.position().y+entity.getBbHeight()/2, entity.position().z, 2*amplifier, entity.getBbWidth() / 2, entity.getBbHeight() / 2, entity.getBbWidth() / 2, 0.05);
-            sl.playSound(null, entity.blockPosition(), SoundEvents.RESPAWN_ANCHOR_CHARGE, SoundSource.AMBIENT, 0.5f, 0.5f);
+            sl.playSound(null, entity.blockPosition(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.AMBIENT, 0.5f, 1f);
         }
     }
 

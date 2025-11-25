@@ -15,10 +15,10 @@ public class FDSpecialEffects {
     public static final RegistryObject<SpecialEffect> TyrantStrike = SPECIAL_EFFECT.register("tyrant_strike", () -> new FDSpecialEffectBase(80, false, false,1));
     public static final RegistryObject<SpecialEffect> CheatRumble = SPECIAL_EFFECT.register("cheat_rumble", () -> new FDSpecialEffectBase(800000, false, false,1));
     public static final RegistryObject<SpecialEffect> OverDimension = SPECIAL_EFFECT.register("over_dimension", () -> new FDSpecialEffectBase(-1, false, false,1));
-//    Evolution ICE
+//    Over Cold
     public static final RegistryObject<SpecialEffect> EvolutionIce = SPECIAL_EFFECT.register("evolution_ice", () -> new FDSpecialEffectBase(1, false, false,1));
     public static final RegistryObject<SpecialEffect> ColdLeak = SPECIAL_EFFECT.register("cold_leak", () -> new FDSpecialEffectBase(1, false, false,1));
-//    pure snow
+//    Pure Snow
     public static final RegistryObject<SpecialEffect> RainbowFlux = SPECIAL_EFFECT.register("rainbow_flux", () -> new FDSpecialEffectBase(1, false, false,2));
     public static final RegistryObject<SpecialEffect> PrismFlux = SPECIAL_EFFECT.register("prism_flux", () -> new FDSpecialEffectBase(80, false, false,1));
     public static final RegistryObject<SpecialEffect> ColorFlux = SPECIAL_EFFECT.register("color_flux", () -> new FDSpecialEffectBase(40, false, false,1));

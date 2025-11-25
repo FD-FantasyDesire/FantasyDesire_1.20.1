@@ -37,6 +37,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.*;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -46,6 +48,10 @@ import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 
 
 public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
@@ -79,14 +85,23 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     private static final EntityDataAccessor<Float> EXP_RADIUS = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.FLOAT);
     //    伤害类型
     private static final EntityDataAccessor<String> DAMAGE_TYPE = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.STRING);
-
+    //    是否可多次命中
     private static final EntityDataAccessor<Boolean> MULTIPLE_HIT = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.BOOLEAN);
+    //    是否触发击中事件，防止某些效果造成循环
+    private static final EntityDataAccessor<Boolean> NO_EVENT = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.BOOLEAN);
+    //    拖尾开关
+    private static final EntityDataAccessor<Boolean> HAS_TAIL = SynchedEntityData.defineId(EntityFDPhantomSword.class, EntityDataSerializers.BOOLEAN);
 
     protected boolean inited = false;
     protected boolean isSeeking = false;
     protected SoundEvent fireSound = null;
     protected float fireSoundVolume = 1;
     protected float fireSoundRate = 1;
+
+    private static final int TRAIL_MAX = 8;
+    @OnlyIn(Dist.CLIENT)
+    private final Deque<Vec3> trailPositions = new ArrayDeque<>();
+
     public EntityFDPhantomSword(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
@@ -110,11 +125,12 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.define(SPEED, 3f);
         this.entityData.define(EXP_RADIUS, 0f);
         this.entityData.define(DAMAGE_TYPE, "Null");
+        this.entityData.define(NO_EVENT, false);
+        this.entityData.define(HAS_TAIL, false);
     }
 
     @Override
     public void tick() {
-//        TODO::行为模式
 //        测试使用GunBladeEffects.java类测试
 //        检定：如果绑定于玩家，则根据玩家位置，适用视角对应的位置修正，类似BlisteringSwords
 //        如果绑定于世界，则适用默认方向修正 （STANDBY_YAW 、STANDBY_PITCH）
@@ -124,7 +140,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 //        Example：
 //          有目标，发射延迟<追踪延迟：以初始方向发射后再追踪敌人
 //          绑定于世界，有目标，无追踪延迟，有发射延迟：以基础方向生成，并且立即开始转向目标，延迟结束时按朝向发射
-//
+//          我的天哪怎么能有扩展性这么烂的基类，我都快把这玩意重写了个遍
         if (getShooter() == null) {
             if (tickCount > 100) remove(RemovalReason.DISCARDED);
             return;
@@ -165,13 +181,25 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                     this.isSeeking = false;
                     setTargetId(-1);
                 }
-            }else {
+            } else {
                 this.isSeeking = false;
             }
+            if (this.level().isClientSide()) {
+                // 记录当前位置（世界坐标）
+                Vec3 pos = this.position();
+                if (trailPositions.isEmpty() || !trailPositions.peekFirst().equals(pos)) {
+                    trailPositions.addFirst(pos);
+                    if (trailPositions.size() > TRAIL_MAX) {
+                        trailPositions.removeLast();
+                    }
+                }
+            }
             flyticking();
-            if (this.level().isClientSide) trail();
         }
         if (!getInGround() && (getPierce() > 0 || getHitEntity() == null)) playparticle();
+
+        // 在 tick 结尾或合适位置更新客户端拖尾
+
     }
 
     private void playparticle() {
@@ -209,8 +237,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             );
         }
     }
-    private void trail(){
-    }
 
     private void flyticking() {
         if (this.getHitEntity() != null) {
@@ -233,7 +259,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             if (!blockstate.isAir() && !disallowedHitBlock) {
                 VoxelShape voxelshape = blockstate.getCollisionShape(this.level(), blockpos);
                 if (!voxelshape.isEmpty()) {
-                    // 用飞剑膨胀后的 AABB 来检测
                     AABB swordBox = this.getBoundingBox().inflate(getScale());
                     for (AABB axisalignedbb : voxelshape.toAabbs()) {
                         if (axisalignedbb.move(blockpos).intersects(swordBox)) {
@@ -310,11 +335,11 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
                 this.setPos(this.getX() + mx, this.getY() + my, this.getZ() + mz);
                 float f4 = Mth.sqrt((float) motionVec.horizontalDistanceSqr());
-//                if (disallowedHitBlock) {
-//                    this.setYRot((float) (Mth.atan2(-mx, -mz) * 57.2957763671875));
-//                } else {
-//                    this.setYRot((float) (Mth.atan2(mx, mz) * 57.2957763671875));
-//                }
+                if (disallowedHitBlock) {
+                    this.setYRot((float) (Mth.atan2(-mx, -mz) * 57.2957763671875));
+                } else {
+                    this.setYRot((float) (Mth.atan2(mx, mz) * 57.2957763671875));
+                }
 
                 this.setXRot((float) (Mth.atan2(my, (double) f4) * 57.2957763671875));
 
@@ -391,8 +416,10 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     @Override
     protected void onHitEntity(EntityHitResult entityHitResult) {
         Entity targetEntity = entityHitResult.getEntity();
-        SlashBladeEvent.SummonedSwordOnHitEntityEvent event = new SlashBladeEvent.SummonedSwordOnHitEntityEvent(this);
-        MinecraftForge.EVENT_BUS.post(event);
+        if (!this.getEntityData().get(NO_EVENT)) {
+            SlashBladeEvent.SummonedSwordOnHitEntityEvent event = new SlashBladeEvent.SummonedSwordOnHitEntityEvent(this,targetEntity);
+            MinecraftForge.EVENT_BUS.post(event);
+        }
         int i = Mth.ceil(this.getDamage());
         if (this.getPierce() > 0) {
             if (getAlreadyHits() == null) {
@@ -478,17 +505,18 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                 }
             }
         }
-        if (this.entityData.get(EXP_RADIUS)>0){
+        if (this.entityData.get(EXP_RADIUS) > 0) {
             this.level().explode(this, this.getX(), this.getY(), this.getZ(), this.entityData.get(EXP_RADIUS), Level.ExplosionInteraction.NONE);
-            targetEntity.invulnerableTime=0;
+            targetEntity.invulnerableTime = 0;
             this.burst();
-            targetEntity.invulnerableTime=0;
+            targetEntity.invulnerableTime = 0;
         }
     }
+
     @Override
     protected void onHitBlock(BlockHitResult blockraytraceresult) {
         super.onHitBlock(blockraytraceresult);
-        if (this.entityData.get(EXP_RADIUS)>0){
+        if (this.entityData.get(EXP_RADIUS) > 0) {
             this.level().explode(this, this.getX(), this.getY(), this.getZ(), this.entityData.get(EXP_RADIUS), Level.ExplosionInteraction.NONE);
             this.burst();
         }
@@ -504,8 +532,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         return null;
     }
 
-
-    //    DONE 数据持久化
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
@@ -535,9 +561,10 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         tag.putFloat("Speed", this.entityData.get(SPEED));
         tag.putFloat("ExpRadius", this.entityData.get(EXP_RADIUS));
         tag.putString("DamageType", this.entityData.get(DAMAGE_TYPE));
+        tag.putBoolean("NoEvent", this.entityData.get(NO_EVENT));
+        tag.putBoolean("HasTail", this.entityData.get(HAS_TAIL));
     }
 
-    // 读取
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
@@ -550,7 +577,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(STANDBY_YAW, tag.getFloat("StandbyYaw"));
         this.entityData.set(STANDBY_PITCH, tag.getFloat("StandbyPitch"));
         this.entityData.set(PARTICLE_TYPES, tag.getString("ParticleTypes"));
-
         if (tag.contains("Offset", Tag.TAG_COMPOUND)) {
             CompoundTag offsetTag = tag.getCompound("Offset");
             Vector3f offset = new Vector3f(
@@ -574,6 +600,8 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(SPEED, tag.getFloat("Speed"));
         this.entityData.set(EXP_RADIUS, tag.getFloat("ExpRadius"));
         this.entityData.set(DAMAGE_TYPE, tag.getString("DamageType"));
+        this.entityData.set(NO_EVENT, tag.getBoolean("NoEvent"));
+        this.entityData.set(HAS_TAIL, tag.getBoolean("HasTail"));
     }
 
     private void updateStandbyOrientationByShooter() {
@@ -588,7 +616,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         Entity target = getTargetEntity(); // 通过目标ID获取实体
         if (target != null && target.isAlive() && tickCount > getSeekDelay()) {
             // 计算朝向目标的 yaw/pitch
-            Vec3 toTarget = target.position().add(0, target.getEyeHeight() * 0.5, 0)
+            Vec3 toTarget = target.position().add(0, target.getBbHeight() * 0.5, 0)
                     .subtract(this.position());
             double dx = toTarget.x;
             double dy = toTarget.y;
@@ -614,7 +642,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         Entity target = getTargetEntity(); // 通过目标ID获取实体
         if (target != null && target.isAlive()) {
             // 计算朝向目标的 yaw/pitch
-            Vec3 toTarget = target.position().add(0, target.getEyeHeight() * 0.5, 0)
+            Vec3 toTarget = target.position().add(0, target.getBbHeight() * 0.5, 0)
                     .subtract(this.position());
             double dx = toTarget.x;
             double dy = toTarget.y;
@@ -637,7 +665,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         float yaw = -this.getYRot();
         float pitch = -this.getXRot();
         Vec3 dir = Vec3.directionFromRotation(pitch, yaw);
-        this.shoot(dir.x, dir.y, dir.z, getSpeed(), getSpeed());
+        this.shoot(dir.x, dir.y, dir.z, getSpeed(), 0f);
         playFireSound(this.fireSoundVolume, this.fireSoundRate);
         this.setFired();
     }
@@ -651,7 +679,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
     private void tryInit() {
         if (this.getStandbyMode().equals("WORLD")) {
-            this.yRotO = getStandbyYawPitch()[0];
+            this.yRotO = -getStandbyYawPitch()[0];
             this.xRotO = -getStandbyYawPitch()[1];
             this.setYRot(this.yRotO);
             this.setXRot(this.xRotO);
@@ -686,8 +714,8 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(DELAY_TICKS, delay);
     }
 
-    public void setExpRadius(float value){
-        this.entityData.set(EXP_RADIUS,value);
+    public void setExpRadius(float value) {
+        this.entityData.set(EXP_RADIUS, value);
     }
 
     // 大小缩放
@@ -737,6 +765,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(STANDBY_PITCH, pitch);
     }
 
+    // 发射后追踪延迟
     public int getSeekDelay() {
         return this.entityData.get(SEEK_DELAY);
     }
@@ -748,32 +777,32 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     // 飞行粒子
     public ParticleOptions getParticleType() {
         String id = this.entityData.get(PARTICLE_TYPES);
-        if (id.equals("Null")||id.isBlank()) return null;
+        if (id.equals("Null") || id.isBlank()) return null;
         ParticleType<?> type = BuiltInRegistries.PARTICLE_TYPE.get(new ResourceLocation(id));
         if (type instanceof SimpleParticleType) {
             return (SimpleParticleType) type;
         }
         return null;
     }
-
+    // 设置粒子效果
     public void setParticleType(ParticleType<?> type) {
         ResourceLocation id = BuiltInRegistries.PARTICLE_TYPE.getKey(type);
         if (id != null) {
             this.entityData.set(PARTICLE_TYPES, id.toString());
         }
     }
-
+    //  设置发射音效
     public void setFireSound(SoundEvent sound, float volume, float rate) {
         this.fireSound = sound;
         this.fireSoundRate = rate;
         this.fireSoundVolume = volume;
     }
 
-
+    // 设置偏移量
     public void setOffset(Vec3 offset) {
         this.entityData.set(OFFSET, offset.toVector3f());
     }
-
+    //  设置偏移中心
     public void setCenterOffset(Vec3 offset) {
         this.entityData.set(CENTER_OFFSET, offset.toVector3f());
     }
@@ -803,6 +832,17 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     public boolean getMultipleHit() {
         return this.entityData.get(MULTIPLE_HIT);
     }
+
+    public void setNoEvent(boolean value) {
+        this.entityData.set(NO_EVENT, value);
+    }
+    public void setHasTail(boolean value) {
+        this.entityData.set(HAS_TAIL,value);
+    }
+    public boolean getHasTail(){
+        return this.entityData.get(HAS_TAIL);
+    }
+
     //////////////////////////
     //       我讨厌反射       //
     //////////////////////////
@@ -892,6 +932,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         }
     }
 
+
     public void setAlreadyHits(IntOpenHashSet value) {
         try {
             Field f = EntityAbstractSummonedSword.class.getDeclaredField("alreadyHits");
@@ -910,5 +951,10 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public List<Vec3> getTrailPositions() {
+        return new ArrayList<>(this.trailPositions);
     }
 }

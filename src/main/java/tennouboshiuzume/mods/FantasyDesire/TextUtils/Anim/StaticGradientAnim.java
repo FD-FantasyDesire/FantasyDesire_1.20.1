@@ -7,6 +7,7 @@ import tennouboshiuzume.mods.FantasyDesire.TextUtils.ComponentUtils;
 import tennouboshiuzume.mods.FantasyDesire.TextUtils.ITextAnim;
 
 public class StaticGradientAnim implements ITextAnim {
+//    静态渐变
     @Override
     public MutableComponent apply(MutableComponent component, long worldTime, long speed, TextColor[] colors) {
         String text = component.getString();

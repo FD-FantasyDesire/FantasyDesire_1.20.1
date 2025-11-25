@@ -9,6 +9,7 @@ import tennouboshiuzume.mods.FantasyDesire.TextUtils.ITextAnim;
 import java.awt.*;
 
 public class RainbowAnim implements ITextAnim {
+//    动态彩虹渐变
     @Override
     public MutableComponent apply(MutableComponent component, long worldTime, long speed, TextColor[] colors) {
         return ComponentUtils.forEachChar(component, (c, baseStyle, index) -> {

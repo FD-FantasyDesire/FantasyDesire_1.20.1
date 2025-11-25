@@ -20,7 +20,6 @@
   },
   "name": "fantasydesire:over_cold",
   "properties": {
-    "attack_base": 3.2,
     "max_damage": 144,
     "slash_art": "fantasydesire:freeze_zero",
     "special_effects": [

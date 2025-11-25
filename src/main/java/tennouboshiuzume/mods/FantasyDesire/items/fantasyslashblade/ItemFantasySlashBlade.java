@@ -28,6 +28,7 @@ import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextNode;
 import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextParser;
 import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextRenderer;
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.FDSpecialEffectBase;
+import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -45,19 +46,20 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
 
     @Override
     public Component getName(ItemStack stack) {
-        String raw = "<Style Type=\"dynamicgradient\" Speed=\"1\" Color=\"#FFFFFF\",\"#FF0000\",\"#000000\">毁灭战士的裁决剑</Style>";
-
-        // 1. 解析成 AST
+        String raw = this.getDescriptionId(stack);
+        //富文本解析
+        String key = this.getDescriptionId(stack);
+        // 从语言系统获取已翻译文本
+        String localized = I18n.get(key);
         TextParser parser = new TextParser();
-        List<TextNode> roots = parser.parseMultipleTrees(raw);
-
+        List<TextNode> roots = parser.parseMultipleTrees(localized);
         long tick = 0;
         if (Minecraft.getInstance().level != null) {
             tick = Minecraft.getInstance().level.getGameTime();
         }
-
         return TextRenderer.render(roots, tick);
     }
+
     @Override
     @OnlyIn(Dist.CLIENT)
     public void appendSwordType(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
@@ -92,10 +94,24 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             this.appendSpecialAttackEffect(tooltip, stack);
             this.appendSpecialEffects(tooltip, s);
             this.appendSpecialLore(tooltip, stack);
-            this.appendSpecialEffectLore(tooltip, stack);
-            this.appendSpecialAttackLore(tooltip, stack);
+            this.appendSASEInfo(tooltip, stack);
             this.appendSpecialCharge(tooltip, stack);
         });
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void appendSASEInfo(List<Component> tooltip, ItemStack stack) {
+        ISlashBladeState state = CapabilityUtils.getBladeState(stack);
+        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(stack);
+        if (!Screen.hasShiftDown() && state.getSpecialEffects().stream().anyMatch((se)->FantasyDesire.MODID.equals(se.getNamespace()))) {
+            // 提示玩家按 Ctrl 查看更多信息
+            tooltip.add(Component.translatable("tooltip.fantasydesire.press_shift_for_details"));
+        }
+//        System.out.println(state.getSlashArts().getDescription());
+//        if (!Screen.hasControlDown() && state.getSlashArtsKey().getNamespace().equals(FantasyDesire.MODID)) {
+//            // 提示玩家按 shift 查看更多信息
+//            tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
+//        }
     }
 
     @Override
@@ -130,49 +146,6 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 });
             }
         });
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void appendSpecialEffectLore(List<Component> tooltip, ItemStack stack) {
-        if (Screen.hasShiftDown() && !Screen.hasControlDown()) {
-//            stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
-//                int loreCount = s.getSpecialEffectLore(); // 获取需要显示的文本行数
-//                if (loreCount>0){
-//                    stack.getCapability(BLADESTATE).ifPresent((b) -> {
-//                        String locName = b.getTranslationKey();
-//                        for (int i = 0; i < loreCount; i++) {
-//                            Component loreText = Component.translatable(locName + ".SpecialEffect.desc" + i);
-//                            tooltip.add(loreText);
-//                        }
-//                    });
-//                }
-//            });
-        } else {
-            // 提示玩家按 Ctrl 查看更多信息
-            tooltip.add(Component.translatable("tooltip.fantasydesire.press_shift_for_details"));
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void appendSpecialAttackLore(List<Component> tooltip, ItemStack stack) {
-        // 只有按下 Ctrl 键时才显示
-        if (Screen.hasControlDown() && !Screen.hasShiftDown()) {
-            stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
-                int loreCount = s.getSpecialAttackLore(); // 获取需要显示的文本行数
-                if (loreCount > 0) {
-                    stack.getCapability(BLADESTATE).ifPresent((b) -> {
-                        String locName = b.getTranslationKey();
-                        for (int i = 0; i < loreCount; i++) {
-                            Component loreText = Component.translatable(locName + ".SpecialAttack.desc" + i);
-                            tooltip.add(loreText);
-                        }
-                    });
-                }
-            });
-        } else {
-            // 提示玩家按 Ctrl 查看更多信息
-            tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
-        }
     }
 
     //    用于显示“特殊充能”

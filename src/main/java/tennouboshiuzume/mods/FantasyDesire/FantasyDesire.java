@@ -30,6 +30,7 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySl
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.idletest;
 
 @Mod(FantasyDesire.MODID)
+@SuppressWarnings("removal")
 public class FantasyDesire {
     public static final String MODID = "fantasydesire";
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -41,7 +42,8 @@ public class FantasyDesire {
     public FantasyDesire() {
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         FDEntitys.register(eventBus);
-        FDCombo.COMBO_STATES.register(eventBus);
+        FDParticles.PARTICLES.register(eventBus);
+        FDCombo.FD_COMBO_STATES.register(eventBus);
         FDSpecialAttacks.SLASH_ARTS.register(eventBus);
         FDSpecialEffects.SPECIAL_EFFECT.register(eventBus);
         FDPotionEffects.register(eventBus);
@@ -49,9 +51,6 @@ public class FantasyDesire {
     }
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
-//        public static final ResourceLocation FDSummonSwordBaseLoc = new ResourceLocation(FantasyDesire.MODID,
-//                classToString(EntityFDSummonSwordBase.class));
-//        public static EntityType<EntityFDSummonSwordBase>  FDSummonSwordBase;
         @SubscribeEvent
         public static void register(RegisterEvent event) {
 

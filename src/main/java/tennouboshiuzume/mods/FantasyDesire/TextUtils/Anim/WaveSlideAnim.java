@@ -7,6 +7,7 @@ import tennouboshiuzume.mods.FantasyDesire.TextUtils.ComponentUtils;
 import tennouboshiuzume.mods.FantasyDesire.TextUtils.ITextAnim;
 
 public class WaveSlideAnim implements ITextAnim {
+//    滑动加粗
     @Override
     public MutableComponent apply(MutableComponent component, long worldTime, long speed, TextColor[] colors) {
         int length = component.getString().length();

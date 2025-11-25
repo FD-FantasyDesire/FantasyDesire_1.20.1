@@ -43,7 +43,6 @@ public class ModDamageTypeTagsProvider extends DamageTypeTagsProvider {
 //      无视盾牌
         this.tag(DamageTypeTags.BYPASSES_SHIELD)
                 .add(FDDamageSource.OMEGA)
-                .add(FDDamageSource.DIMENSION)
                 .add(FDDamageSource.WRATH);
 
 //      火焰伤害
