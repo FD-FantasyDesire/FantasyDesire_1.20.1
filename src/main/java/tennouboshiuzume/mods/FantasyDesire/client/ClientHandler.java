@@ -31,12 +31,13 @@ import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleProvider;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDDriveExRender;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDEnergyBulletRender;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDPhantomSwordRender;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
 import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
 
-
+@SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = "fantasydesire",value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 @OnlyIn(Dist.CLIENT)
 public class ClientHandler {
@@ -78,6 +79,8 @@ public class ClientHandler {
         event.registerEntityRenderer(FDEntitys.FDPhantomSword.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDDriveEx.get(), FDDriveExRender::new);
         event.registerEntityRenderer(FDEntitys.FDRainbowPhantomSword.get(),FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDEnergyBullet.get(), FDEnergyBulletRender::new);
+        event.registerEntityRenderer(FDEntitys.FDBFG.get(), FDEnergyBulletRender::new);
     }
     @SubscribeEvent
     public static void onRegisterFactories(RegisterParticleProvidersEvent event) {

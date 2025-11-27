@@ -7,9 +7,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDDriveEx;
-import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
-import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDRainbowPhantomSword;
+import tennouboshiuzume.mods.FantasyDesire.entity.*;
 
 public class FDEntitys {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES =
@@ -35,6 +33,20 @@ public class FDEntitys {
                     .clientTrackingRange(8)
                     .updateInterval(1)
                     .build("fd_rainbow_phantom_sword")
+    );
+    public static final RegistryObject<EntityType<EntityFDEnergyBullet>> FDEnergyBullet = ENTITY_TYPES.register("fd_energy_bullet",
+            () -> EntityType.Builder.<EntityFDEnergyBullet>of(EntityFDEnergyBullet::new, MobCategory.MISC)
+                    .sized(1.0F, 1.0F)
+                    .clientTrackingRange(8)
+                    .updateInterval(1)
+                    .build("fd_energy_bullet")
+    );
+    public static final RegistryObject<EntityType<EntityFDBFG>> FDBFG = ENTITY_TYPES.register("fd_bfg",
+            () -> EntityType.Builder.<EntityFDBFG>of(EntityFDBFG::new, MobCategory.MISC)
+                    .sized(1.0F, 1.0F)
+                    .clientTrackingRange(8)
+                    .updateInterval(1)
+                    .build("fd_bfg")
     );
 
 

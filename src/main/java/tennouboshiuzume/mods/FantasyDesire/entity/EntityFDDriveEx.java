@@ -4,6 +4,7 @@ import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.StunManager;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.concentrationrank.IConcentrationRank;
+import mods.flammpfeil.slashblade.entity.EntityDrive;
 import mods.flammpfeil.slashblade.entity.Projectile;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.AttackManager;
@@ -79,10 +80,6 @@ public class EntityFDDriveEx extends EntityFDPhantomSword {
         this.setNoGravity(true);
     }
 
-    public static EntityFDDriveEx createInstance(PlayMessages.SpawnEntity packet, Level worldIn) {
-        return new EntityFDDriveEx(SlashBlade.RegistryEvents.Drive, worldIn);
-    }
-
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
@@ -112,10 +109,10 @@ public class EntityFDDriveEx extends EntityFDPhantomSword {
                 .get("Knockback", this::setKnockBackOrdinal);
     }
 
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
+//    @Override
+//    public Packet<ClientGamePacketListener> getAddEntityPacket() {
+//        return NetworkHooks.getEntitySpawningPacket(this);
+//    }
 
     @Override
     @OnlyIn(Dist.CLIENT)

@@ -53,7 +53,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-
+@SuppressWarnings("removal")
 public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
     //    发射延迟
@@ -169,6 +169,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         }
 
         if (getFired()) {
+            customEffectFired();
             if (tickCount > getSeekDelay()
                     && this.getMovingMode().equals("SEEK")
                     && getTargetId() != -1
@@ -184,22 +185,20 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             } else {
                 this.isSeeking = false;
             }
-            if (this.level().isClientSide()) {
-                // 记录当前位置（世界坐标）
+            if (this.level().isClientSide() && getFired()) {
                 Vec3 pos = this.position();
-                if (trailPositions.isEmpty() || !trailPositions.peekFirst().equals(pos)) {
-                    trailPositions.addFirst(pos);
-                    if (trailPositions.size() > TRAIL_MAX) {
-                        trailPositions.removeLast();
-                    }
+                trailPositions.addFirst(pos);
+                if (trailPositions.size() > TRAIL_MAX) {
+                    trailPositions.removeLast();
                 }
             }
             flyticking();
         }
         if (!getInGround() && (getPierce() > 0 || getHitEntity() == null)) playparticle();
+    }
 
-        // 在 tick 结尾或合适位置更新客户端拖尾
-
+    public void customEffectFired() {
+//        占位用，后续子类可重写并且插入Fired段
     }
 
     private void playparticle() {
@@ -230,28 +229,34 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                     getParticleType(),
                     x, y, z,
                     1,
-                    0.25 * getScale(),
-                    0.25 * getScale(),
-                    0.25 * getScale(),
+                    0.05 * getScale(),
+                    0.05 * getScale(),
+                    0.05 * getScale(),
                     0.05 * getScale()
             );
+        }
+    }
+//    刺入实体
+    private void stabInEntity(Entity hit){
+        if (!hit.isAlive()) {
+            this.burst();
+            return;
+        }
+        this.setPos(
+                hit.getX(),
+                hit.getY() + hit.getEyeHeight() * 0.5F,
+                hit.getZ()
+        );
+        int delay = this.getDelay() - 1;
+        this.setDelay(delay);
+        if (!this.level().isClientSide() && delay < 0) {
+            this.burst();
         }
     }
 
     private void flyticking() {
         if (this.getHitEntity() != null) {
-            Entity hits = this.getHitEntity();
-            if (!hits.isAlive()) {
-                this.burst();
-            } else {
-                this.setPos(hits.getX(), hits.getY() + (double) (hits.getEyeHeight() * 0.5F), hits.getZ());
-                int delay = this.getDelay();
-                --delay;
-                this.setDelay(delay);
-                if (!this.level().isClientSide() && delay < 0) {
-                    this.burst();
-                }
-            }
+            stabInEntity(this.getHitEntity());
         } else {
             boolean disallowedHitBlock = this.isNoClip();
             BlockPos blockpos = this.getOnPos();
@@ -335,11 +340,11 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
                 this.setPos(this.getX() + mx, this.getY() + my, this.getZ() + mz);
                 float f4 = Mth.sqrt((float) motionVec.horizontalDistanceSqr());
-                if (disallowedHitBlock) {
-                    this.setYRot((float) (Mth.atan2(-mx, -mz) * 57.2957763671875));
-                } else {
-                    this.setYRot((float) (Mth.atan2(mx, mz) * 57.2957763671875));
-                }
+//                if (disallowedHitBlock) {
+//                    this.setYRot(-(float) (Mth.atan2(-mx, -mz) * 57.2957763671875));
+//                } else {
+//                    this.setYRot(-(float) (Mth.atan2(mx, mz) * 57.2957763671875));
+//                }
 
                 this.setXRot((float) (Mth.atan2(my, (double) f4) * 57.2957763671875));
 
@@ -506,7 +511,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             }
         }
         if (this.entityData.get(EXP_RADIUS) > 0) {
-            this.level().explode(this, this.getX(), this.getY(), this.getZ(), this.entityData.get(EXP_RADIUS), Level.ExplosionInteraction.NONE);
+            this.level().explode(this.getShooter(), this.getX(), this.getY(), this.getZ(), this.entityData.get(EXP_RADIUS), Level.ExplosionInteraction.NONE);
             targetEntity.invulnerableTime = 0;
             this.burst();
             targetEntity.invulnerableTime = 0;
@@ -517,7 +522,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     protected void onHitBlock(BlockHitResult blockraytraceresult) {
         super.onHitBlock(blockraytraceresult);
         if (this.entityData.get(EXP_RADIUS) > 0) {
-            this.level().explode(this, this.getX(), this.getY(), this.getZ(), this.entityData.get(EXP_RADIUS), Level.ExplosionInteraction.NONE);
+            this.level().explode(this.getShooter(), this.getX(), this.getY(), this.getZ(), this.entityData.get(EXP_RADIUS), Level.ExplosionInteraction.NONE);
             this.burst();
         }
     }
@@ -633,7 +638,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         } else {
             float newYaw = -this.getShooter().getYRot() - getStandbyYawPitch()[0];
             float newPitch = -this.getShooter().getXRot() - getStandbyYawPitch()[1];
-
             this.setRot(newYaw, newPitch);
         }
     }
@@ -662,9 +666,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     }
 
     private void fire() {
-        float yaw = -this.getYRot();
-        float pitch = -this.getXRot();
-        Vec3 dir = Vec3.directionFromRotation(pitch, yaw);
+        Vec3 dir = Vec3.directionFromRotation(-this.getXRot(), -this.getYRot());
         this.shoot(dir.x, dir.y, dir.z, getSpeed(), 0f);
         playFireSound(this.fireSoundVolume, this.fireSoundRate);
         this.setFired();
@@ -684,11 +686,15 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             this.setYRot(this.yRotO);
             this.setXRot(this.xRotO);
             inited = true;
-        } else if (getShooter() != null) {
+        } else if (this.getStandbyMode().equals("PLAYER") && getShooter() != null) {
             this.yRotO = -getShooter().getYRot() - getStandbyYawPitch()[0];
             this.xRotO = -getShooter().getXRot() - getStandbyYawPitch()[1];
             this.setYRot(this.yRotO);
             this.setXRot(this.xRotO);
+            this.setPos(this.position().add(getOffset()
+                    .xRot((float) Math.toRadians(-this.getShooter().getXRot()))
+                    .yRot((float) Math.toRadians(-this.getShooter().getYRot()))
+                    .add(getCenterOffset())));
             inited = true;
         }
     }
@@ -718,6 +724,9 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(EXP_RADIUS, value);
     }
 
+    public float getExpRadius(){
+        return this.entityData.get(EXP_RADIUS);
+    }
     // 大小缩放
     public float getScale() {
         return this.entityData.get(SCALE);

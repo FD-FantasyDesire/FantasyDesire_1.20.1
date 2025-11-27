@@ -53,10 +53,10 @@ public class PureSnowEffects {
     //    虹羽七刃剑
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onSlash(SlashBladeEvent.DoSlashEvent event) {
-        if (!event.getUser().hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get())) return;
         ItemStack blade = event.getBlade();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade)) return;
         if (!(event.getUser() instanceof Player player)) return;
+        if (!event.getUser().hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get())) return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
         if (!CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.RainbowFlux, player, "item.fantasydesire.pure_snow"))

@@ -27,6 +27,7 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextNode;
 import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextParser;
 import tennouboshiuzume.mods.FantasyDesire.TextUtils.TextRenderer;
+import tennouboshiuzume.mods.FantasyDesire.specialattack.FDSlashArts;
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.FDSpecialEffectBase;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
@@ -94,24 +95,41 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             this.appendSpecialAttackEffect(tooltip, stack);
             this.appendSpecialEffects(tooltip, s);
             this.appendSpecialLore(tooltip, stack);
-            this.appendSASEInfo(tooltip, stack);
+            this.appendSASENotice(tooltip, stack);
             this.appendSpecialCharge(tooltip, stack);
         });
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void appendSASEInfo(List<Component> tooltip, ItemStack stack) {
+    public void appendSASENotice(List<Component> tooltip, ItemStack stack) {
         ISlashBladeState state = CapabilityUtils.getBladeState(stack);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(stack);
         if (!Screen.hasShiftDown() && state.getSpecialEffects().stream().anyMatch((se)->FantasyDesire.MODID.equals(se.getNamespace()))) {
-            // 提示玩家按 Ctrl 查看更多信息
+            // 提示玩家按 shift 查看更多信息
             tooltip.add(Component.translatable("tooltip.fantasydesire.press_shift_for_details"));
         }
 //        System.out.println(state.getSlashArts().getDescription());
-//        if (!Screen.hasControlDown() && state.getSlashArtsKey().getNamespace().equals(FantasyDesire.MODID)) {
-//            // 提示玩家按 shift 查看更多信息
-//            tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
-//        }
+        if (!Screen.hasControlDown() && state.getSlashArtsKey()!=null && state.getSlashArtsKey().getNamespace().equals(FantasyDesire.MODID)) {
+            // 提示玩家按 Ctrl 查看更多信息
+            tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
+        }
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void appendSlashArt(ItemStack stack, List<Component> tooltip, @NotNull ISlashBladeState s) {
+        EnumSet<SwordType> swordType = SwordType.from(stack);
+        ISlashBladeState state = CapabilityUtils.getBladeState(stack);
+        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(stack);
+        if (swordType.contains(SwordType.BEWITCHED) && !swordType.contains(SwordType.SEALED)) {
+            tooltip.add(Component.translatable("slashblade.tooltip.slash_art", new Object[]{s.getSlashArts().getDescription()}).withStyle(ChatFormatting.GRAY));
+        }
+        if (Screen.hasControlDown() && state.getSlashArts() instanceof FDSlashArts slashArts && slashArts.getDescColumn()>0) {
+            for (int i = 0; i < slashArts.getDescColumn(); i++) {
+                tooltip.add(Component.translatable("slash_art.fantasydesire."+ s.getSlashArtsKey().getPath() + ".desc_" + i));
+            }
+        }
+
     }
 
     @Override

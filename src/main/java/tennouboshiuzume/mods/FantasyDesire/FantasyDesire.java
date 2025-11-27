@@ -44,7 +44,7 @@ public class FantasyDesire {
         FDEntitys.register(eventBus);
         FDParticles.PARTICLES.register(eventBus);
         FDCombo.FD_COMBO_STATES.register(eventBus);
-        FDSpecialAttacks.SLASH_ARTS.register(eventBus);
+        FDSpecialAttacks.FD_SLASH_ARTS.register(eventBus);
         FDSpecialEffects.SPECIAL_EFFECT.register(eventBus);
         FDPotionEffects.register(eventBus);
         FDTab.register(eventBus);

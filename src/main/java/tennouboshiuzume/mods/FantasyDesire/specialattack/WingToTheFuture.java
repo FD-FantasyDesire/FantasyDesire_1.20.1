@@ -123,6 +123,7 @@ public class WingToTheFuture {
                         ss.setScale(1.5f);
                         ss.setExpRadius(4f);
                         ss.setHasTail(true);
+                        ss.setNoClip(true);
                         if (state.getTargetEntity(player.level()) != null) {
                             ss.setTargetId(state.getTargetEntityId());
                         } else if (!targets.isEmpty()) {
