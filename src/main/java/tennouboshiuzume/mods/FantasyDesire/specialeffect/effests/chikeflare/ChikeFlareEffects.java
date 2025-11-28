@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -29,6 +30,9 @@ import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.MathUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ChikeFlareEffects {
@@ -117,12 +121,10 @@ public class ChikeFlareEffects {
 
             // 阻止死亡事件
             event.setCanceled(true);
-
-//            // 调试输出（可选）
-//             player.sendSystemMessage(Component.literal("Immortal Soul triggered from " + (validBlade == main ? "Main Hand" : "Off Hand")));
         }
     }
-//    暴君一击
+
+    //    暴君一击
     @SubscribeEvent
     public static void OnHit(SlashBladeEvent.HitEvent event){
         if (!(event.getUser() instanceof Player player)) return;
@@ -142,11 +144,9 @@ public class ChikeFlareEffects {
                             .xRot((float) Math.toRadians(pitch))
                             .yRot((float) Math.toRadians(yaw))
                             .scale(30f));
-
             Vec3 lookVec = target.position().add(0, target.getBbHeight() / 2, 0).subtract(spawnPos).normalize();
             float lookYaw = (float) (Math.atan2(-lookVec.x, lookVec.z) * (180f / Math.PI));
             float lookPitch = (float) (Math.asin(-lookVec.y) * (180f / Math.PI));
-
             EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
             ss.setIsCritical(false);
             ss.setOwner(player);
@@ -162,15 +162,11 @@ public class ChikeFlareEffects {
             ss.setNoClip(true);
             ss.setHasTail(true);
             ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
-            ss.setScale(3f);
+            ss.setScale(target.getBbHeight());
             ss.setTargetId(target.getId());
             ss.setStandbyYawPitch(lookYaw, lookPitch);
             ss.setPos(spawnPos);
             player.level().addFreshEntity(ss);
         }
     }
-//TODO:修复初始朝向
-
-
-
 }

@@ -39,36 +39,30 @@ public class GunBladeEffects {
         if (!state.getTranslationKey().equals("item.fantasydesire.smart_pistol")) return;
         int ammo = fdState.getSpecialCharge();
         int cost = 0;
-        Boolean TripleOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TripleBullet, player, "item.fantasydesire.smart_pistol")&&state.getSlashArts().equals(FDSpecialAttacks.CHARGE_SHOT.get()) && state.getSlashArts()==FDSpecialAttacks.CHARGE_SHOT.get();
-        Boolean EnergyOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EnergyBullet, player, "item.fantasydesire.smart_pistol")&&state.getSlashArts().equals(FDSpecialAttacks.OVER_CHARGE.get()) && state.getSlashArts()==FDSpecialAttacks.OVER_CHARGE.get();
+        boolean TripleOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TripleBullet, player, "item.fantasydesire.smart_pistol")
+                && state.getSlashArts().equals(FDSpecialAttacks.CHARGE_SHOT.get()) && state.getSlashArts() == FDSpecialAttacks.CHARGE_SHOT.get();
+        boolean EnergyOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EnergyBullet, player, "item.fantasydesire.smart_pistol")
+                && state.getSlashArts().equals(FDSpecialAttacks.OVER_CHARGE.get()) && state.getSlashArts() == FDSpecialAttacks.OVER_CHARGE.get();
+        boolean ExplosiveOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.ExplosiveBullet, player, "item.fantasydesire.smart_pistol")
+                && !CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.ExplosiveBullet, player, "item.fantasydesire.smart_pistol");
+        boolean ThunderOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.ExplosiveBullet, player, "item.fantasydesire.smart_pistol")
+                && !CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.ExplosiveBullet, player, "item.fantasydesire.smart_pistol");
         if (TripleOn) cost = 1;
         if (EnergyOn) cost = 3;
-        if (!(player.level()instanceof ServerLevel)) return;
-        if (ammo<cost) {
-            reload(player,blade,fdState);
+        if (!(player.level() instanceof ServerLevel)) return;
+        if (ammo < cost) {
+            reload(player, blade, fdState);
+            return;
         }
-        smartShot(player,state);
-
+        smartShot(player, state);
 //        energyShot(player,state);
 //        BFGShot(player,state);
-        Vec3 start = player.getEyePosition();
-
-// 玩家视线方向（单位向量）
-        Vec3 look = player.getLookAngle();
-
-// 终点 = 起点 + 视线方向 * 15
-        Vec3 end = start.add(look.scale(15.0));
-//        if (player.level() instanceof ServerLevel serverLevel) {
-//            Vec3 finalLocation = start.add(end.subtract(start).scale(0.5)).yRot((float) Math.toRadians(-30f));
-//            GlowingLineParticleOptions opts = new GlowingLineParticleOptions(start, end, state.getColorCode(), 0.1f, 0.75f,false,5);
-//            serverLevel.sendParticles(opts, finalLocation.x, finalLocation.y, finalLocation.z, 1, 0, 0, 0, 0);
-////            ParticleUtils.LightBoltParticles(serverLevel,start,end,opts.color,opts.thickness,5,opts.alpha,false,1,16);
-//        }
         event.setCanceled(true);
     }
-//    智能子弹
-    private static void smartShot(Player player,ISlashBladeState state){
-        EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
+
+    //    智能子弹
+    private static void smartShot(Player player, ISlashBladeState state) {
+        EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
         ss.setIsCritical(false);
         ss.setOwner(player);
         ss.setColor(state.getColorCode());
@@ -82,22 +76,23 @@ public class GunBladeEffects {
         ss.setSeekDelay(5);
         ss.setNoClip(true);
         ss.setMultipleHit(true);
-        ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
+        ss.setFireSound(SoundEvents.WITHER_SHOOT, 1, 1.5f);
         ss.setHasTail(true);
         ss.setScale(0.2f);
-        if (state.getTargetEntity(player.level())!=null){
+        if (state.getTargetEntity(player.level()) != null) {
             ss.setTargetId(state.getTargetEntityId());
-        }else if (TargetUtils.getLockTarget(player).isPresent()){
+        } else if (TargetUtils.getLockTarget(player).isPresent()) {
             ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
         }
-        ss.setPos(player.position());
-        ss.setCenterOffset(new Vec3(0,player.getEyeHeight(),0));
-        ss.setOffset(new Vec3(0,0,0.75f));
+        ss.setPos(player.position().add(0,player.getEyeHeight(),0));
+        ss.setCenterOffset(new Vec3(0, 0, 0));
+        ss.setOffset(new Vec3(0, 0, 0.75f));
         player.level().addFreshEntity(ss);
     }
-//    能量子弹
-    private static void energyShot(Player player,ISlashBladeState state){
-        EntityFDEnergyBullet ss = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(),player.level());
+
+    //    能量子弹
+    private static void energyShot(Player player, ISlashBladeState state) {
+        EntityFDEnergyBullet ss = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
         ss.setIsCritical(false);
         ss.setOwner(player);
         ss.setColor(state.getColorCode());
@@ -111,21 +106,22 @@ public class GunBladeEffects {
         ss.setSeekDelay(15);
 //        ss.setNoClip(true);
         ss.setMultipleHit(true);
-        ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
+        ss.setFireSound(SoundEvents.WITHER_SHOOT, 1, 1.5f);
         ss.setHasTail(true);
         ss.setScale(1f);
-        if (state.getTargetEntity(player.level())!=null){
+        if (state.getTargetEntity(player.level()) != null) {
             ss.setTargetId(state.getTargetEntityId());
-        }else if (TargetUtils.getLockTarget(player).isPresent()){
+        } else if (TargetUtils.getLockTarget(player).isPresent()) {
             ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
         }
         ss.setPos(player.position());
-        ss.setCenterOffset(new Vec3(0,player.getEyeHeight(),0));
-        ss.setOffset(new Vec3(0,0,0.75f));
+        ss.setCenterOffset(new Vec3(0, player.getEyeHeight(), 0));
+        ss.setOffset(new Vec3(0, 0, 0.75f));
         player.level().addFreshEntity(ss);
     }
-    private static void BFGShot(Player player,ISlashBladeState state){
-        EntityFDBFG ss = new EntityFDBFG(FDEntitys.FDBFG.get(),player.level());
+
+    private static void BFGShot(Player player, ISlashBladeState state) {
+        EntityFDBFG ss = new EntityFDBFG(FDEntitys.FDBFG.get(), player.level());
         ss.setIsCritical(false);
         ss.setOwner(player);
         ss.setColor(state.getColorCode());
@@ -140,23 +136,22 @@ public class GunBladeEffects {
         ss.setScale(2f);
         ss.setExpRadius(4f);
         ss.setMultipleHit(true);
-        ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
+        ss.setFireSound(SoundEvents.WITHER_SHOOT, 1, 1.5f);
         ss.setHasTail(true);
-        if (state.getTargetEntity(player.level())!=null){
+        if (state.getTargetEntity(player.level()) != null) {
             ss.setTargetId(state.getTargetEntityId());
-        }else if (TargetUtils.getLockTarget(player).isPresent()){
+        } else if (TargetUtils.getLockTarget(player).isPresent()) {
             ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
         }
         ss.setPos(player.position());
-        ss.setCenterOffset(new Vec3(0,player.getEyeHeight(),0));
-        ss.setOffset(new Vec3(0,0,0.75f));
+        ss.setCenterOffset(new Vec3(0, player.getEyeHeight(), 0));
+        ss.setOffset(new Vec3(0, 0, 0.75f));
         player.level().addFreshEntity(ss);
     }
 
-    public static void reload(Player player,ItemStack blade, IFantasySlashBladeState fdState) {
+    public static void reload(Player player, ItemStack blade, IFantasySlashBladeState fdState) {
         player.getCooldowns().addCooldown(blade.getItem(), 60);
         fdState.setSpecialCharge(fdState.getMaxSpecialCharge());
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PISTON_CONTRACT, SoundSource.PLAYERS, 0.5f, 2f);
-        return;
     }
 }

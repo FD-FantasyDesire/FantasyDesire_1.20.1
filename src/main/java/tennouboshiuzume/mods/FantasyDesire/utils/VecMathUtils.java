@@ -50,7 +50,6 @@ public class VecMathUtils {
         double z = vec.z;
         float yaw = (float) (Math.atan2(-x, z) * (180F / Math.PI));
         float pitch = (float) (Math.asin(-y) * (180F / Math.PI));
-
         return new float[]{yaw, pitch};
     }
 

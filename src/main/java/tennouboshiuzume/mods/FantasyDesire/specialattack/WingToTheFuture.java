@@ -14,10 +14,7 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.data.builtin.FantasySlashBladeBuiltInRegistry;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
-import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.*;
 
 import java.util.List;
 
@@ -138,8 +135,31 @@ public class WingToTheFuture {
         }
     }
 
-    public static void WingToTheFutureElytra() {
 
+
+    public static void WingToTheFutureElytra(LivingEntity player, ItemStack blade) {
+        if (blade.getItem() instanceof ItemSlashBlade) {
+            ISlashBladeState state = CapabilityUtils.getBladeState(blade);
+            if (state.getTranslationKey().equals("item.fantasydesire.chikeflare")) {
+                int wingCount = (int) Math.min(Math.max(Math.sqrt(Math.abs(((Player) player).experienceLevel)) - 5, 1), 3);
+                int tailcount = 1;
+                for (int i = 0; i < 2; i++) {
+
+                    boolean is_right = i%2==0;
+//                    wing
+                    for (int j = 0; j < 2; j++) {
+
+                    }
+//                    tails
+                    for (int j = 0; j < 6*tailcount; j++) {
+                        Vec3 baseVec = new Vec3(0,0,-1);
+                        Vec3 sec = baseVec.xRot((float) Math.toRadians(30)).zRot((float) Math.toRadians(60*j));
+                        float[] YP = VecMathUtils.getYawPitchFromVec(sec);
+                        SummonFeather(state,player,sec,Vec3.ZERO,state.getColorCode(),0,0,60*i,YP[0], YP[1],1,20,20,200,1.5f);
+                    }
+                }
+            }
+        }
     }
 
     public static void ConvertChikeFlare(LivingEntity player, ItemStack blade) {
@@ -153,5 +173,31 @@ public class WingToTheFuture {
             ParticleUtils.LightBoltParticles(player.level(), player.position(), end, 0xFFFF00, 0.05f, 40, 0.75f, false, 2, 32);
             ParticleUtils.LightBoltParticles(player.level(), player.position(), end, 0x00FFFF, 0.05f, 40, 0.75f, false, 2, 32);
         }
+    }
+
+    private static void SummonFeather(ISlashBladeState state,LivingEntity player,Vec3 offset,Vec3 centerOffset,int color,float yaw,float pitch,float roll,float sYaw,float sPitch,float magicDamage,int seekDelay,int delay,int lifeTime,float scale){
+        EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
+        ss.setIsCritical(false);
+        ss.setOwner(player);
+        ss.setOffset(offset);
+        ss.setCenterOffset(centerOffset);
+        ss.setColor(color);
+        ss.setRoll(roll);
+        ss.setStandbyMode("PLAYER");
+        ss.setMovingMode("SEEK");
+        ss.setSpeed(2.5f);
+//        ss.setParticleType(ParticleTypes.END_ROD);
+        ss.setStandbyYawPitch(sYaw, sPitch);
+        ss.setPos(player.position());
+        ss.setDamage(magicDamage);
+        ss.setSeekDelay(seekDelay);
+        ss.setDelayTicks(delay);
+        ss.setDelay(lifeTime);
+        ss.setScale(scale);
+        ss.setExpRadius(4f);
+        ss.setHasTail(true);
+        ss.setNoClip(true);
+        ss.setTargetId(state.getTargetEntityId());
+        player.level().addFreshEntity(ss);
     }
 }

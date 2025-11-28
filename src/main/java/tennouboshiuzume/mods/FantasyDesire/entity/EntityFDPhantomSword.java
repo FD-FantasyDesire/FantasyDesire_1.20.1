@@ -626,13 +626,10 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             double dx = toTarget.x;
             double dy = toTarget.y;
             double dz = toTarget.z;
-
             float targetYaw = (float) (Mth.atan2(dx, dz) * (180F / Math.PI));
             float targetPitch = (float) (Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180F / Math.PI));
-
             float newYaw = Mth.approachDegrees(-this.getShooter().getYRot() - getStandbyYawPitch()[0], targetYaw, 5f * tickCount);   // 每tick最多转5°
             float newPitch = Mth.approachDegrees(-this.getShooter().getXRot() - getStandbyYawPitch()[1], targetPitch, 5f * tickCount);
-
             this.setYRot(newYaw);
             this.setXRot(newPitch);
         } else {
@@ -651,14 +648,11 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             double dx = toTarget.x;
             double dy = toTarget.y;
             double dz = toTarget.z;
-
             float targetYaw = (float) (Mth.atan2(dx, dz) * (180F / Math.PI));
             float targetPitch = (float) (Mth.atan2(dy, Math.sqrt(dx * dx + dz * dz)) * (180F / Math.PI));
-
             // 插值旋转，使得逐渐转向，而不是瞬间对准
             float newYaw = Mth.approachDegrees(this.getYRot(), targetYaw, 5f);   // 每tick最多转5°
             float newPitch = Mth.approachDegrees(this.getXRot(), targetPitch, 5f);
-
             this.setYRot(newYaw);
             this.setXRot(newPitch);
         }

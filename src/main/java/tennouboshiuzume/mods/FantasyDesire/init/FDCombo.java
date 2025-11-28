@@ -44,7 +44,7 @@ public class FDCombo extends ComboStateRegistry {
                     .nextOfTimeout(entity -> FantasyDesire.prefix("wing_to_the_future_end"))
                     .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                             .put(2, (entityIn) -> AttackManager.doSlash(entityIn, -30F, Vec3.ZERO, false, false, 0.1F))
-                            .put(9, (entityIn) -> WingToTheFuture.WingToTheFutureEX(entityIn, entityIn.getMainHandItem())).build())
+                            .put(9, (entityIn) -> WingToTheFuture.WingToTheFutureElytra(entityIn, entityIn.getMainHandItem())).build())
                     .addHitEffect(StunManager::setStun)::build);
 
     public static final RegistryObject<ComboState> WING_TO_THE_FUTURE_END = FD_COMBO_STATES.register(
