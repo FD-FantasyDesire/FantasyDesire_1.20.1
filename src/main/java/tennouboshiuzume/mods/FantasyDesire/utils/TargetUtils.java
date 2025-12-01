@@ -18,24 +18,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TargetUtils extends TargetSelector {
-    public static List<LivingEntity> getNearbyLivingEntities(Entity center, double radius, List<LivingEntity> excludeEntitys) {
-        if (center == null || center.level().isClientSide) return List.of();
-
-        Level world = center.level();
-        AABB boundingBox = center.getBoundingBox().inflate(radius);
-
-        double radiusSquared = radius * radius;
-
-        TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
-
-        return world.getEntitiesOfClass(LivingEntity.class, boundingBox)
-                .stream()
-                .filter(entity -> !excludeEntitys.contains(entity))
-                .filter(entity -> entity.distanceToSqr(center) <= radiusSquared) // 欧几里得距离过滤
-                .filter(predicate::test) //适用拔刀剑配置可攻击对象
-                .collect(Collectors.toList());
-    }
-
     public static Optional<Entity> getLockTarget(LivingEntity sender) {
         Level worldIn = sender.level();
         Entity lockTarget = sender.getMainHandItem()
@@ -46,7 +28,6 @@ public class TargetUtils extends TargetSelector {
         if (lockTarget != null) {
             return Optional.of(lockTarget);
         }
-
         // 否则用 RayTraceHelper 尝试寻找
         return RayTraceHelper.rayTrace(
                         sender.level(),
@@ -72,90 +53,140 @@ public class TargetUtils extends TargetSelector {
                 })
                 .map(r -> ((EntityHitResult) r).getEntity());
     }
+    public static List<LivingEntity> getNearbyLivingEntities(Entity entity, double radius,
+                                                             boolean requireVisible, @Nullable List<Entity> exclude) {
+        if (entity == null || entity.level().isClientSide) return List.of();
 
-    public static List<LivingEntity> getLivingEntitiesInRadius(Level world, Vec3 pos, double range,
-                                                               @Nullable List<Entity> exclude) {
+        Level level = entity.level();
+        Vec3 eyePos = entity.getEyePosition(1.0f);
+        TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
+
+        AABB boundingBox = new AABB(
+                eyePos.x - radius, eyePos.y - radius, eyePos.z - radius,
+                eyePos.x + radius, eyePos.y + radius, eyePos.z + radius
+        );
+        double radiusSq = radius * radius;
+        return level.getEntitiesOfClass(LivingEntity.class, boundingBox)
+                .stream()
+                .filter(e -> e != entity)
+                .filter(e -> exclude == null || !exclude.contains(e))
+                .filter(Entity::isAttackable)
+                .filter(predicate::test)
+                .filter(e -> e.distanceToSqr(eyePos) <= radiusSq)
+                .filter(e -> !requireVisible || canSee(entity, e))
+                .collect(Collectors.toList());
+    }
+
+
+    public static List<LivingEntity> getLivingEntitiesInRadius(Entity entity, Vec3 pos, double range,
+                                                               boolean requireVisible, @Nullable List<Entity> exclude) {
+
+        Level level = entity.level();
+        TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
+
         AABB aabb = new AABB(
                 pos.x - range, pos.y - range, pos.z - range,
                 pos.x + range, pos.y + range, pos.z + range
         );
-        TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
-        List<LivingEntity> entities = world.getEntitiesOfClass(LivingEntity.class, aabb).stream()
-                // 距离判定
-                .filter(e -> e.distanceToSqr(pos) <= range * range)
-                // isAttackable 标签过滤
-                .filter(Entity::isAttackable)
-                // 排除指定实体
-                .filter(e -> exclude == null || !exclude.contains(e))
-                .filter(predicate::test) //适用拔刀剑配置可攻击对象
-                .collect(Collectors.toList());
 
-        return entities;
+        double rangeSq = range * range;
+
+        return level.getEntitiesOfClass(LivingEntity.class, aabb).stream()
+                .filter(e -> e != entity)
+                .filter(e -> exclude == null || !exclude.contains(e))
+                .filter(Entity::isAttackable)
+                .filter(predicate::test) // 拔刀剑配置判定
+                .filter(e -> e.distanceToSqr(pos) <= rangeSq)
+                .filter(e -> !requireVisible || canSee(entity, e))
+                .collect(Collectors.toList());
     }
 
 
-    public static List<LivingEntity> getTargetsInSight(Player player, double maxDistance, double radius, boolean requireVisible,@Nullable List<Entity> exclude) {
-        Level level = player.level();
-
-        Vec3 eyePos = player.getEyePosition(1.0f);
-        Vec3 lookVec = player.getViewVector(1.0f);
-
-        Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
-        ClipContext context = new ClipContext(eyePos, endPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player);
-        BlockHitResult result = level.clip(context);
-
-        // 使用 Vec3 位置，不必转 BlockPos
-        Vec3 targetPos = result.getType() == HitResult.Type.BLOCK ? result.getLocation() : endPos;
-
-        // 构造 AABB 进行范围搜索
-        AABB searchBox = new AABB(targetPos.x - radius, targetPos.y - radius, targetPos.z - radius,
-                targetPos.x + radius, targetPos.y + radius, targetPos.z + radius);
+    public static List<LivingEntity> getTargetsInSight(Entity entity, double maxDistance, double maxAngleDeg,
+                                                       boolean requireVisible, @Nullable List<Entity> exclude) {
+        Level level = entity.level();
+        Vec3 eyePos = entity.getEyePosition(1.0f);
         TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
-        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != player).stream()
-                .filter(e -> e.distanceToSqr(targetPos) <= radius * radius)
-                // isAttackable 标签过滤
-                .filter(Entity::isAttackable)
-                // 排除指定实体
-                .filter(e -> exclude == null || !exclude.contains(e))
-                .filter(predicate::test) //适用拔刀剑配置可攻击对象
-                .filter(e-> !requireVisible || canSee(player, e))
-                .collect(Collectors.toList());
-        return entities;
-    }
-    @Nullable
-    public static LivingEntity getNearestTargetInSight(Player player, double maxDistance, double radius, boolean requireVisible, @Nullable List<Entity> exclude) {
-        Level level = player.level();
 
-        Vec3 eyePos = player.getEyePosition(1.0f);
-        Vec3 lookVec = player.getViewVector(1.0f);
-
-        // 计算视线终点
-        Vec3 endPos = eyePos.add(lookVec.scale(maxDistance));
-        ClipContext context = new ClipContext(eyePos, endPos, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player);
-        BlockHitResult result = level.clip(context);
-
-        // 落点（若视线没打到方块，则用最远点）
-        Vec3 targetPos = result.getType() == HitResult.Type.BLOCK ? result.getLocation() : endPos;
-
-        // 构造搜索范围
         AABB searchBox = new AABB(
-                targetPos.x - radius, targetPos.y - radius, targetPos.z - radius,
-                targetPos.x + radius, targetPos.y + radius, targetPos.z + radius
+                eyePos.x - maxDistance, eyePos.y - maxDistance, eyePos.z - maxDistance,
+                eyePos.x + maxDistance, eyePos.y + maxDistance, eyePos.z + maxDistance
         );
 
+        return level.getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != entity).stream()
+                .filter(e -> exclude == null || !exclude.contains(e))
+                .filter(Entity::isAttackable)
+                .filter(predicate::test)
+                .filter(e -> inVisionCone(entity, e, maxDistance, maxAngleDeg))
+                .filter(e -> !requireVisible || canSee(entity, e))
+                .collect(Collectors.toList());
+    }
+
+    @Nullable
+    public static LivingEntity getNearestTargetInSight(Entity entity, double maxDistance, double maxAngleDeg,
+                                                       boolean requireVisible, @Nullable List<Entity> exclude) {
+
+        Level level = entity.level();
+        Vec3 eyePos = entity.getEyePosition(1.0f);
         TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
 
-        // 搜索并筛选符合条件的实体
-        return level.getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != player).stream()
-                .filter(Entity::isAttackable)
+        AABB searchBox = new AABB(
+                eyePos.x - maxDistance, eyePos.y - maxDistance, eyePos.z - maxDistance,
+                eyePos.x + maxDistance, eyePos.y + maxDistance, eyePos.z + maxDistance
+        );
+
+        return level.getEntitiesOfClass(LivingEntity.class, searchBox, e -> e != entity).stream()
                 .filter(e -> exclude == null || !exclude.contains(e))
-                .filter(predicate::test) // 拔刀剑可攻击判定
-                .filter(e -> e.distanceToSqr(targetPos) <= radius * radius)
-                .filter(e -> !requireVisible || canSee(player, e))
-                // ✅ 选取距离“视线落点”最近的实体
-                .min(Comparator.comparingDouble(e -> e.distanceToSqr(targetPos)))
+                .filter(Entity::isAttackable)
+                .filter(predicate::test)
+                .filter(e -> inVisionCone(entity, e, maxDistance, maxAngleDeg))
+                .filter(e -> !requireVisible || canSee(entity, e))
+                .min(Comparator.comparingDouble(e -> e.distanceToSqr(eyePos)))
                 .orElse(null);
     }
+
+    private static boolean inVisionCone(Entity observer, LivingEntity target, double maxDistance,
+                                        double halfAngleDeg) {
+        if (observer == null || target == null || !target.isAlive()) return false;
+
+        Vec3 eyePos = observer.getEyePosition(1.0f);
+
+        // 获取观察者朝向向量，若 getViewVector 返回零则使用 yaw/pitch 计算
+        Vec3 lookVec = observer.getViewVector(1.0f);
+        if (lookVec == null || lookVec.lengthSqr() < 1e-6) {
+            double yawRad = Math.toRadians(observer.getYRot());
+            double pitchRad = Math.toRadians(observer.getXRot());
+            lookVec = new Vec3(-Math.sin(yawRad) * Math.cos(pitchRad),
+                    -Math.sin(pitchRad),
+                    Math.cos(yawRad) * Math.cos(pitchRad));
+        }
+        lookVec = lookVec.normalize();
+
+        // 获取目标位置（优先眼位）
+        Vec3 targetPos = target.getEyePosition(1.0f);
+        if (targetPos == null) {
+            AABB bb = target.getBoundingBox();
+            targetPos = new Vec3((bb.minX + bb.maxX) * 0.5,
+                    (bb.minY + bb.maxY) * 0.5,
+                    (bb.minZ + bb.maxZ) * 0.5);
+        }
+
+        Vec3 toTarget = targetPos.subtract(eyePos);
+        double distSq = toTarget.lengthSqr();
+        if (distSq > maxDistance * maxDistance) return false;
+
+        // 避免极近目标归一化零向量
+        if (distSq < 1e-8) return true;
+
+        Vec3 dirToTarget = toTarget.normalize();
+        double dot = lookVec.dot(dirToTarget); // cos(theta)
+        double cosLimit = Math.cos(Math.toRadians(halfAngleDeg));
+
+        if (dot < cosLimit) return false;
+
+        return true;
+    }
+
     // 视线检测判定，参考自Warframe
     public static boolean canSee(Entity looker, Entity entity) {
         Level level = looker.level();
@@ -174,7 +205,6 @@ public class TargetUtils extends TargetSelector {
                 return true;
             }
         }
-
         return false;
     }
 

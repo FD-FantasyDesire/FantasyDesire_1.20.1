@@ -28,10 +28,10 @@ public class FDSpecialEffects {
     public static final RegistryObject<SpecialEffect> BloodDrain = SPECIAL_EFFECT.register("blood_drain", () -> new FDSpecialEffectBase(60, false, false,1));
     public static final RegistryObject<SpecialEffect> CrimsonStrike = SPECIAL_EFFECT.register("crimson_strike", () -> new FDSpecialEffectBase(10, false, false,1));
 //    SmartPistol
-    public static final RegistryObject<SpecialEffect> EnergyBullet = SPECIAL_EFFECT.register("energy_bullet", () -> new FDSpecialEffectBase(60, false, false, 1));
-    public static final RegistryObject<SpecialEffect> TripleBullet = SPECIAL_EFFECT.register("triple_bullet", () -> new FDSpecialEffectBase(40, false, false, 1));
+    public static final RegistryObject<SpecialEffect> EnergyBullet = SPECIAL_EFFECT.register("energy_bullet", () -> new FDSpecialEffectBase(60, false, false, 2));
+    public static final RegistryObject<SpecialEffect> TripleBullet = SPECIAL_EFFECT.register("triple_bullet", () -> new FDSpecialEffectBase(40, false, false, 3));
     public static final RegistryObject<SpecialEffect> ThunderBullet = SPECIAL_EFFECT.register("thunder_bullet", () -> new FDSpecialEffectBase(80, true, false, 1));
-    public static final RegistryObject<SpecialEffect> ExplosiveBullet = SPECIAL_EFFECT.register("explosive_bullet", () -> new FDSpecialEffectBase(100, true, true, 1));
+    public static final RegistryObject<SpecialEffect> ExplosiveBullet = SPECIAL_EFFECT.register("explosive_bullet", () -> new FDSpecialEffectBase(100, true, true, 2));
 //    Starless Night
     public static final RegistryObject<SpecialEffect> VoidStrike = SPECIAL_EFFECT.register("void_strike", () -> new FDSpecialEffectBase(100, false, false,1));
     public static final RegistryObject<SpecialEffect> EchoingStrike = SPECIAL_EFFECT.register("echoing_strike", () -> new FDSpecialEffectBase(30, false, false,1));

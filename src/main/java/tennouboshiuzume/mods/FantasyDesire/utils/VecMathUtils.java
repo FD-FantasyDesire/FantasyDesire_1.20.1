@@ -45,6 +45,7 @@ public class VecMathUtils {
      * @return 一个 float[2]，下标0是Yaw，下标1是Pitch
      */
     public static float[] getYawPitchFromVec(Vec3 vec) {
+        vec = vec.normalize();
         double x = vec.x;
         double y = vec.y;
         double z = vec.z;

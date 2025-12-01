@@ -40,6 +40,7 @@ public class ItemUtils {
             output.accept(sphere);
         });
     }
+
     public static ItemStack dataBakeBlade(ItemStack blade1,ItemStack blade2){
         if (blade1.getItem() instanceof ItemSlashBlade && blade2.getItem() instanceof ItemSlashBlade) {
             ISlashBladeState state1 = CapabilityUtils.getBladeState(blade1);

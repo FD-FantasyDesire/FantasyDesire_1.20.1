@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasyDefinition;
@@ -95,6 +96,7 @@ public class FantasySlashBladeBuiltInRegistry {
                         )
                 )
         );
+
         bootstrap.register(SmartPistolB,
                 new FantasySlashBladeDefinition(FantasyDesire.prefix("smart_pistol"),
                         RenderDefinition.Builder.newInstance()
@@ -415,7 +417,6 @@ public class FantasySlashBladeBuiltInRegistry {
                         PropertiesDefinition.Builder.newInstance()
                                 .baseAttackModifier(14.0F)
                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-//                                .slashArtsType(SlashArtsRegistry.SAKURA_BLAST.getId())
                                 .maxDamage(1561)
                                 .build(),
                         FantasyDefinition.Builder.newInstance()

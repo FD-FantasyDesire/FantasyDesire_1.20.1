@@ -30,7 +30,7 @@ public class TwinSlash {
         if (!(blade.getItem() instanceof ItemSlashBlade)) return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         if (!(player instanceof Player)) return;
-        LivingEntity nearest = TargetUtils.getNearestTargetInSight((Player) player, 35, 15, true, null);
+        LivingEntity nearest = TargetUtils.getNearestTargetInSight((Player) player, 35, 25, true, null);
         if (state.getTargetEntity(player.level()) instanceof LivingEntity targeted) nearest = targeted;
         if (nearest == null) return;
         player.playSound(SoundEvents.GRASS_STEP, 1f, 0.7f);
@@ -55,7 +55,7 @@ public class TwinSlash {
         if (!(blade.getItem() instanceof ItemSlashBlade)) return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         if (!(player instanceof Player)) return;
-        List<LivingEntity> targetList = TargetUtils.getTargetsInSight((Player) player, 0, 15, true, null);
+        List<LivingEntity> targetList = TargetUtils.getNearbyLivingEntities(player, 15, true, null);
         LivingEntity target = targetList.isEmpty() ? null : targetList.get(player.getRandom().nextInt(targetList.size()));
         if (state.getTargetEntity(player.level()) instanceof LivingEntity targeted) target = targeted;
         if (target == null) return;

@@ -1,21 +1,14 @@
 package tennouboshiuzume.mods.FantasyDesire.entity;
 
 import mods.flammpfeil.slashblade.entity.Projectile;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
-import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
 
@@ -32,7 +25,7 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
         List<Entity> excludeList = new ArrayList<>();
         excludeList.add(this);
         excludeList.add(this.getShooter());
-        List<LivingEntity> targets = TargetUtils.getLivingEntitiesInRadius(this.level(), this.position(), 25, excludeList);
+        List<LivingEntity> targets = TargetUtils.getLivingEntitiesInRadius(this, this.position(), 25,false,excludeList);
         for (LivingEntity target : targets) {
             Vec3 start = this.position();
             Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);
@@ -40,7 +33,6 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
                 ParticleUtils.LightBoltParticles(serverLevel,start,end,this.getColor(),0.1f,1,0.75f,false,2,8);
                 serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,target.position().x,target.position().y+target.getBbHeight()/2,target.position().z,5,0,0,0,0.5);
             }
-
         }
     }
 
