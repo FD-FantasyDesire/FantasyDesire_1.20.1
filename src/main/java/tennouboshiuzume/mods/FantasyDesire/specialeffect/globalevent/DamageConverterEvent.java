@@ -212,7 +212,7 @@ public class DamageConverterEvent {
                         AttributeModifier.Operation.ADDITION
                 );
                 maxHealth.addPermanentModifier(mod);
-                System.out.println(target.getMaxHealth());
+//                System.out.println(target.getMaxHealth());
             }
         }
         // 吸收（Absorb）

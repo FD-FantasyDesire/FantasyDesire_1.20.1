@@ -1,5 +1,8 @@
 package tennouboshiuzume.mods.FantasyDesire.TextUtils;
 
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TextColor;
 
 import java.util.ArrayDeque;
@@ -21,7 +24,7 @@ public class TextParser {
         while (matcher.find()) {
             if (matcher.start() > lastIndex) {
                 String text = input.substring(lastIndex, matcher.start());
-                addNode(stack, roots, new TextLeaf(text));
+                addNode(stack, roots, new TextLeaf(parseLegacyFormatting(text)));
             }
 
             String slash = matcher.group(1);
@@ -43,12 +46,91 @@ public class TextParser {
 
         if (lastIndex < input.length()) {
             String text = input.substring(lastIndex);
-            addNode(stack, roots, new TextLeaf(text));
+            addNode(stack, roots, new TextLeaf(parseLegacyFormatting(text)));
         }
 
         while (!stack.isEmpty()) roots.add(stack.pop());
         return roots;
     }
+    public static MutableComponent parseLegacyFormatting(String s) {
+        MutableComponent result = Component.literal("");
+        if (s == null || s.isEmpty()) return result;
+
+        Style current = Style.EMPTY;
+        StringBuilder buf = new StringBuilder();
+        boolean expectingCode = false;
+
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+
+            if (expectingCode) {
+                expectingCode = false;
+
+                Style newStyle = current;
+
+                switch (Character.toLowerCase(ch)) {
+                    case 'k': newStyle = newStyle.withObfuscated(true); break;
+                    case 'l': newStyle = newStyle.withBold(true); break;
+                    case 'm': newStyle = newStyle.withStrikethrough(true); break;
+                    case 'n': newStyle = newStyle.withUnderlined(true); break;
+                    case 'o': newStyle = newStyle.withItalic(true); break;
+                    case 'r': newStyle = Style.EMPTY; break;
+
+                    case '0': newStyle = Style.EMPTY.withColor(0x000000); break;
+                    case '1': newStyle = Style.EMPTY.withColor(0x0000AA); break;
+                    case '2': newStyle = Style.EMPTY.withColor(0x00AA00); break;
+                    case '3': newStyle = Style.EMPTY.withColor(0x00AAAA); break;
+                    case '4': newStyle = Style.EMPTY.withColor(0xAA0000); break;
+                    case '5': newStyle = Style.EMPTY.withColor(0xAA00AA); break;
+                    case '6': newStyle = Style.EMPTY.withColor(0xFFAA00); break;
+                    case '7': newStyle = Style.EMPTY.withColor(0xAAAAAA); break;
+                    case '8': newStyle = Style.EMPTY.withColor(0x555555); break;
+                    case '9': newStyle = Style.EMPTY.withColor(0x5555FF); break;
+                    case 'a': newStyle = Style.EMPTY.withColor(0x55FF55); break;
+                    case 'b': newStyle = Style.EMPTY.withColor(0x55FFFF); break;
+                    case 'c': newStyle = Style.EMPTY.withColor(0xFF5555); break;
+                    case 'd': newStyle = Style.EMPTY.withColor(0xFF55FF); break;
+                    case 'e': newStyle = Style.EMPTY.withColor(0xFFFF55); break;
+                    case 'f': newStyle = Style.EMPTY.withColor(0xFFFFFF); break;
+
+                    default:
+                        // 不是合法格式 → 原样输出 "§x"
+                        buf.append('§').append(ch);
+                        continue;
+                }
+
+                // 先把旧 buffer 输出成旧 style
+                if (buf.length() > 0) {
+                    result.append(Component.literal(buf.toString()).setStyle(current));
+                    buf.setLength(0);
+                }
+
+                current = newStyle;
+                continue;
+            }
+
+            if (ch == '§') {
+                expectingCode = true;
+
+                // flush 当前 buffer
+                if (buf.length() > 0) {
+                    result.append(Component.literal(buf.toString()).setStyle(current));
+                    buf.setLength(0);
+                }
+                continue;
+            }
+
+            buf.append(ch);
+        }
+
+        // flush 最后一段
+        if (buf.length() > 0) {
+            result.append(Component.literal(buf.toString()).setStyle(current));
+        }
+
+        return result;
+    }
+
 
     private void addNode(Deque<TextNode> stack, List<TextNode> roots, TextNode node) {
         if (!stack.isEmpty()) stack.peek().children.add(node);
@@ -56,7 +138,7 @@ public class TextParser {
     }
 
     private TextNode createNode(String tag, String param) {
-        if (!"style".equals(tag)) return new TextLeaf(""); // 未知标签当作空
+        if (!"style".equals(tag)) return new TextLeaf(Component.literal("")); // 未知标签当作空
 
         String type = "None";
         long speed = 5;

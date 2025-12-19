@@ -41,7 +41,7 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
     public void render(T entity, float entityYaw, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
                        int packedLightIn) {
 
-        if (entity.getFired() && entity.getHasTail()) {
+        if ((entity.getFired()||entity.getForceTail()) && entity.getHasTail()) {
             matrixStack.pushPose();
             renderTrail(entity, partialTicks, matrixStack, bufferIn, packedLightIn);
             matrixStack.popPose();

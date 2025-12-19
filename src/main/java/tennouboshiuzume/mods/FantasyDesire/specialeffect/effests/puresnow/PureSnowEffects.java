@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRank
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
+import mods.flammpfeil.slashblade.event.drop.EntityDropEvent;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -37,7 +38,7 @@ public class PureSnowEffects {
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
         boolean mainActive = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.RainbowFlux, player, "item.fantasydesire.pure_snow");
-        if (mainActive) {
+        if (mainActive && !player.level().isClientSide()) {
             int eachColorZone = 15;
             int totalSteps = eachColorZone * 7;
             long tickCount = player.tickCount;
@@ -47,8 +48,10 @@ public class PureSnowEffects {
             int stepsPerType = totalSteps / 7;
             int damageTypeIndex = ((timeStep + stepsPerType / 2) * 7 / totalSteps) % 7;
             fdState.setSpecialAttackEffect(damageTypes[damageTypeIndex]);
+//            System.out.println(tickCount +" "+damageTypeIndex);
         }
     }
+
 
     //    虹羽七刃剑
     @SubscribeEvent(priority = EventPriority.HIGHEST)

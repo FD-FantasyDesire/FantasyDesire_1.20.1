@@ -19,11 +19,11 @@ public class FDSpecialEffects {
     public static final RegistryObject<SpecialEffect> EvolutionIce = SPECIAL_EFFECT.register("evolution_ice", () -> new FDSpecialEffectBase(1, false, false,1));
     public static final RegistryObject<SpecialEffect> ColdLeak = SPECIAL_EFFECT.register("cold_leak", () -> new FDSpecialEffectBase(1, false, false,1));
 //    Pure Snow
-    public static final RegistryObject<SpecialEffect> RainbowFlux = SPECIAL_EFFECT.register("rainbow_flux", () -> new FDSpecialEffectBase(1, false, false,2));
+    public static final RegistryObject<SpecialEffect> RainbowFlux = SPECIAL_EFFECT.register("rainbow_flux", () -> new FDSpecialEffectBase(1, false, false,2,true));
     public static final RegistryObject<SpecialEffect> PrismFlux = SPECIAL_EFFECT.register("prism_flux", () -> new FDSpecialEffectBase(80, false, false,1));
     public static final RegistryObject<SpecialEffect> ColorFlux = SPECIAL_EFFECT.register("color_flux", () -> new FDSpecialEffectBase(40, false, false,1));
 //    Twin Blade
-    public static final RegistryObject<SpecialEffect> TwinSet = SPECIAL_EFFECT.register("twin_set",() -> new FDSpecialEffectBase(1, false, false,1));
+    public static final RegistryObject<SpecialEffect> TwinSet = SPECIAL_EFFECT.register("twin_set",() -> new FDSpecialEffectBase(1, false, false,1,true));
 //    Crimson Scythe
     public static final RegistryObject<SpecialEffect> BloodDrain = SPECIAL_EFFECT.register("blood_drain", () -> new FDSpecialEffectBase(60, false, false,1));
     public static final RegistryObject<SpecialEffect> CrimsonStrike = SPECIAL_EFFECT.register("crimson_strike", () -> new FDSpecialEffectBase(10, false, false,1));

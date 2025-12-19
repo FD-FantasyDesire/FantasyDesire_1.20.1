@@ -155,10 +155,10 @@ public class WingToTheFuture {
                         Vec3 baseVec = new Vec3(0, 0, -1);
                         Vec3 sec = baseVec.xRot((float) Math.toRadians(30)).zRot((float) Math.toRadians((360/tailcount) * j)).scale(3f);
                         float[] YP = VecMathUtils.getYawPitchFromVec(sec);
-                        Vec3 finaLocation = sec.add(0,0,1.5f);
-                        SummonFeather(state, player, finaLocation, new Vec3(0,0,0), state.getColorCode(), 0, 0, (360/tailcount) * j, YP[0], YP[1], 1, 200, 200, 200, 1.5f);
+                        Vec3 finaLocation = sec.add(0,0,1f);
+                        SummonFeather(state, player, finaLocation,Vec3.ZERO, state.getColorCode(), 0, 0, (360/tailcount) * j, YP[0], YP[1], 1, 200, 200, 200, 1.5f,true);
                     }
-                    player.moveRelative(0.5f,new Vec3(0,0,1));
+                    player.moveRelative(0.5f,new Vec3(0,0,3.75));
                 }
             }
         }
@@ -177,7 +177,7 @@ public class WingToTheFuture {
         }
     }
 
-    private static void SummonFeather(ISlashBladeState state, LivingEntity player, Vec3 offset, Vec3 centerOffset, int color, float yaw, float pitch, float roll, float sYaw, float sPitch, float magicDamage, int seekDelay, int delay, int lifeTime, float scale) {
+    private static void SummonFeather(ISlashBladeState state, LivingEntity player, Vec3 offset, Vec3 centerOffset, int color, float yaw, float pitch, float roll, float sYaw, float sPitch, float magicDamage, int seekDelay, int delay, int lifeTime, float scale,boolean forceTail) {
         EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
         ss.setIsCritical(false);
         ss.setOwner(player);
@@ -188,7 +188,7 @@ public class WingToTheFuture {
         ss.setStandbyMode("PLAYER");
         ss.setMovingMode("SEEK");
         ss.setSpeed(2.5f);
-        ss.setParticleType(ParticleTypes.END_ROD);
+//        ss.setParticleType(ParticleTypes.END_ROD);
         ss.setStandbyYawPitch(sYaw, sPitch);
         ss.setPos(player.position());
         ss.setDamage(magicDamage);
@@ -199,6 +199,7 @@ public class WingToTheFuture {
         ss.setExpRadius(4f);
         ss.setHasTail(true);
         ss.setNoClip(true);
+        ss.ForceTail(forceTail);
         ss.setTargetId(state.getTargetEntityId());
         player.level().addFreshEntity(ss);
     }

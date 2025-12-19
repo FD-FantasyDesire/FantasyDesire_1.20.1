@@ -25,7 +25,7 @@ public class TextRenderer {
 
         if (node instanceof TextLeaf leaf) {
             // 直接拼接叶子文本
-            result.append(Component.literal(leaf.content));
+            result.append(leaf.base);
         } else {
             // 遍历子节点
             for (TextNode child : node.children) {

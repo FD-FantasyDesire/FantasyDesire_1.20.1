@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.init.FDCombo;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
@@ -38,7 +39,6 @@ public class StarlessNightEffects {
             stackVoidStrike(target);
         }
         if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EchoingStrike, player, "item.fantasydesire.starless_night")) {
-
             if (ALLOWED_COMBOS.contains(state.getComboSeq().getPath())){
                 target.playSound(SoundEvents.TRIDENT_THUNDER,1f,0.8f);
                 ParticleUtils.generateRingParticles(ParticleTypes.END_ROD,target.level(),target.getX(),target.getY()+target.getBbHeight()/4,target.getZ(),10,48);
@@ -56,7 +56,6 @@ public class StarlessNightEffects {
             amplifier = Math.min(current.getAmplifier() + 1, 5);
             duration = current.getDuration();
         }
-        // 添加新效果（会覆盖旧的）
         entity.addEffect(new MobEffectInstance(voidStrike, duration, amplifier));
     }
 

@@ -38,8 +38,8 @@ public class CrimsonScytheEffects {
             Vec3 rotatedDown = VecMathUtils.rotateAroundAxis(baseForwardDown, forward, -event.getRoll());
             float[] upYawPitch = VecMathUtils.getYawPitchFromVec(rotatedUp);
             float[] downYawPitch = VecMathUtils.getYawPitchFromVec(rotatedDown);
-            AddonSlashUtils.doAddonSlash(player, event.getRoll(), upYawPitch[0], upYawPitch[1], color,0, Vec3.ZERO, false, false, 0.1f, KnockBacks.cancel);
-            AddonSlashUtils.doAddonSlash(player, event.getRoll(), downYawPitch[0], downYawPitch[1], color,0, Vec3.ZERO, false, false, 0.1f, KnockBacks.cancel);
+            AddonSlashUtils.doAddonSlash(player, event.getRoll(), upYawPitch[0], upYawPitch[1], color,0, Vec3.ZERO, false, false, 0.5f, KnockBacks.cancel);
+            AddonSlashUtils.doAddonSlash(player, event.getRoll(), downYawPitch[0], downYawPitch[1], color,0, Vec3.ZERO, false, false, 0.5f, KnockBacks.cancel);
         }
     }
 

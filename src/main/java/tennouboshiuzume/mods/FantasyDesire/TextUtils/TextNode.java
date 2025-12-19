@@ -1,5 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.TextUtils;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 
 import java.util.ArrayList;
@@ -11,9 +12,10 @@ public abstract class TextNode {
 }
 
 // 文本叶子
+
 class TextLeaf extends TextNode {
-    String content;
-    TextLeaf(String content) { this.content = content; }
+    Component base;
+    TextLeaf(Component base) { this.base = base; }
 }
 
 // 样式节点，整合颜色和动画

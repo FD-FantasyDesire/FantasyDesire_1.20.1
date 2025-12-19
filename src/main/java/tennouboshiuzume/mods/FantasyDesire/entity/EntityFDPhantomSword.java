@@ -109,6 +109,9 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     // 拖尾开关
     private static final EntityDataAccessor<Boolean> HAS_TAIL = SynchedEntityData.defineId(EntityFDPhantomSword.class,
             EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> FORCE_TAIL = SynchedEntityData.defineId(EntityFDPhantomSword.class,
+            EntityDataSerializers.BOOLEAN);
+
 
     protected boolean inited = false;
     protected boolean isSeeking = false;
@@ -145,6 +148,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.define(DAMAGE_TYPE, "Null");
         this.entityData.define(NO_EVENT, false);
         this.entityData.define(HAS_TAIL, false);
+        this.entityData.define(FORCE_TAIL,false);
     }
 
     @Override
@@ -205,14 +209,14 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             } else {
                 this.isSeeking = false;
             }
-            if (this.level().isClientSide() && getFired()) {
-                Vec3 pos = this.position();
-                trailPositions.addFirst(pos);
-                if (trailPositions.size() > TRAIL_MAX) {
-                    trailPositions.removeLast();
-                }
-            }
             flyticking();
+        }
+        if (this.level().isClientSide() && (getFired()||getForceTail())) {
+            Vec3 pos = this.position();
+            trailPositions.addFirst(pos);
+            if (trailPositions.size() > TRAIL_MAX) {
+                trailPositions.removeLast();
+            }
         }
         if (!getInGround() && (getPierce() > 0 || getHitEntity() == null))
             playparticle();
@@ -606,6 +610,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         tag.putString("DamageType", this.entityData.get(DAMAGE_TYPE));
         tag.putBoolean("NoEvent", this.entityData.get(NO_EVENT));
         tag.putBoolean("HasTail", this.entityData.get(HAS_TAIL));
+        tag.putBoolean("ForceTail", this.entityData.get(FORCE_TAIL));
     }
 
     @Override
@@ -643,6 +648,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(DAMAGE_TYPE, tag.getString("DamageType"));
         this.entityData.set(NO_EVENT, tag.getBoolean("NoEvent"));
         this.entityData.set(HAS_TAIL, tag.getBoolean("HasTail"));
+        this.entityData.set(FORCE_TAIL,tag.getBoolean("ForceTail"));
     }
 
     private void updateStandbyOrientationByShooter() {
@@ -744,7 +750,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             this.setPos(this.getShooter().position().add(getCenterOffset())
                             .add(getOffset().xRot((float) Math.toRadians(-this.getShooter().getXRot()))
                             .yRot((float) Math.toRadians(-this.getShooter().getYRot())))
-
                     );
             inited = true;
         }
@@ -907,6 +912,14 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     }
 
     public boolean getHasTail() {
+        return this.entityData.get(HAS_TAIL);
+    }
+
+    public void ForceTail(boolean value) {
+        this.entityData.set(HAS_TAIL, value);
+    }
+
+    public boolean getForceTail() {
         return this.entityData.get(HAS_TAIL);
     }
 

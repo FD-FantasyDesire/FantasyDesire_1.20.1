@@ -11,15 +11,24 @@ import java.util.function.Function;
 
 public class FDSlashArts extends SlashArts {
     private final int descColumn;
-    public FDSlashArts(Function<LivingEntity, ResourceLocation> state,int descolumn) {
-        super(state);
-        this.descColumn = descolumn;
+    private final boolean hasAltName;
+
+    public FDSlashArts(Function<LivingEntity, ResourceLocation> state, int desColumn) {
+        this(state, desColumn, false);
     }
-    public int getDescColumn(){
+
+    public FDSlashArts(Function<LivingEntity, ResourceLocation> state, int desColumn, boolean hasAltName) {
+        super(state);
+        this.descColumn = desColumn;
+        this.hasAltName = hasAltName;
+    }
+
+    public int getDescColumn() {
         return this.descColumn;
     }
 
-    public static int getDescColumn(ResourceLocation id) {
-        return ((FDSpecialEffectBase)((IForgeRegistry) SlashArtsRegistry.REGISTRY.get()).getValue(id)).getDescColumn();
+    public boolean hasAltName() {
+        return this.hasAltName;
     }
+
 }

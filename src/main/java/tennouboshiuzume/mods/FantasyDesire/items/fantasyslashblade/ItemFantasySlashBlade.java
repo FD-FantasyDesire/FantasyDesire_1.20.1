@@ -47,7 +47,6 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
 
     @Override
     public Component getName(ItemStack stack) {
-        String raw = this.getDescriptionId(stack);
         //富文本解析
         String key = this.getDescriptionId(stack);
         // 从语言系统获取已翻译文本
@@ -58,30 +57,10 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         if (Minecraft.getInstance().level != null) {
             tick = Minecraft.getInstance().level.getGameTime();
         }
-        return TextRenderer.render(roots, tick);
+        Component finalText = TextRenderer.render(roots, tick);
+        return finalText;
     }
 
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void appendSwordType(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        EnumSet<SwordType> swordType = SwordType.from(stack);
-//        String specialType = stack.getOrCreateTagElement("bladeState").getString("SpecialType");
-        LazyOptional<IFantasySlashBladeState> state = stack.getCapability(FDBLADESTATE);
-        state.ifPresent((s) -> {
-            String specialType = s.getSpecialType();
-            if (!specialType.isBlank() && !specialType.equals("Null")) {
-                tooltip.add(Component.translatable(String.format("info.fantasydesire." + specialType)));
-            } else {
-                if (swordType.contains(SwordType.BEWITCHED)) {
-                    tooltip.add(Component.translatable("slashblade.sword_type.bewitched").withStyle(ChatFormatting.DARK_PURPLE));
-                } else if (swordType.contains(SwordType.ENCHANTED)) {
-                    tooltip.add(Component.translatable("slashblade.sword_type.enchanted").withStyle(ChatFormatting.DARK_AQUA));
-                } else {
-                    tooltip.add(Component.translatable("slashblade.sword_type.noname").withStyle(ChatFormatting.DARK_GRAY));
-                }
-            }
-        });
-    }
 
     @Override
     @OnlyIn(Dist.CLIENT)
@@ -100,16 +79,37 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         });
     }
 
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void appendSwordType(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
+        EnumSet<SwordType> swordType = SwordType.from(stack);
+        LazyOptional<IFantasySlashBladeState> state = stack.getCapability(FDBLADESTATE);
+        state.ifPresent((s) -> {
+            String specialType = s.getSpecialType();
+            if (!specialType.isBlank() && !specialType.equals("Null")) {
+                tooltip.add(Component.translatable(String.format("info.fantasydesire." + specialType)));
+            } else {
+                if (swordType.contains(SwordType.BEWITCHED)) {
+                    tooltip.add(Component.translatable("slashblade.sword_type.bewitched").withStyle(ChatFormatting.DARK_PURPLE));
+                } else if (swordType.contains(SwordType.ENCHANTED)) {
+                    tooltip.add(Component.translatable("slashblade.sword_type.enchanted").withStyle(ChatFormatting.DARK_AQUA));
+                } else {
+                    tooltip.add(Component.translatable("slashblade.sword_type.noname").withStyle(ChatFormatting.DARK_GRAY));
+                }
+            }
+        });
+    }
+
     @OnlyIn(Dist.CLIENT)
     public void appendSASENotice(List<Component> tooltip, ItemStack stack) {
         ISlashBladeState state = CapabilityUtils.getBladeState(stack);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(stack);
-        if (!Screen.hasShiftDown() && state.getSpecialEffects().stream().anyMatch((se)->FantasyDesire.MODID.equals(se.getNamespace()))) {
+        if (!Screen.hasShiftDown() && state.getSpecialEffects().stream().anyMatch((se) -> FantasyDesire.MODID.equals(se.getNamespace()))) {
             // 提示玩家按 shift 查看更多信息
             tooltip.add(Component.translatable("tooltip.fantasydesire.press_shift_for_details"));
         }
 //        System.out.println(state.getSlashArts().getDescription());
-        if (!Screen.hasControlDown() && state.getSlashArtsKey()!=null && state.getSlashArtsKey().getNamespace().equals(FantasyDesire.MODID)) {
+        if (!Screen.hasControlDown() && state.getSlashArtsKey() != null && state.getSlashArtsKey().getNamespace().equals(FantasyDesire.MODID)) {
             // 提示玩家按 Ctrl 查看更多信息
             tooltip.add(Component.translatable("tooltip.fantasydesire.press_ctrl_for_details"));
         }
@@ -122,14 +122,21 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         ISlashBladeState state = CapabilityUtils.getBladeState(stack);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(stack);
         if (swordType.contains(SwordType.BEWITCHED) && !swordType.contains(SwordType.SEALED)) {
-            tooltip.add(Component.translatable("slashblade.tooltip.slash_art", new Object[]{s.getSlashArts().getDescription()}).withStyle(ChatFormatting.GRAY));
-        }
-        if (Screen.hasControlDown() && state.getSlashArts() instanceof FDSlashArts slashArts && slashArts.getDescColumn()>0) {
-            for (int i = 0; i < slashArts.getDescColumn(); i++) {
-                tooltip.add(Component.translatable("slash_art.fantasydesire."+ s.getSlashArtsKey().getPath() + ".desc_" + i));
+            if (state.getSlashArts() instanceof FDSlashArts slashArts && slashArts.hasAltName()) {
+                String key = slashArts.getDescriptionId() + ".alt";
+                Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)), Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
+                tooltip.add(Component.translatable("slashblade.tooltip.slash_art", finalText).withStyle(ChatFormatting.GRAY));
+                if (Screen.hasControlDown() && slashArts.getDescColumn() > 0) {
+                    for (int i = 0; i < slashArts.getDescColumn(); i++) {
+                        String key1 = slashArts.getDescriptionId() + ".desc_" + i;
+                        Component finalText1 = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key1)), Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
+                        tooltip.add(finalText1);
+                    }
+                }
+            } else {
+                tooltip.add(Component.translatable("slashblade.tooltip.slash_art", new Object[]{s.getSlashArts().getDescription()}).withStyle(ChatFormatting.GRAY));
             }
         }
-
     }
 
     @Override
@@ -140,10 +147,31 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
             Player player = mcinstance.player;
             s.getSpecialEffects().forEach((se) -> {
                 boolean showingLevel = SpecialEffect.getRequestLevel(se) > 0;
-                tooltip.add(Component.translatable("slashblade.tooltip.special_effect", new Object[]{SpecialEffect.getDescription(se), Component.literal(showingLevel ? String.valueOf(SpecialEffect.getRequestLevel(se)) : "").withStyle(SpecialEffect.isEffective(se, player.experienceLevel) ? ChatFormatting.RED : ChatFormatting.DARK_GRAY)}).withStyle(ChatFormatting.GRAY));
-                if (se.getNamespace().equals(FantasyDesire.MODID) && Screen.hasShiftDown() && !Screen.hasControlDown()) {
+                Component seComp = SpecialEffect.getDescription(se);
+                if (se.getNamespace().equals(FantasyDesire.MODID) && FDSpecialEffectBase.hasAltName(se) && SpecialEffect.isEffective(se, player.experienceLevel)) {
+                    String key = "se.fantasydesire." + se.getPath() + ".alt";
+                    String localized = I18n.get(key);
+                    TextParser parser = new TextParser();
+                    List<TextNode> roots = parser.parseMultipleTrees(localized);
+                    long tick = 0;
+                    if (Minecraft.getInstance().level != null) {
+                        tick = Minecraft.getInstance().level.getGameTime();
+                    }
+                    seComp = TextRenderer.render(roots, tick);
+                }
+                tooltip.add(Component.translatable("slashblade.tooltip.special_effect", new Object[]{seComp, Component.literal(showingLevel ? String.valueOf(SpecialEffect.getRequestLevel(se)) : "").withStyle(SpecialEffect.isEffective(se, player.experienceLevel) ? ChatFormatting.RED : ChatFormatting.DARK_GRAY)}).withStyle(ChatFormatting.GRAY));
+                if (se.getNamespace().equals(FantasyDesire.MODID) && Screen.hasShiftDown()) {
                     for (int i = 0; i < FDSpecialEffectBase.getDescColumn(se); i++) {
-                        tooltip.add(Component.translatable("se.fantasydesire." + se.getPath() + ".desc_" + i));
+                        String key = "se.fantasydesire." + se.getPath() + ".desc_" + i;
+                        String localized = I18n.get(key);
+                        TextParser parser = new TextParser();
+                        List<TextNode> roots = parser.parseMultipleTrees(localized);
+                        long tick = 0;
+                        if (Minecraft.getInstance().level != null) {
+                            tick = Minecraft.getInstance().level.getGameTime();
+                        }
+                        Component finalText = TextRenderer.render(roots, tick);
+                        tooltip.add(finalText);
                     }
                 }
             });
@@ -153,20 +181,27 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
     @OnlyIn(Dist.CLIENT)
     private void appendSpecialLore(List<Component> tooltip, ItemStack stack) {
         stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
-            int loreCount = s.getSpecialLore(); // 获取需要显示的文本行数
+            int loreCount = s.getSpecialLore();
             if (loreCount > 0) {
                 stack.getCapability(BLADESTATE).ifPresent((b) -> {
                     String locName = b.getTranslationKey();
                     for (int i = 0; i < loreCount; i++) {
-                        Component loreText = Component.translatable(locName + ".desc" + i);
-                        tooltip.add(loreText);
+                        String key = locName + ".desc" + i;
+                        String localized = I18n.get(key);
+                        TextParser parser = new TextParser();
+                        List<TextNode> roots = parser.parseMultipleTrees(localized);
+                        long tick = 0;
+                        if (Minecraft.getInstance().level != null) {
+                            tick = Minecraft.getInstance().level.getGameTime();
+                        }
+                        Component finalText = TextRenderer.render(roots, tick);
+                        tooltip.add(finalText);
                     }
                 });
             }
         });
     }
 
-    //    用于显示“特殊充能”
     @OnlyIn(Dist.CLIENT)
     private void appendSpecialCharge(List<Component> tooltip, ItemStack stack) {
         stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
@@ -175,7 +210,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 int charge = s.getSpecialCharge();
                 int maxCharge = s.getMaxSpecialCharge();
                 String raw = I18n.get("tooltip.fantasydesire.SpecialCharge." + scType);
-                String formatted = String.format(raw, charge, maxCharge); // §颜色保留！
+                String formatted = String.format(raw, charge, maxCharge);
                 tooltip.add(Component.literal(formatted));
             }
         });
@@ -186,12 +221,13 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
             String ae = s.getSpecialAttackEffect();
             if (!ae.equals("Null")) {
-//                System.out.println("tooltip.fantasydesire.AttaackEffect."+ae);
                 Component attackEffect = Component.translatable("tooltip.fantasydesire.AttackEffect." + ae);
                 Component damageText = Component.translatable("tooltip.fantasydesire.AttackEffect", attackEffect);
                 tooltip.add(damageText);
-                Component attackEffectDesc = Component.translatable("tooltip.fantasydesire.AttackEffect." + ae + ".desc");
-                tooltip.add(attackEffectDesc);
+                if (Screen.hasControlDown()) {
+                    Component attackEffectDesc = Component.translatable("tooltip.fantasydesire.AttackEffect." + ae + ".desc");
+                    tooltip.add(attackEffectDesc);
+                }
             }
         });
     }

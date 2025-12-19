@@ -36,7 +36,6 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
         }
     }
 
-    ;
 
 
     @Override
