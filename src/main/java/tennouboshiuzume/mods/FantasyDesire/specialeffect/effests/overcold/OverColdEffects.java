@@ -10,21 +10,23 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
+
 @SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class OverColdEffects {
-//    进化事件
+    // 冰川进化序列 进化事件
     @SubscribeEvent
-    public static void OnAddProudSoul(SlashBladeEvent.AddProudSoulEvent event){
+    public static void OnAddProudSoul(SlashBladeEvent.AddProudSoulEvent event) {
         ItemStack blade = event.getBlade();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade))
             return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        if (state.getTranslationKey().equals("item.fantasydesire.over_cold")){
-            fdState.setSpecialCharge(Math.min(fdState.getSpecialCharge()+ event.getOriginCount(), fdState.getMaxSpecialCharge()));
+        if (state.getTranslationKey().equals("item.fantasydesire.over_cold")) {
+            fdState.setSpecialCharge(
+                    Math.min(fdState.getSpecialCharge() + event.getOriginCount(), fdState.getMaxSpecialCharge()));
         }
-        if (fdState.getSpecialCharge()==fdState.getMaxSpecialCharge()){
+        if (fdState.getSpecialCharge() == fdState.getMaxSpecialCharge()) {
             switch (fdState.getSpecialType()) {
                 case "OverCold_0":
                     state.setModel(new ResourceLocation(FantasyDesire.MODID, "models/overcold_1.obj"));
@@ -52,8 +54,9 @@ public class OverColdEffects {
             }
         }
     }
+
     @SubscribeEvent
-    public static void OnUpdate(SlashBladeEvent.UpdateEvent event){
+    public static void OnUpdate(SlashBladeEvent.UpdateEvent event) {
         ItemStack blade = event.getBlade();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade))
             return;

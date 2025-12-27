@@ -1,11 +1,8 @@
 package tennouboshiuzume.mods.FantasyDesire.specialattack;
 
-import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.registries.IForgeRegistry;
-import tennouboshiuzume.mods.FantasyDesire.specialeffect.FDSpecialEffectBase;
 
 import java.util.function.Function;
 

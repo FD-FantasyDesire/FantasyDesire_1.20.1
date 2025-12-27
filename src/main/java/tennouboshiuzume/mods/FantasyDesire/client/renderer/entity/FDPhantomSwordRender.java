@@ -39,15 +39,36 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
 
     @Override
     public void render(T entity, float entityYaw, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
-                       int packedLightIn) {
+            int packedLightIn) {
 
-        if ((entity.getFired()||entity.getForceTail()) && entity.getHasTail()) {
+        if ((entity.getFired() || entity.getForceTail()) && entity.getHasTail()) {
             matrixStack.pushPose();
             renderTrail(entity, partialTicks, matrixStack, bufferIn, packedLightIn);
             matrixStack.popPose();
         }
 
         matrixStack.pushPose();
+        Entity shooter = entity.getShooter();
+        if (shooter != null && entity.getStandbyMode().equals("PLAYER") && !entity.getFired()) {
+            double sX = Mth.lerp(partialTicks, shooter.xo, shooter.getX());
+            double sY = Mth.lerp(partialTicks, shooter.yo, shooter.getY());
+            double sZ = Mth.lerp(partialTicks, shooter.zo, shooter.getZ());
+
+            float sYaw = Mth.rotLerp(partialTicks, shooter.yRotO, shooter.getYRot());
+            float sPitch = Mth.rotLerp(partialTicks, shooter.xRotO, shooter.getXRot());
+
+            Vec3 offset = entity.getOffset()
+                    .xRot((float) Math.toRadians(-sPitch))
+                    .yRot((float) Math.toRadians(-sYaw));
+            Vec3 pos = new Vec3(sX, sY, sZ).add(entity.getCenterOffset()).add(offset);
+
+            double eX = Mth.lerp(partialTicks, entity.xo, entity.getX());
+            double eY = Mth.lerp(partialTicks, entity.yo, entity.getY());
+            double eZ = Mth.lerp(partialTicks, entity.zo, entity.getZ());
+
+            matrixStack.translate(pos.x - eX, pos.y - eY, pos.z - eZ);
+        }
+
         try {
             Entity hits = entity.getHitEntity();
             boolean hasHitEntity = hits != null;
@@ -84,9 +105,11 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
 
     }
 
-    private void renderTrail(T entity, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn, int packedLightIn) {
+    private void renderTrail(T entity, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
+            int packedLightIn) {
         List<Vec3> trail = entity.getTrailPositions();
-        if (trail == null || trail.size() < 2) return;
+        if (trail == null || trail.size() < 2)
+            return;
         ResourceLocation tex = getTextureLocation(entity);
         // Ensure we get a VertexConsumer to draw the trail and core highlight
         VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(tex));
@@ -95,10 +118,20 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
         // partialTicks intentionally unused here
 
         Vec3 camPos = this.entityRenderDispatcher.camera.getPosition();
-        Vec3 entityPos = entity.position();
+        double lerpX = Mth.lerp(partialTicks, entity.xo, entity.getX());
+        double lerpY = Mth.lerp(partialTicks, entity.yo, entity.getY());
+        double lerpZ = Mth.lerp(partialTicks, entity.zo, entity.getZ());
+        Vec3 entityPos = new Vec3(lerpX, lerpY, lerpZ);
 
-        int count = trail.size();
+        List<Vec3> points = new java.util.ArrayList<>();
+        points.add(entityPos);
+        if (trail.size() > 1) {
+            points.addAll(trail.subList(1, trail.size()));
+        }
+
+        int count = points.size();
         float baseSize = 0.2f * entity.getScale(); // 基础宽度（full width）
+        double offsetDist = 0.5 * entity.getScale();
 
         int hexColor = entity.getColor();
         int colorR = (hexColor >> 16) & 0xFF;
@@ -110,22 +143,28 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
         // 预计算每个点的平滑切向（tangent），使用前后点平均
         Vec3[] tangents = new Vec3[count];
         for (int i = 0; i < count; i++) {
-            Vec3 prev = trail.get(Math.max(0, i - 1));
-            Vec3 next = trail.get(Math.min(count - 1, i + 1));
+            Vec3 prev = points.get(Math.max(0, i - 1));
+            Vec3 next = points.get(Math.min(count - 1, i + 1));
             Vec3 t = next.subtract(prev);
             double tlen = t.length();
             if (tlen <= 1e-6) {
                 // fallback to forward direction
-                if (i < count - 1) t = trail.get(i + 1).subtract(trail.get(i));
-                else t = trail.get(i).subtract(trail.get(i - 1));
+                if (i < count - 1)
+                    t = points.get(i + 1).subtract(points.get(i));
+                else
+                    t = points.get(i).subtract(points.get(i - 1));
             }
             tangents[i] = t.normalize();
         }
 
         // 绘制每段：外层 + 内层高亮
         for (int i = 0; i < count - 1; i++) {
-            Vec3 p0 = trail.get(i);
-            Vec3 p1 = trail.get(i + 1);
+            Vec3 p0 = points.get(i);
+            Vec3 p1 = points.get(i + 1);
+
+            p0 = p0.add(tangents[i].scale(offsetDist));
+            p1 = p1.add(tangents[i + 1].scale(offsetDist));
+
             Vec3 r0 = p0.subtract(entityPos);
             Vec3 r1 = p1.subtract(entityPos);
 
@@ -133,8 +172,10 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
             Vec3 tan0 = tangents[i];
             Vec3 tan1 = tangents[i + 1];
             Vec3 segTan = tan0.add(tan1).scale(0.5);
-            if (segTan.length() <= 1e-6) segTan = p1.subtract(p0).normalize();
-            else segTan = segTan.normalize();
+            if (segTan.length() <= 1e-6)
+                segTan = p1.subtract(p0).normalize();
+            else
+                segTan = segTan.normalize();
 
             // 计算右向量 = (cameraPos - point) x tangent
             Vec3 viewDir = camPos.subtract(entityPos).subtract(r0);
@@ -186,7 +227,8 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
             Matrix4f mat = matrixStack.last().pose();
             Matrix3f normal = matrixStack.last().normal();
 
-            // colors: outer fades toward white and alpha drops; inner is brighter (closer to white) and more opaque
+            // colors: outer fades toward white and alpha drops; inner is brighter (closer
+            // to white) and more opaque
             float lerpOuter0 = t0 * 0.35f;
             float lerpOuter1 = t1 * 0.35f;
             float or0 = (colorR / 255f) * (1f - lerpOuter0) + lerpOuter0;
@@ -225,30 +267,38 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
             // draw outer quad (two triangles) v0a v0b v1b v1a
             builder.vertex(mat, (float) o0a.x, (float) o0a.y, (float) o0a.z)
                     .color((int) (or0 * 255), (int) (og0 * 255), (int) (ob0 * 255), (int) (oAlpha0 * 255))
-                    .uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
             builder.vertex(mat, (float) o0b.x, (float) o0b.y, (float) o0b.z)
                     .color((int) (or0 * 255), (int) (og0 * 255), (int) (ob0 * 255), (int) (oAlpha0 * 255))
-                    .uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
             builder.vertex(mat, (float) o1b.x, (float) o1b.y, (float) o1b.z)
                     .color((int) (or1 * 255), (int) (og1 * 255), (int) (ob1 * 255), (int) (oAlpha1 * 255))
-                    .uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
             builder.vertex(mat, (float) o1a.x, (float) o1a.y, (float) o1a.z)
                     .color((int) (or1 * 255), (int) (og1 * 255), (int) (ob1 * 255), (int) (oAlpha1 * 255))
-                    .uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
 
             // draw inner highlight quad (narrower)
             coreBuilder.vertex(mat, (float) c0a.x, (float) c0a.y, (float) c0a.z)
                     .color((int) (ir0 * 255), (int) (ig0 * 255), (int) (ib0 * 255), (int) (iAlpha0 * 255))
-                    .uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
             coreBuilder.vertex(mat, (float) c0b.x, (float) c0b.y, (float) c0b.z)
                     .color((int) (ir0 * 255), (int) (ig0 * 255), (int) (ib0 * 255), (int) (iAlpha0 * 255))
-                    .uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
             coreBuilder.vertex(mat, (float) c1b.x, (float) c1b.y, (float) c1b.z)
                     .color((int) (ir1 * 255), (int) (ig1 * 255), (int) (ib1 * 255), (int) (iAlpha1 * 255))
-                    .uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
             coreBuilder.vertex(mat, (float) c1a.x, (float) c1a.y, (float) c1a.z)
                     .color((int) (ir1 * 255), (int) (ig1 * 255), (int) (ib1 * 255), (int) (iAlpha1 * 255))
-                    .uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f).endVertex();
+                    .uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
+                    .endVertex();
         }
     }
 }

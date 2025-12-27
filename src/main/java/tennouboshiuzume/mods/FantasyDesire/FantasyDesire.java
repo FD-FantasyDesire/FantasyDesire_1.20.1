@@ -13,7 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityRenderersEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,7 +26,6 @@ import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 import tennouboshiuzume.mods.FantasyDesire.init.*;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.CapabilityFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
-import tennouboshiuzume.mods.FantasyDesire.specialeffect.idletest;
 
 @Mod(FantasyDesire.MODID)
 @SuppressWarnings("removal")
@@ -36,7 +34,7 @@ public class FantasyDesire {
     private static final Logger LOGGER = LogUtils.getLogger();
 
     public static ResourceLocation prefix(String path) {
-        return new ResourceLocation(MODID,path);
+        return new ResourceLocation(MODID, path);
     }
 
     public FantasyDesire() {
@@ -49,13 +47,15 @@ public class FantasyDesire {
         FDPotionEffects.register(eventBus);
         FDTab.register(eventBus);
     }
+
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
         @SubscribeEvent
         public static void register(RegisterEvent event) {
 
             event.register(ForgeRegistries.Keys.ITEMS, helper -> {
-                helper.register(new ResourceLocation(MODID, "fantasyslashblade"), new ItemFantasySlashBlade(new ItemTierSlashBlade(40, 4F), 4, -2.4F, (new Item.Properties())));
+                helper.register(new ResourceLocation(MODID, "fantasyslashblade"),
+                        new ItemFantasySlashBlade(new ItemTierSlashBlade(40, 4F), 4, -2.4F, (new Item.Properties())));
             });
         }
 
@@ -66,38 +66,40 @@ public class FantasyDesire {
 
         @SubscribeEvent
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-//            event.registerEntityRenderer(RegistryEvents.FDSummonSwordBase, FDSummonSwordRenderer::new);
+            // event.registerEntityRenderer(RegistryEvents.FDSummonSwordBase,
+            // FDSummonSwordRenderer::new);
         }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-//        MinecraftForge.EVENT_BUS.register(new CapabilityAttachHandler());
-        MinecraftForge.EVENT_BUS.register(new idletest());
+        // MinecraftForge.EVENT_BUS.register(new CapabilityAttachHandler());
     }
-
 
     private static String classToString(Class<? extends Entity> entityClass) {
         return CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entityClass.getSimpleName())
                 .replace("entity_", "");
     }
 
-
     public static Registry<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(Level level) {
         if (level.isClientSide())
             return getClientSlashBladeRegistry();
         return level.registryAccess().registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
     }
+
     public static Registry<FantasySlashBladeDefinition> getClientSlashBladeRegistry() {
-        return Minecraft.getInstance().getConnection().registryAccess().registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
+        return Minecraft.getInstance().getConnection().registryAccess()
+                .registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
     }
 
-    public static HolderLookup.RegistryLookup<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(HolderLookup.Provider access) {
+    public static HolderLookup.RegistryLookup<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(
+            HolderLookup.Provider access) {
         return access.lookupOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
     }
-    public static ItemStack getBladeAsRegistry(Level level,  ResourceKey<FantasySlashBladeDefinition> key){
+
+    public static ItemStack getBladeAsRegistry(Level level, ResourceKey<FantasySlashBladeDefinition> key) {
         if (level.isClientSide()) {
             return getClientSlashBladeRegistry().get(key).getBlade();
-        }else {
+        } else {
             return level.registryAccess().registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY).get(key).getBlade();
         }
     }

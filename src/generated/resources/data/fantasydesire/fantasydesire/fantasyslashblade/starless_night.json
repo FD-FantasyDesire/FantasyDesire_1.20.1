@@ -24,6 +24,7 @@
   "properties": {
     "attack_base": 14.0,
     "max_damage": 1561,
+    "slash_art": "fantasydesire:echoing_void",
     "special_effects": [
       "fantasydesire:void_strike",
       "fantasydesire:echoing_strike"

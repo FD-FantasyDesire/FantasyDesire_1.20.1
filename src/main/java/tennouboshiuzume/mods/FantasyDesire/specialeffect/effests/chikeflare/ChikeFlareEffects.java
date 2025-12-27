@@ -32,46 +32,57 @@ import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ChikeFlareEffects {
-//    灵魂之盾
+    // 灵魂之盾
     @SubscribeEvent
-    public static void OnBypassAttack(LivingAttackEvent event){
-        if (!(event.getEntity() instanceof Player player)) return;
-        if(!(player.getMainHandItem().getItem() instanceof ItemFantasySlashBlade)) return;
+    public static void OnBypassAttack(LivingAttackEvent event) {
+        if (!(event.getEntity() instanceof Player player))
+            return;
+        if (!(player.getMainHandItem().getItem() instanceof ItemFantasySlashBlade))
+            return;
         ItemStack blade = player.getMainHandItem();
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
         RandomSource random = player.getRandom();
-        if (CapabilityUtils.isSpecialEffectActiveForItem(state,FDSpecialEffects.SoulShield,player,"item.fantasydesire.chikeflare")){
-            if (event.getSource().getEntity() instanceof LivingEntity attacker && MathUtils.RandomCheck(fdState.getSpecialCharge()*0.5f)) {
+        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.SoulShield, player,
+                "item.fantasydesire.chikeflare")) {
+            if (event.getSource().getEntity() instanceof LivingEntity attacker
+                    && MathUtils.RandomCheck(fdState.getSpecialCharge() * 0.5f)) {
                 Vec3 VecToAttacker = VecMathUtils.calculateDirectionVec(player, attacker);
                 float[] YP = VecMathUtils.getYawPitchFromVec(VecToAttacker);
-//                自动防反
-                AddonSlashUtils.doAddonSlash(player, random.nextInt(180), YP[0], YP[1], 0x00FFFF,0, VecToAttacker, false, false, 0.2f, KnockBacks.cancel);
-//                吸收成功格挡的伤害
-                player.setAbsorptionAmount(Mth.clamp(player.getAbsorptionAmount()+event.getAmount(),0,20));
+                // 自动防反
+                AddonSlashUtils.doAddonSlash(player, random.nextInt(180), YP[0], YP[1], 0x00FFFF, 0, VecToAttacker,
+                        false, false, 0.2f, KnockBacks.cancel);
+                // 吸收成功格挡的伤害
+                player.setAbsorptionAmount(Mth.clamp(player.getAbsorptionAmount() + event.getAmount(), 0, 20));
                 event.setCanceled(true);
             }
         }
     }
+
     @SubscribeEvent
     public static void OnBypassAttack(LivingHurtEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (!(player.getMainHandItem().getItem() instanceof ItemFantasySlashBlade)) return;
+        if (!(event.getEntity() instanceof Player player))
+            return;
+        if (!(player.getMainHandItem().getItem() instanceof ItemFantasySlashBlade))
+            return;
         ItemStack blade = player.getMainHandItem();
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
         RandomSource random = player.getRandom();
-        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.SoulShield, player, "item.fantasydesire.chikeflare")) {
-//            自动防反失败，充能+1
-            fdState.setSpecialCharge(Mth.clamp(fdState.getSpecialCharge()+1,0,fdState.getMaxSpecialCharge()));
-//            减缓防反失败后的伤害
-            event.setAmount(Math.min(event.getAmount(),5));
+        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.SoulShield, player,
+                "item.fantasydesire.chikeflare")) {
+            // 自动防反失败，充能+1
+            fdState.setSpecialCharge(Mth.clamp(fdState.getSpecialCharge() + 1, 0, fdState.getMaxSpecialCharge()));
+            // 减缓防反失败后的伤害
+            event.setAmount(Math.min(event.getAmount(), 5));
         }
     }
-//    不屈之魂
+
+    // 不屈之魂
     @SubscribeEvent
     public static void OnDeath(LivingDeathEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
+        if (!(event.getEntity() instanceof Player player))
+            return;
         ItemStack main = player.getMainHandItem();
         ItemStack off = player.getOffhandItem();
         ItemStack validBlade = ItemStack.EMPTY;
@@ -80,7 +91,8 @@ public class ChikeFlareEffects {
         // 主手检测
         if (main.getItem() instanceof ItemSlashBlade) {
             ISlashBladeState s = CapabilityUtils.getBladeState(main);
-            if (CapabilityUtils.isSpecialEffectActiveForItem(s, FDSpecialEffects.ImmortalSoul, player, "item.fantasydesire.chikeflare")) {
+            if (CapabilityUtils.isSpecialEffectActiveForItem(s, FDSpecialEffects.ImmortalSoul, player,
+                    "item.fantasydesire.chikeflare")) {
                 validBlade = main;
                 state = s;
                 fdState = CapabilityUtils.getFantasyBladeState(main);
@@ -89,14 +101,16 @@ public class ChikeFlareEffects {
         // 副手检测（只有当主手未通过时才检测）
         if (validBlade.isEmpty() && off.getItem() instanceof ItemSlashBlade) {
             ISlashBladeState s = CapabilityUtils.getBladeState(off);
-            if (CapabilityUtils.isSpecialEffectActiveForItem(s, FDSpecialEffects.ImmortalSoul, player, "item.fantasydesire.chikeflare")) {
+            if (CapabilityUtils.isSpecialEffectActiveForItem(s, FDSpecialEffects.ImmortalSoul, player,
+                    "item.fantasydesire.chikeflare")) {
                 validBlade = off;
                 state = s;
                 fdState = CapabilityUtils.getFantasyBladeState(off);
             }
         }
         // 如果两手都不满足条件则退出
-        if (validBlade.isEmpty() || state == null || fdState == null) return;
+        if (validBlade.isEmpty() || state == null || fdState == null)
+            return;
 
         int soul = state.getProudSoulCount();
         float baseattack = state.getBaseAttackModifier();
@@ -120,22 +134,25 @@ public class ChikeFlareEffects {
         }
     }
 
-    //    暴君一击
+    // 暴君一击
     @SubscribeEvent
-    public static void OnHit(SlashBladeEvent.HitEvent event){
-        if (!(event.getUser() instanceof Player player)) return;
-        if (!(player.getMainHandItem().getItem() instanceof ItemFantasySlashBlade)) return;
+    public static void OnHit(SlashBladeEvent.HitEvent event) {
+        if (!(event.getUser() instanceof Player player))
+            return;
+        if (!(player.getMainHandItem().getItem() instanceof ItemFantasySlashBlade))
+            return;
         ItemStack blade = player.getMainHandItem();
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TyrantStrike, player, "item.fantasydesire.chikeflare")) {
+        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TyrantStrike, player,
+                "item.fantasydesire.chikeflare")) {
             LivingEntity target = event.getTarget();
             RandomSource random = target.getRandom();
             float yaw = (float) random.nextInt(360);
-            float pitch = 90f+(float)(random.nextGaussian() * 5f);
+            float pitch = 90f + (float) (random.nextGaussian() * 5f);
             float roll = (float) (random.nextInt(360) - 180);
             Vec3 basePos = new Vec3(0, 0, 1);
-            Vec3 spawnPos = target.position().add(0,target.getBbHeight()/2,0)
+            Vec3 spawnPos = target.position().add(0, target.getBbHeight() / 2, 0)
                     .add(basePos
                             .xRot((float) Math.toRadians(pitch))
                             .yRot((float) Math.toRadians(yaw))
@@ -143,12 +160,12 @@ public class ChikeFlareEffects {
             Vec3 lookVec = target.position().add(0, target.getBbHeight() / 2, 0).subtract(spawnPos).normalize();
             float lookYaw = (float) (Math.atan2(-lookVec.x, lookVec.z) * (180f / Math.PI));
             float lookPitch = (float) (Math.asin(-lookVec.y) * (180f / Math.PI));
-            EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(),player.level());
+            EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
             ss.setIsCritical(false);
             ss.setOwner(player);
             ss.setColor(state.getColorCode());
             ss.setRoll(roll);
-            ss.setDamage(target.getMaxHealth()/4);
+            ss.setDamage(target.getMaxHealth() / 4);
             ss.setSpeed(5);
             ss.setStandbyMode("WORLD");
             ss.setMovingMode("NORMAL");
@@ -157,7 +174,7 @@ public class ChikeFlareEffects {
             ss.setDelayTicks(40);
             ss.setNoClip(true);
             ss.setHasTail(true);
-            ss.setFireSound(SoundEvents.WITHER_SHOOT,1,1.5f);
+            ss.setFireSound(SoundEvents.WITHER_SHOOT, 1, 1.5f);
             ss.setScale(target.getBbHeight());
             ss.setTargetId(target.getId());
             ss.setStandbyYawPitch(lookYaw, lookPitch);

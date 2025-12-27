@@ -9,12 +9,15 @@ import mods.flammpfeil.slashblade.compat.playerAnim.PlayerAnimationOverrider;
 import mods.flammpfeil.slashblade.event.client.AdvancementsRecipeRenderer;
 import mods.flammpfeil.slashblade.event.client.SneakingMotionCanceller;
 import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,15 +33,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleProvider;
-import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDDriveExRender;
-import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDEnergyBulletRender;
-import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.FDPhantomSwordRender;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.ImmortalSoulLayer;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
 import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
 
 @SuppressWarnings("removal")
-@Mod.EventBusSubscriber(modid = "fantasydesire",value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = "fantasydesire", value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 @OnlyIn(Dist.CLIENT)
 public class ClientHandler {
     @SubscribeEvent
@@ -57,12 +59,14 @@ public class ClientHandler {
         ItemProperties.register(FDItems.fantasyslashblade, new ResourceLocation("slashblade:user"),
                 new ClampedItemPropertyFunction() {
                     @Override
-                    public float unclampedCall(ItemStack p_174564_, @Nullable ClientLevel p_174565_,@Nullable LivingEntity p_174566_, int p_174567_) {
+                    public float unclampedCall(ItemStack p_174564_, @Nullable ClientLevel p_174565_,
+                            @Nullable LivingEntity p_174566_, int p_174567_) {
                         BladeModel.user = p_174566_;
                         return 0;
                     }
                 });
     }
+
     @SubscribeEvent
     public static void Baked(final ModelEvent.ModifyBakingResult event) {
         bakeBlade(FDItems.fantasyslashblade, event);
@@ -78,10 +82,25 @@ public class ClientHandler {
     public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(FDEntitys.FDPhantomSword.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDDriveEx.get(), FDDriveExRender::new);
-        event.registerEntityRenderer(FDEntitys.FDRainbowPhantomSword.get(),FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDRainbowPhantomSword.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDEnergyBullet.get(), FDEnergyBulletRender::new);
         event.registerEntityRenderer(FDEntitys.FDBFG.get(), FDEnergyBulletRender::new);
+        event.registerEntityRenderer(FDEntitys.RefinedMissile.get(), FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDHuntSword.get(), FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDSlashEffect.get(), FDSlashEffectRender::new);
+        event.registerEntityRenderer(FDEntitys.EnderSlashEffect.get(), EnderSlashEffectRender::new);
     }
+
+    @SubscribeEvent
+    public static void addLayers(EntityRenderersEvent.AddLayers event) {
+        for (String skin : event.getSkins()) {
+            LivingEntityRenderer<Player, EntityModel<Player>> renderer = event.getSkin(skin);
+            if (renderer != null) {
+                renderer.addLayer(new ImmortalSoulLayer<>(renderer));
+            }
+        }
+    }
+
     @SubscribeEvent
     public static void onRegisterFactories(RegisterParticleProvidersEvent event) {
         event.registerSpecial(FDParticles.GLOWING_LINE.get(), new GlowingLineParticleProvider());

@@ -14,30 +14,42 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlash
 import java.util.Optional;
 
 public class CapabilityUtils {
-    public static final Capability<IFantasySlashBladeState> FDBLADESTATE = CapabilityManager.get(new CapabilityToken<IFantasySlashBladeState>() {
-    });
-    public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager.get(new CapabilityToken<ISlashBladeState>() {
-    });
-    public static ISlashBladeState getBladeState(ItemStack blade){
+    public static final Capability<IFantasySlashBladeState> FDBLADESTATE = CapabilityManager
+            .get(new CapabilityToken<IFantasySlashBladeState>() {
+            });
+    public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager
+            .get(new CapabilityToken<ISlashBladeState>() {
+            });
+
+    public static ISlashBladeState getBladeState(ItemStack blade) {
         Optional<ISlashBladeState> StateOpt = blade.getCapability(BLADESTATE).resolve();
         return StateOpt.get();
     }
-    public static IFantasySlashBladeState getFantasyBladeState(ItemStack blade){
+
+    public static IFantasySlashBladeState getFantasyBladeState(ItemStack blade) {
         Optional<IFantasySlashBladeState> fdStateOpt = blade.getCapability(FDBLADESTATE).resolve();
         return fdStateOpt.get();
     }
-    public static boolean isSpecialEffectActive(ISlashBladeState state, RegistryObject<SpecialEffect> effect, LivingEntity entity){
+
+    public static boolean isSpecialEffectActive(ISlashBladeState state, RegistryObject<SpecialEffect> effect,
+            LivingEntity entity) {
+        int level = 0;
         if (entity instanceof Player player) {
-            return (SpecialEffect.isEffective(effect.getId(), player.experienceLevel)&&state.hasSpecialEffect(effect.getId()));
+            level = player.experienceLevel;
+        } else if (entity instanceof LivingEntity) {
+            level = effect.get().getRequestLevel();
         }
-        return false;
+        return (SpecialEffect.isEffective(effect.getId(), level)
+                && state.hasSpecialEffect(effect.getId()));
     }
-    public static boolean isRightTranslationKey(ISlashBladeState state, String itemTranslationKey){
-       return state.getTranslationKey().equals(itemTranslationKey);
+
+    public static boolean isRightTranslationKey(ISlashBladeState state, String itemTranslationKey) {
+        return state.getTranslationKey().equals(itemTranslationKey);
     }
-    public static boolean isSpecialEffectActiveForItem(ISlashBladeState state,  RegistryObject<SpecialEffect> effect, Player player, String itemTranslationKey) {
-        // 检查物品是否激活特效并匹配翻译键
-        return isSpecialEffectActive(state, effect, player) && state.getTranslationKey().equals(itemTranslationKey);
+
+    public static boolean isSpecialEffectActiveForItem(ISlashBladeState state, RegistryObject<SpecialEffect> effect,
+            LivingEntity entity, String itemTranslationKey) {
+        return isSpecialEffectActive(state, effect, entity) && state.getTranslationKey().equals(itemTranslationKey);
     }
 
 }

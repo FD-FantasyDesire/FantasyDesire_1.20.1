@@ -23,19 +23,23 @@ import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword{
+public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
     public EntityFDRainbowPhantomSword(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
 
     @Override
-    public void tick(){
+    public void tick() {
         super.tick();
-        if (getShooter()!=null) makeSurePierce();
-        if (!getInGround() && (getPierce() > 0 || getHitEntity() == null)) playRainbowParticle();
+        if (getShooter() != null)
+            makeSurePierce();
+        if (!getInGround() && (getPierce() > 0 || getHitEntity() == null))
+            playRainbowParticle();
     }
+
     private void playRainbowParticle() {
-        if (this.level().isClientSide()) return;
+        if (this.level().isClientSide())
+            return;
         ServerLevel sl = (ServerLevel) this.level();
 
         // 上一 tick 位置
@@ -67,15 +71,14 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword{
                     0.25,
                     0.25,
                     0.25,
-                    0.05
-            );
+                    0.05);
         }
     }
 
     private void makeSurePierce() {
-        if (getShooter().position().y+this.getDeltaMovement().length()<=this.position().y){
+        if (getShooter().position().y + this.getDeltaMovement().length() <= this.position().y) {
             this.setNoClip(true);
-        }else {
+        } else {
             this.setNoClip(false);
         }
     }
@@ -85,28 +88,31 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword{
         super.onHitEntity(entityHitResult);
         this.burst();
     }
+
     @Override
     protected void onHitBlock(BlockHitResult blockraytraceresult) {
         super.onHitBlock(blockraytraceresult);
         this.burst();
     }
 
-
     @Override
-    public void burst(){
+    public void burst() {
         RainbowShockwave();
         super.burst();
     }
-    private void RainbowShockwave(){
+
+    private void RainbowShockwave() {
         LivingEntity player = (LivingEntity) this.getShooter();
-        if (player==null) return;
+        if (player == null)
+            return;
         for (int i = 0; i < 7; i++) {
-            int cl = ColorUtils.getSmoothTransitionColor(i,7,true);
+            int cl = ColorUtils.getSmoothTransitionColor(i, 7, true);
             EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, player.level());
-            Vec3 pos = this.position().add(new Vec3(0,0,jc.getBbHeight()/2).yRot(-(float) Math.toRadians(360 /7*i+player.getYRot())));
-            jc.setPos(pos.x, pos.y+this.getBbHeight()/2, pos.z);
+            Vec3 pos = this.position().add(
+                    new Vec3(0, 0, jc.getBbHeight() / 2).yRot(-(float) Math.toRadians(360 / 7 * i + player.getYRot())));
+            jc.setPos(pos.x, pos.y + this.getBbHeight() / 2, pos.z);
             jc.setOwner(null);
-            jc.setYRot((float) 360 /7*i+this.getYRot());
+            jc.setYRot((float) 360 / 7 * i + this.getYRot());
             jc.setXRot(0);
             jc.setColor(cl);
             jc.setRotationRoll(0f);
@@ -123,12 +129,12 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword{
         }
         List<Entity> excludeList = new ArrayList<>();
         excludeList.add(player);
-        List<LivingEntity> target = TargetUtils.getLivingEntitiesInRadius(this,this.position(), 5.0,false,excludeList);
-        for (LivingEntity targetEntity : target){
-            AttackManager.doMeleeAttack(player,targetEntity,true,true,3.5f);
+        List<LivingEntity> target = TargetUtils.getLivingEntitiesInRadius(this, this.position(), 5.0, false,
+                excludeList);
+        for (LivingEntity targetEntity : target) {
+            AttackManager.doMeleeAttack(player, targetEntity, true, true, 3.5f);
         }
     }
-
 
     public static Vector3f hexToVector3f(int hexColor) {
         // 提取红绿蓝，每个0~255

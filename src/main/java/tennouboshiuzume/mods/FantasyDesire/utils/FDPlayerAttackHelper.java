@@ -11,6 +11,7 @@ import net.minecraftforge.common.ForgeHooks;
 public class FDPlayerAttackHelper extends AttackHelper {
     public FDPlayerAttackHelper() {
     }
+
     public static void attack(LivingEntity attacker, Entity target, float comboRatio, DamageSource damageSource) {
         if (attacker instanceof Player player) {
             if (!ForgeHooks.onPlayerAttackTarget(player, target)) {
@@ -37,6 +38,13 @@ public class FDPlayerAttackHelper extends AttackHelper {
                 }
 
             }
+        }
+    }
+
+    public static void attack(LivingEntity attacker, Entity target, float comboRatio, double range,
+            DamageSource damageSource) {
+        if (attacker.distanceToSqr(target) <= range * range) {
+            attack(attacker, target, comboRatio, damageSource);
         }
     }
 }

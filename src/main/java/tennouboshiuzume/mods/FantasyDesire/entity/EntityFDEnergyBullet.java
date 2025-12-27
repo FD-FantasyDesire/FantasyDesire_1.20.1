@@ -1,7 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.entity;
 
 import mods.flammpfeil.slashblade.entity.Projectile;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;

@@ -33,7 +33,7 @@
   "name": "fantasydesire:crimson_scythe",
   "properties": {
     "attack_base": 4.5,
-    "max_damage": 60,
+    "max_damage": 150,
     "slash_art": "fantasydesire:crimson_strike",
     "special_effects": [
       "fantasydesire:blood_drain",

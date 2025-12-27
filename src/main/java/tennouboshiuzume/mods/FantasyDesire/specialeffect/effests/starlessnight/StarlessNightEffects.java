@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.init.FDCombo;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
@@ -24,29 +23,34 @@ import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class StarlessNightEffects {
-//    回响打击
+    // 回响打击
     @SubscribeEvent
     public static void OnHit(SlashBladeEvent.HitEvent event) {
         ItemStack blade = event.getBlade();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade))
             return;
-        if (!(event.getUser() instanceof Player player)) return;
+        if (!(event.getUser() instanceof Player player))
+            return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        if (!state.getTranslationKey().equals("item.fantasydesire.starless_night")) return;
+        if (!state.getTranslationKey().equals("item.fantasydesire.starless_night"))
+            return;
         LivingEntity target = event.getTarget();
-        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.VoidStrike, player, "item.fantasydesire.starless_night")) {
+        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.VoidStrike, player,
+                "item.fantasydesire.starless_night")) {
             stackVoidStrike(target);
         }
-        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EchoingStrike, player, "item.fantasydesire.starless_night")) {
-            if (ALLOWED_COMBOS.contains(state.getComboSeq().getPath())){
-                target.playSound(SoundEvents.TRIDENT_THUNDER,1f,0.8f);
-                ParticleUtils.generateRingParticles(ParticleTypes.END_ROD,target.level(),target.getX(),target.getY()+target.getBbHeight()/4,target.getZ(),10,48);
+        if (CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EchoingStrike, player,
+                "item.fantasydesire.starless_night")) {
+            if (ALLOWED_COMBOS.contains(state.getComboSeq().getPath())) {
+                target.playSound(SoundEvents.TRIDENT_THUNDER, 1f, 0.8f);
+                ParticleUtils.generateRingParticles(ParticleTypes.END_ROD, target.level(), target.getX(),
+                        target.getY() + target.getBbHeight() / 4, target.getZ(), 10, 48);
             }
         }
     }
 
-    private static void stackVoidStrike(LivingEntity entity){
+    private static void stackVoidStrike(LivingEntity entity) {
         int duration = 60;
         int amplifier = 0;
         MobEffect voidStrike = FDPotionEffects.VOID_STRIKE.get();
@@ -71,6 +75,5 @@ public class StarlessNightEffects {
             "combo_b_end3",
             "combo_c",
             "aerial_rave_b4",
-            "rising_star"
-    );
+            "rising_star");
 }

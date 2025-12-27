@@ -23,7 +23,7 @@
   "name": "fantasydesire:twin_blade",
   "properties": {
     "attack_base": 2.5,
-    "max_damage": 400,
+    "max_damage": 1024,
     "slash_art": "fantasydesire:twin_system_l",
     "special_effects": [
       "fantasydesire:twin_set"

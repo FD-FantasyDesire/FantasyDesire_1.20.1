@@ -5,10 +5,13 @@ import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 
 import java.util.HashMap;
@@ -21,16 +24,8 @@ public class ItemUtils {
         tag.putString("SpecialEffectType", effect.toString());
         return stack;
     }
-    public static void fillSEShards(CreativeModeTab.Output output){
-//        排除本体SE
-//        SpecialEffectsRegistry.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
-//            SpecialEffect se = specialEffectRegistryObject.get();
-//            ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);
-//            CompoundTag tag = new CompoundTag();
-//            tag.putString("SpecialEffectType", se.toString());
-//            sphere.setTag(tag);
-//            output.accept(sphere);
-//        });
+
+    public static void fillSEShards(CreativeModeTab.Output output) {
         FDSpecialEffects.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
             SpecialEffect se = specialEffectRegistryObject.get();
             ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);
@@ -41,27 +36,29 @@ public class ItemUtils {
         });
     }
 
-    public static ItemStack dataBakeBlade(ItemStack blade1,ItemStack blade2){
+    public static ItemStack dataBakeBlade(ItemStack blade1, ItemStack blade2) {
         if (blade1.getItem() instanceof ItemSlashBlade && blade2.getItem() instanceof ItemSlashBlade) {
             ISlashBladeState state1 = CapabilityUtils.getBladeState(blade1);
             ISlashBladeState state2 = CapabilityUtils.getBladeState(blade2);
-
             // 复制基本属性
             state2.setRefine(state1.getRefine());
             state2.setProudSoulCount(state1.getProudSoulCount());
             state2.setKillCount(state1.getKillCount());
-
             // 附魔合并（取最大等级）
             Map<Enchantment, Integer> ench1 = EnchantmentHelper.getEnchantments(blade1);
             Map<Enchantment, Integer> ench2 = EnchantmentHelper.getEnchantments(blade2);
-
             Map<Enchantment, Integer> merged = new HashMap<>(ench2);
             ench1.forEach((ench, lvl) -> merged.merge(ench, lvl, Math::max));
-
             EnchantmentHelper.setEnchantments(merged, blade2);
-
             return blade2;
         }
         return blade1;
+    }
+
+    public static void ConvertModel(LivingEntity entity, ItemStack blade, String model) {
+        if (blade.getItem() instanceof ItemSlashBlade) {
+            ISlashBladeState state = CapabilityUtils.getBladeState(blade);
+            state.setModel(new ResourceLocation(FantasyDesire.MODID, model));
+        }
     }
 }

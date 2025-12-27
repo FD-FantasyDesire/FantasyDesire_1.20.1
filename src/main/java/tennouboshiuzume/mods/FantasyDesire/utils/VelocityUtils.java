@@ -4,7 +4,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 public class VelocityUtils {
-
     /**
      * 获取两个实体之间的相对速度大小
      */
