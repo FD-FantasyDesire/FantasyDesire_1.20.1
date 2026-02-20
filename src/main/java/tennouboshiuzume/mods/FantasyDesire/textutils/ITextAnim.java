@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.TextUtils;
+package tennouboshiuzume.mods.FantasyDesire.textutils;
 
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;

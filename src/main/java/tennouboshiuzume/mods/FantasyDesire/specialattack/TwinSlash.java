@@ -8,16 +8,20 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
+import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
+import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
 import java.util.List;
 
@@ -30,7 +34,7 @@ public class TwinSlash {
         if (!(blade.getItem() instanceof ItemSlashBlade)) return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         if (!(player instanceof Player)) return;
-        LivingEntity nearest = TargetUtils.getNearestTargetInSight((Player) player, 35, 25, true, null);
+        LivingEntity nearest = FDTargetSelector.getNearestTargetInSight((Player) player, 35, 25, true, null);
         if (state.getTargetEntity(player.level()) instanceof LivingEntity targeted) nearest = targeted;
         if (nearest == null) return;
         player.playSound(SoundEvents.GRASS_STEP, 1f, 0.7f);
@@ -55,12 +59,11 @@ public class TwinSlash {
         if (!(blade.getItem() instanceof ItemSlashBlade)) return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         if (!(player instanceof Player)) return;
-        List<LivingEntity> targetList = TargetUtils.getNearbyLivingEntities(player, 15, true, null);
+        List<LivingEntity> targetList = FDTargetSelector.getNearbyLivingEntities(player, 15, true, null);
         LivingEntity target = targetList.isEmpty() ? null : targetList.get(player.getRandom().nextInt(targetList.size()));
         if (state.getTargetEntity(player.level()) instanceof LivingEntity targeted) target = targeted;
         if (target == null) return;
         player.playSound(SoundEvents.GRASS_STEP, 1f, 0.7f);
-        // 粒子（只在服务器执行）
         Vec3 teleportPos = calculateTeleportPosition(player, target);
         for (int i = 0; i < 8; i++) {
             Vec3 offset = new Vec3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5));
@@ -69,6 +72,7 @@ public class TwinSlash {
             ParticleUtils.LightBoltParticles(player.level(), start, end, i % 2 == 0 ? 0x00C8FF : 0xFF0089, 0.05f, 20, 0.5f, true, 1, 12);
         }
         if ((player.level() instanceof ServerLevel serverlevel)) {
+            // 粒子（只在服务器执行）
             if (isValidTeleportPosition(teleportPos)) {
                 performTeleportation((Entity) player, serverlevel, teleportPos);
                 applyPostTeleportEffects(player);
@@ -85,6 +89,46 @@ public class TwinSlash {
         if (!(blade.getItem() instanceof ItemSlashBlade)) return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         AddonSlashUtils.doAddonSlash(player, roll, player.getYRot() + Yrot, Xrot, state.getColorCode(), offset, Vec3.ZERO, false, false, 0.3f, KnockBacks.cancel);
+    }
+
+
+    public static void MoodFinalRuneSword(LivingEntity player,LivingEntity target, ItemStack blade){
+        if (blade.getItem() instanceof ItemFantasySlashBlade){
+            ISlashBladeState state = CapabilityUtils.getBladeState(blade);
+            RandomSource random = target.getRandom();
+            float yaw = (float) random.nextInt(360);
+            float pitch = (float) random.nextInt(90);
+            float roll = (float) (random.nextInt(360) - 180);
+            Vec3 basePos = new Vec3(0, 0, 1);
+            Vec3 spawnPos = target.position().add(0, target.getBbHeight() / 2, 0)
+                    .add(basePos
+                            .xRot((float) Math.toRadians(pitch))
+                            .yRot((float) Math.toRadians(yaw))
+                            .scale(3f));
+            Vec3 lookVec = target.position().add(0, target.getBbHeight() / 2, 0).subtract(spawnPos).normalize();
+            float lookYaw = (float) (Math.atan2(-lookVec.x, lookVec.z) * (180f / Math.PI));
+            float lookPitch = (float) (Math.asin(-lookVec.y) * (180f / Math.PI));
+            EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
+            ss.setIsCritical(false);
+            ss.setOwner(player);
+            ss.setRoll(roll);
+            ss.setDamage(player.getMaxHealth() * 0.25);
+            ss.setSpeed(1);
+            ss.setColor(state.getColorCode());
+            ss.setStandbyMode("WORLD");
+            ss.setMovingMode("NORMAL");
+            ss.setDelay(100);
+            ss.setParticleType(ParticleTypes.ENCHANT);
+            ss.setDelayTicks(40);
+            ss.setNoClip(true);
+            ss.setHasTail(false);
+            ss.setFireSound(SoundEvents.TRIDENT_THUNDER, 0.5f, 2f);
+            ss.setScale(1);
+            ss.setTargetId(target.getId());
+            ss.setStandbyYawPitch(lookYaw, lookPitch);
+            ss.setPos(spawnPos);
+            player.level().addFreshEntity(ss);
+        }
     }
 
     public static void DoomSlash(LivingEntity player, ItemStack blade,float roll,float ratio) {
@@ -106,4 +150,5 @@ public class TwinSlash {
     public static Vec3 calculateTeleportPosition(Entity entityIn, LivingEntity target) {
         return target.position().add(0.0, (double)target.getBbHeight() * 0.1, 0.0).add(target.getLookAngle().scale(2.0));
     }
+
 }

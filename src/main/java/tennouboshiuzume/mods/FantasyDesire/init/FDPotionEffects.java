@@ -22,6 +22,8 @@ public class FDPotionEffects {
                         ImmortalSoulEffect::new);
         public static final RegistryObject<MobEffect> MISSILE_LOCKED = MOB_EFFECTS.register("missile_locked",
                         MissileLockedEffect::new);
+        public static final RegistryObject<MobEffect> COMET_ELYTRA = MOB_EFFECTS.register("comet_elytra",
+                CometElytraEffect::new);
 
         public static void register(IEventBus eventBus) {
                 MOB_EFFECTS.register(eventBus);

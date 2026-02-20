@@ -1,10 +1,10 @@
-package tennouboshiuzume.mods.FantasyDesire.TextUtils.Anim;
+package tennouboshiuzume.mods.FantasyDesire.textutils.anim;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TextColor;
-import tennouboshiuzume.mods.FantasyDesire.TextUtils.ComponentUtils;
-import tennouboshiuzume.mods.FantasyDesire.TextUtils.ITextAnim;
+import tennouboshiuzume.mods.FantasyDesire.textutils.ComponentUtils;
+import tennouboshiuzume.mods.FantasyDesire.textutils.ITextAnim;
 
 public class WaveBoldAnim implements ITextAnim {
 //    中心向外波动加粗

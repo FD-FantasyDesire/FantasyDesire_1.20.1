@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +23,8 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
     @Override
     public void customEffectFired() {
         List<Entity> excludeList = new ArrayList<>();
-        excludeList.add(this);
         excludeList.add(this.getShooter());
-        List<LivingEntity> targets = TargetUtils.getLivingEntitiesInRadius(this, this.position(), 25,false,excludeList);
+        List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), 25,false,excludeList);
         for (LivingEntity target : targets) {
             Vec3 start = this.position();
             Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);

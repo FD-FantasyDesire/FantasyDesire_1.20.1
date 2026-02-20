@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.specialeffect.effests.starlessnight;
+package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.starlessnight;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
@@ -23,6 +23,7 @@ import java.util.Set;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class StarlessNightEffects {
+    // 虚空强袭
     // 回响打击
     @SubscribeEvent
     public static void OnHit(SlashBladeEvent.HitEvent event) {

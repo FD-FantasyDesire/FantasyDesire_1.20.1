@@ -1,8 +1,8 @@
-package tennouboshiuzume.mods.FantasyDesire.TextUtils;
+package tennouboshiuzume.mods.FantasyDesire.textutils;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import tennouboshiuzume.mods.FantasyDesire.TextUtils.Anim.*;
+import tennouboshiuzume.mods.FantasyDesire.textutils.anim.*;
 
 import java.util.List;
 

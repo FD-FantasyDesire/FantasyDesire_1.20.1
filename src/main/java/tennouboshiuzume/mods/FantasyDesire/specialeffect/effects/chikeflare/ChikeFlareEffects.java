@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.specialeffect.effests.chikeflare;
+package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.chikeflare;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;

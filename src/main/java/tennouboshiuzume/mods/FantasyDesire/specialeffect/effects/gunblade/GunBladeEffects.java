@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.specialeffect.effests.gunblade;
+package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.gunblade;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
@@ -25,7 +25,7 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +42,7 @@ public class GunBladeEffects {
             return;
         if (!(event.getUser() instanceof Player player))
             return;
+//        shift不触发SE
         if (player.isShiftKeyDown())
             return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
@@ -62,10 +63,13 @@ public class GunBladeEffects {
         boolean ThunderOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.ThunderBullet, player,
                 "item.fantasydesire.smart_pistol");
 
-        int cost = TripleOn && !EnergyOn ? 1 : 3;
+        int cost = TripleOn && !EnergyOn ? 1 : 2;
         int soulcost = 36;
+//        简单装填检测
         if (ammo < cost) {
-            reload(player, blade, state, fdState, soulcost);
+//            符合装填条件时，取消斩击进入装填冷却
+//            否则使用常规拔刀近战攻击
+            if (reload(player, blade, state, fdState, soulcost)) event.setCanceled(true);
             return;
         }
         fdState.setSpecialCharge(fdState.getSpecialCharge() - cost);
@@ -89,7 +93,7 @@ public class GunBladeEffects {
             // 力量附魔增加伤害
             float damage = state.getBaseAttackModifier() + state.getAttackAmplifier()
                     + blade.getEnchantmentLevel(Enchantments.POWER_ARROWS) * 3;
-            List<LivingEntity> targets = TargetUtils.getTargetsInSight(player, lockDistance, 30, true, null);
+            List<LivingEntity> targets = FDTargetSelector.getTargetsInSight(player, lockDistance, 30, true, null);
             targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(player)));
             for (int i = 0; i < volleyCount; i++) {
                 EntityFDPhantomSword ss;
@@ -119,10 +123,10 @@ public class GunBladeEffects {
                 ss.setHasTail(true);
                 ss.setScale(0.2f);
                 ss.setTailNodes(tailNodes);
-                // 如果“绝肃爆裂弹头”效果激活，首先尝试从候选目标列表中找到没有 MISSILE_LOCKED 效果的实体。
-                // 如果所有候选目标都已有该效果，则选择 目标锁定 剩余时间最短的那个实体。
-                // 选中目标后，为其添加持续 60 ticks (3秒) 的 目标锁定 效果。
-                // 如果已有选定的目标（例如拔刀剑本身锁定的目标），则优先使用该目标。
+//              如果“绝肃爆裂弹头”效果激活，首先尝试从候选目标列表中找到没有 MISSILE_LOCKED 效果的实体。
+//              如果所有候选目标都已有该效果，则选择 目标锁定 剩余时间最短的那个实体。
+//              选中目标后，为其添加持续 60 ticks (3秒) 的 目标锁定 效果。
+//              如果已有选定的目标（例如拔刀剑本身锁定的目标），则优先使用该目标。
                 Entity finalTarget = null;
                 if (state.getTargetEntity(player.level()) != null) {
                     finalTarget = state.getTargetEntity(player.level());
@@ -162,7 +166,8 @@ public class GunBladeEffects {
         }
 
         if (EnergyOn && !TripleOn) {
-            // 能量弹
+//          能量弹
+//          我真没招了，想不到该怎么设计这个好，就当是BFG的弱势之处吧
             float damage = state.getBaseAttackModifier() + state.getAttackAmplifier()
                     + blade.getEnchantmentLevel(Enchantments.POWER_ARROWS) * 5;
             EntityFDEnergyBullet ss = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
@@ -171,12 +176,15 @@ public class GunBladeEffects {
             ss.setColor(ThunderOn ? 0xFFFF00 : state.getColorCode());
             ss.setRoll(random.nextInt(180));
             ss.setDamage(damage);
+            ss.setNoClip(true);
             ss.setSpeed(5f);
             ss.setStandbyMode("PLAYER");
             ss.setMovingMode("NORMAL");
             ss.setDelay(60);
             ss.setDelayTicks(1);
             ss.setMultipleHit(true);
+//            宙霆能量电容
+//            击中带有5米溅射效果
             ss.setExpRadius(ThunderOn ? 5 : 0);
             ss.setFireSound(SoundEvents.SHULKER_SHOOT, 1, 2f);
             ss.setHasTail(true);
@@ -188,7 +196,7 @@ public class GunBladeEffects {
         }
         event.setCanceled(true);
     }
-
+//    填弹上膛
     public static boolean reload(Player player, ItemStack blade, ISlashBladeState state,
             IFantasySlashBladeState fdState, int soulcost) {
         if (state.getProudSoulCount() < soulcost) {

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TargetUtils extends TargetSelector {
+public class FDTargetSelector extends TargetSelector {
     public static Optional<Entity> getLockTarget(LivingEntity sender) {
         Level worldIn = sender.level();
         Entity lockTarget = sender.getMainHandItem()

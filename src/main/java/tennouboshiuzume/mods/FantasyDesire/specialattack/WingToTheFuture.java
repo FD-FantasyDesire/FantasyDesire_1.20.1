@@ -97,7 +97,7 @@ public class WingToTheFuture {
                 float magicDamage = 1.0f + (baseModif / 2.0f);
                 int countdown = 1;
                 int maxFeather = 32;
-                List<LivingEntity> targets = TargetUtils.getTargetsInSight((Player) player, 35, 20, true, null);
+                List<LivingEntity> targets = FDTargetSelector.getTargetsInSight((Player) player, 35, 20, true, null);
                 for (int i = 0; i < wingCount; i++) {
                     int count = 1;
                     for (int j = 1; j <= maxFeather; j++) {
@@ -225,10 +225,12 @@ public class WingToTheFuture {
     }
 
     public static void WingToTheFutureBoost(LivingEntity player) {
-        Vec3 vec3d1 = player.getLookAngle();
-        Vec3 vec3d2 = player.getDeltaMovement();
-        player.setDeltaMovement(vec3d2.add(vec3d1.x * 0.1D + (vec3d1.x * 1.5D - vec3d2.x) * 0.5D,
-                vec3d1.y * 0.1D + (vec3d1.y * 1.5D - vec3d2.y) * 0.5D,
-                vec3d1.z * 0.1D + (vec3d1.z * 1.5D - vec3d2.z) * 0.5D));
+        if (player instanceof Player && player.isFallFlying()){
+            Vec3 vec3d1 = player.getLookAngle();
+            Vec3 vec3d2 = player.getDeltaMovement();
+            player.setDeltaMovement(vec3d2.add(vec3d1.x * 0.1D + (vec3d1.x * 1.5D - vec3d2.x) * 0.5D,
+                    vec3d1.y * 0.1D + (vec3d1.y * 1.5D - vec3d2.y) * 0.5D,
+                    vec3d1.z * 0.1D + (vec3d1.z * 1.5D - vec3d2.z) * 0.5D));
+        }
     }
 }

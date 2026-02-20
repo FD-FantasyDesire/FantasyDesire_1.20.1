@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.specialeffect.effests.twinblade;
+package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.twinblade;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;

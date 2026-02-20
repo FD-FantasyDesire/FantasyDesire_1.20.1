@@ -12,7 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class EntityFDEnergyBullet extends EntityFDDriveEx{
                 List<Entity> excludeList = new ArrayList<>();
                 excludeList.add(this);
                 excludeList.add(this.getShooter());
-                List<LivingEntity> targets = TargetUtils.getNearbyLivingEntities(targetEntity, this.getExpRadius(),false,excludeList);
+                List<LivingEntity> targets = FDTargetSelector.getNearbyLivingEntities(targetEntity, this.getExpRadius(),false,excludeList);
                 for (LivingEntity target : targets) {
                     Vec3 start = targetEntity.position().add(0,target.getBbHeight()/2,0);
                     Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);
@@ -61,7 +61,7 @@ public class EntityFDEnergyBullet extends EntityFDDriveEx{
             List<Entity> excludeList = new ArrayList<>();
             excludeList.add(this);
             excludeList.add(this.getShooter());
-            List<LivingEntity> targets = TargetUtils.getLivingEntitiesInRadius(this, this.position(), this.getExpRadius(),false,excludeList);
+            List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), this.getExpRadius(),false,excludeList);
             for (LivingEntity target : targets) {
                 Vec3 start = this.position();
                 Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);

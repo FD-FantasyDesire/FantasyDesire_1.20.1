@@ -33,7 +33,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleProvider;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.ShardParticle;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometElytraLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.ImmortalSoulLayer;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
@@ -97,6 +99,7 @@ public class ClientHandler {
             LivingEntityRenderer<Player, EntityModel<Player>> renderer = event.getSkin(skin);
             if (renderer != null) {
                 renderer.addLayer(new ImmortalSoulLayer<>(renderer));
+//                renderer.addLayer(new CometElytraLayer<>(renderer));
             }
         }
     }
@@ -104,5 +107,6 @@ public class ClientHandler {
     @SubscribeEvent
     public static void onRegisterFactories(RegisterParticleProvidersEvent event) {
         event.registerSpecial(FDParticles.GLOWING_LINE.get(), new GlowingLineParticleProvider());
+        event.registerSpecial(FDParticles.SHARD.get(), new ShardParticle.Provider(null));
     }
 }

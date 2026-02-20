@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.specialeffect.effests.puresnow;
+package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.puresnow;
 
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;

@@ -18,7 +18,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.utils.ColorUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,7 +129,7 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
         }
         List<Entity> excludeList = new ArrayList<>();
         excludeList.add(player);
-        List<LivingEntity> target = TargetUtils.getLivingEntitiesInRadius(this, this.position(), 5.0, false,
+        List<LivingEntity> target = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), 5.0, false,
                 excludeList);
         for (LivingEntity targetEntity : target) {
             AttackManager.doMeleeAttack(player, targetEntity, true, true, 3.5f);

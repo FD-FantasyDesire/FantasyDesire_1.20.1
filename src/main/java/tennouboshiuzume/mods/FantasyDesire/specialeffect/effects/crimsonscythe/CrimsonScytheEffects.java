@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.specialeffect.effests.crimsonscythe;
+package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.crimsonscythe;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
@@ -18,7 +18,7 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 import java.util.List;
@@ -62,7 +62,7 @@ public class CrimsonScytheEffects {
             float lockDistance = 15 + sweepLevel * 10;
             int volleyCount = 3 + sweepLevel;
             float angleDeg = 30 + sweepLevel * 10;
-            List<LivingEntity> targets = TargetUtils.getTargetsInSight(entity, lockDistance, angleDeg, true, null);
+            List<LivingEntity> targets = FDTargetSelector.getTargetsInSight(entity, lockDistance, angleDeg, true, null);
             // Sort descending by distance
             targets.sort((e1, e2) -> Double.compare(e2.distanceToSqr(entity), e1.distanceToSqr(entity)));
             Random random = new Random();

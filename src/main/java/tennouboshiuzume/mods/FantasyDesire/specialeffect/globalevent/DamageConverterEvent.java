@@ -40,25 +40,28 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class DamageConverterEvent {
-    public static final Capability<IFantasySlashBladeState> FDBLADESTATE = CapabilityManager.get(new CapabilityToken<IFantasySlashBladeState>() {
-    });
-    public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager.get(new CapabilityToken<ISlashBladeState>() {
-    });
+    public static final Capability<IFantasySlashBladeState> FDBLADESTATE = CapabilityManager
+            .get(new CapabilityToken<IFantasySlashBladeState>() {
+            });
+    public static final Capability<ISlashBladeState> BLADESTATE = CapabilityManager
+            .get(new CapabilityToken<ISlashBladeState>() {
+            });
     public static UUID ETERNITY_HEALTH_MODIFIER = UUID.fromString("a5b1b2f0-2f3c-4e3b-8a71-123456789abc");
-//    根据伤害类型作出不同的效果追加
-//    暴怒 特殊火焰 对持盾敌人造成3x伤害
-//    色欲 使攻击者回复0.2生命值
-//    暴食 使攻击者回复0.2饥饿值
-//    忧郁 特殊溺水 消耗敌人的氧气条
-//    傲慢 对拥有护甲的敌人1.5x伤害，暴击强化
-//    嫉妒 对生命值大于你的敌人造成3x伤害
-//    次元 伤害的50%会转化为真实伤害
-//    永劫 伤害的10%转化为生命值上限削减
-//    吸收 使攻击者吸收同等生命值，溢出部分的10%转化为额外生命，最大20
-//    决断 追加敌我生命值差值1/4的物理伤害
-//    回响 对已叠加6x虚空强袭的敌人扩散伤害，并且移除虚空强袭
+    // 根据伤害类型作出不同的效果追加
+    // 暴怒 特殊火焰 对持盾敌人造成3x伤害
+    // 色欲 使攻击者回复0.2生命值
+    // 暴食 使攻击者回复0.2饥饿值
+    // 忧郁 特殊溺水 消耗敌人的氧气条
+    // 傲慢 对拥有护甲的敌人1.5x伤害，暴击强化
+    // 嫉妒 对生命值大于你的敌人造成3x伤害
+    // 次元 真实伤害
+    // 永劫 伤害的10%造成生命值上限削减
+    // 吸收 使攻击者吸收同等生命值，溢出部分的10%转化为额外生命，最大20
+    // 决断 追加敌我生命值差值1/4的物理伤害
+    // 回响 对身上拥有虚空强袭的敌人增伤
+    // 终焉 直接斩杀当前生命值低于攻击者最大生命值的敌人
 
-    //      伤害替换事件，用改进后的FDAttackManager处理特殊类型伤害
+    // 伤害替换事件，用改进后的FDAttackManager处理特殊类型伤害
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void OnSlash(SlashBladeEvent.DoSlashEvent event) {
         if (event.getBlade().getItem() instanceof ItemFantasySlashBlade) {
@@ -66,24 +69,27 @@ public class DamageConverterEvent {
             LivingEntity livingEntity = event.getUser();
             Optional<ISlashBladeState> stateOpt = blade.getCapability(BLADESTATE).resolve();
             Optional<IFantasySlashBladeState> fdStateOpt = blade.getCapability(FDBLADESTATE).resolve();
-            if (stateOpt.isEmpty() || fdStateOpt.isEmpty()) return;
+            if (stateOpt.isEmpty() || fdStateOpt.isEmpty())
+                return;
             ISlashBladeState state = stateOpt.get();
             IFantasySlashBladeState fdState = fdStateOpt.get();
             String fdDamageType = fdState.getSpecialAttackEffect();
             if (fdDamageType != null && !fdDamageType.equals("Null")) {
-                DamageSource fds = FDDamageSource.getEntityDamageSource(livingEntity.level(), FDDamageSource.fromString(fdDamageType), livingEntity);
-                FDAttackManager.areaAttackWithSource(event.getUser(), KnockBacks.cancel.action, (float) event.getDamage(), true, true, false, null, fds);
+                DamageSource fds = FDDamageSource.getEntityDamageSource(livingEntity.level(),
+                        FDDamageSource.fromString(fdDamageType), livingEntity);
+                FDAttackManager.areaAttackWithSource(event.getUser(), KnockBacks.cancel.action,
+                        (float) event.getDamage(), true, true, false, null, fds);
                 event.setDamage(0d);
             }
         }
     }
 
-    //    重置无敌帧
+    // 重置无敌帧
     public static void resetInvulnerable(Entity target) {
         target.invulnerableTime = 0;
     }
 
-    //    伤害造成前事件处理
+    // 伤害造成前事件处理
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onAttack(LivingAttackEvent event) {
         DamageSource source = event.getSource();
@@ -91,17 +97,17 @@ public class DamageConverterEvent {
         float amount = event.getAmount();
         // 攻击者
         Entity attacker = source.getEntity();
-        if (!(attacker instanceof LivingEntity)) return;
+        if (!(attacker instanceof LivingEntity))
+            return;
         LivingEntity attackerLiving = (LivingEntity) attacker;
         if (source.is(FDDamageSource.OMEGA)) {
-            int duration = 100;
-            int amplifier = 0;
-            MobEffect effect = FDPotionEffects.TELEPORT_BLOCKED.get();
-            target.addEffect(new MobEffectInstance(effect, duration, amplifier));
+            if (target.getHealth()<=attackerLiving.getMaxHealth()){
+                target.kill();
+            }
         }
     }
 
-    //    伤害造成时事件处理
+    // 伤害造成时事件处理
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void OnHurt(LivingHurtEvent event) {
         DamageSource source = event.getSource();
@@ -109,22 +115,22 @@ public class DamageConverterEvent {
         float amount = event.getAmount();
         // 攻击者
         Entity attacker = source.getEntity();
-        if (!(attacker instanceof LivingEntity)) return;
+        if (!(attacker instanceof LivingEntity))
+            return;
         LivingEntity attackerLiving = (LivingEntity) attacker;
 
-        if (source.is(FDDamageSource.OMEGA)) {
-            int duration = 100;
-            int amplifier = 0;
-            MobEffect TPBlocked = FDPotionEffects.TELEPORT_BLOCKED.get();
-            target.addEffect(new MobEffectInstance(TPBlocked, duration, amplifier));
-        }
         // 决断 (Resolution)
+        // 追加攻击方最大生命值25%的魔法伤害
         if (source.is(FDDamageSource.RESOLUTION)) {
             float extraDamage = attackerLiving.getHealth() * 0.25f;
             if (attackerLiving instanceof Player) {
-                target.hurt(attackerLiving.damageSources().playerAttack((Player) attackerLiving), extraDamage);
+                resetInvulnerable(target);
+                target.hurt(attackerLiving.damageSources().magic(), extraDamage);
+                resetInvulnerable(target);
             } else {
-                target.hurt(attackerLiving.damageSources().mobAttack(attackerLiving), extraDamage);
+                resetInvulnerable(target);
+                target.hurt(attackerLiving.damageSources().magic(), extraDamage);
+                resetInvulnerable(target);
             }
         }
         // 暴怒 (Wrath)
@@ -181,11 +187,12 @@ public class DamageConverterEvent {
 
         // 攻击者
         Entity attacker = source.getEntity();
-        if (!(attacker instanceof LivingEntity)) return;
+        if (!(attacker instanceof LivingEntity))
+            return;
         LivingEntity attackerLiving = (LivingEntity) attacker;
 
-        // 虚空强袭异常等级增伤
-        if (target.hasEffect(FDPotionEffects.VOID_STRIKE.get())) {
+        // 虚空强袭叠加对回响伤害增伤
+        if (target.hasEffect(FDPotionEffects.VOID_STRIKE.get()) && event.getSource().is(FDDamageSource.ECHO)) {
             MobEffect voidStrike = FDPotionEffects.VOID_STRIKE.get();
             MobEffectInstance current = target.getEffect(voidStrike);
             if (current != null) {
@@ -193,7 +200,7 @@ public class DamageConverterEvent {
             }
         }
 
-        // 永劫 (Eternity)
+        // 永劫
         if (source.is(FDDamageSource.ETERNITY)) {
             float reduce = amount * 0.1f;
             AttributeInstance maxHealth = target.getAttribute(Attributes.MAX_HEALTH);
@@ -203,16 +210,15 @@ public class DamageConverterEvent {
                 double totalReduce = -reduce;
                 if (old != null) {
                     totalReduce += old.getAmount(); // 累加旧值
-                    maxHealth.removeModifier(old);  // 移除旧的，避免重复
+                    maxHealth.removeModifier(old); // 移除旧的，避免重复
                 }
                 AttributeModifier mod = new AttributeModifier(
                         ETERNITY_HEALTH_MODIFIER,
                         "eternity_reduce",
                         totalReduce,
-                        AttributeModifier.Operation.ADDITION
-                );
+                        AttributeModifier.Operation.ADDITION);
                 maxHealth.addPermanentModifier(mod);
-//                System.out.println(target.getMaxHealth());
+                // System.out.println(target.getMaxHealth());
             }
         }
         // 吸收（Absorb）
@@ -242,7 +248,9 @@ public class DamageConverterEvent {
                     }
 
                     EntityPositionSource start = new EntityPositionSource(e, e.getBbHeight() / 2);
-                    ((ServerLevel) attackerLiving.level()).sendParticles(new VibrationParticleOption(start, 10), target.position().x, e.position().y + target.getBbHeight() / 2, target.position().z, 1, 0, 0, 0, 0);
+                    ((ServerLevel) attackerLiving.level()).sendParticles(new VibrationParticleOption(start, 10),
+                            target.position().x, e.position().y + target.getBbHeight() / 2, target.position().z, 1, 0,
+                            0, 0, 0);
                 }
                 target.removeEffect(FDPotionEffects.VOID_STRIKE.get());
             }
@@ -265,7 +273,7 @@ public class DamageConverterEvent {
         clearEternity(event.getEntity());
     }
 
-    //用于清理永劫计数
+    // 用于清理永劫计数
     public static void clearEternity(LivingEntity entity) {
         AttributeInstance maxHealth = entity.getAttribute(Attributes.MAX_HEALTH);
         if (maxHealth != null && maxHealth.getModifier(ETERNITY_HEALTH_MODIFIER) != null) {
@@ -273,7 +281,7 @@ public class DamageConverterEvent {
         }
     }
 
-    //终焉伤害禁用传送
+    // 终焉伤害禁用传送
     @SubscribeEvent
     public void onEntityTeleport(EntityTeleportEvent.EnderPearl event) {
         Entity entity = event.getEntity();
@@ -288,7 +296,7 @@ public class DamageConverterEvent {
 
     @SubscribeEvent
     public void onEntityTeleport(EntityTeleportEvent.EnderEntity event) {
-        //针对末影生物的禁用传送
+        // 针对末影生物的禁用传送
         if (event.getEntityLiving().hasEffect(FDPotionEffects.TELEPORT_BLOCKED.get())) {
             event.setCanceled(true);
         }

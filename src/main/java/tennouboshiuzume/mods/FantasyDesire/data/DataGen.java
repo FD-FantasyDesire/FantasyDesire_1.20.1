@@ -31,13 +31,9 @@ public class DataGen {
         final RegistrySetBuilder fantasybladeBuilder = new RegistrySetBuilder()
                 .add(FantasySlashBladeDefinition.REGISTRY_KEY, FantasySlashBladeBuiltInRegistry::registerAll)
                 .add(Registries.DAMAGE_TYPE, FDDamageSource::bootstrap);
-
-        // 创建 DatapackBuiltinEntriesProvider，用于同步 RegistrySetBuilder
         DatapackBuiltinEntriesProvider entriesProvider =
                 new DatapackBuiltinEntriesProvider(packOutput, lookupProvider, fantasybladeBuilder, Set.of(FantasyDesire.MODID));
         dataGenerator.addProvider(event.includeServer(), entriesProvider);
-
-        // 使用上面创建的 entriesProvider 提供的 future，确保 tag 可以找到 DIMENSION 类型
         dataGenerator.addProvider(event.includeServer(),
                 new ModDamageTypeTagsProvider(packOutput, entriesProvider.getRegistryProvider(), helper)
         );

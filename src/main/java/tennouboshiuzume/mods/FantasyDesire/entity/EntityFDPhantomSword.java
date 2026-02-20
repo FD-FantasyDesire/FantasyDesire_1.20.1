@@ -42,7 +42,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.PartEntity;
 import org.joml.Vector3f;
-import tennouboshiuzume.mods.FantasyDesire.utils.TargetUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 import javax.annotation.Nullable;
@@ -374,7 +374,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                 }
 
                 while (this.isAlive()) {
-                    // todo : replace TargetSelector
                     EntityHitResult entityraytraceresult = this.getRayTrace(positionVec, movedVec);
                     if (entityraytraceresult != null) {
                         raytraceresult = entityraytraceresult;
@@ -836,7 +835,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     }
 
     public void tryUpdateTarget() {
-        TargetUtils.getLockTarget((LivingEntity) getShooter());
+        FDTargetSelector.getLockTarget((LivingEntity) getShooter());
     }
 
     public Vec3 getOffset() {

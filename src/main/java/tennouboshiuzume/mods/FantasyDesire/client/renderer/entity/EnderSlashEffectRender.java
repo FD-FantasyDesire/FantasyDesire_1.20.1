@@ -24,6 +24,8 @@ import tennouboshiuzume.mods.FantasyDesire.entity.EntityEnderSlashEffect;
 public class EnderSlashEffectRender<T extends EntityEnderSlashEffect> extends EntityRenderer<T> {
     private static final ResourceLocation modelLocation = new ResourceLocation("slashblade", "model/util/slash.obj");
     private static final ResourceLocation textureLocation = new ResourceLocation("slashblade", "model/util/slash.png");
+    private static final ResourceLocation enderportalLocation = new ResourceLocation(
+            "minecraft", "textures/entity/end_portal.png");
 
     public @NotNull ResourceLocation getTextureLocation(@NotNull T entity) {
         return textureLocation;
@@ -75,6 +77,9 @@ public class EnderSlashEffectRender<T extends EntityEnderSlashEffect> extends En
                     Face.setUvOperator(1.0F, 1.0F, 0.0F, -0.8F + progress * 0.3F);
                     BladeRenderState.setCol(2236962 | alpha);
                     BladeRenderState.renderOverridedColorWrite(ItemStack.EMPTY, model, "base", rl, matrixStackIn,
+                            bufferIn, packedLightIn);
+                    BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "base", enderportalLocation,
+                            matrixStackIn,
                             bufferIn, packedLightIn);
                 } catch (Throwable var30) {
                     if (msacb != null) {
