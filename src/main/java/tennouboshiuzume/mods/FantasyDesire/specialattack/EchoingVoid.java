@@ -8,19 +8,9 @@ import net.minecraft.world.item.ItemStack;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 public class EchoingVoid {
-
     public static boolean AntiNTR(LivingEntity entity) {
-        if (!(entity instanceof Player player))
-            return false;
-        ItemStack blade = entity.getMainHandItem();
-        if (!(blade.getItem() instanceof ItemSlashBlade))
-            return false;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        return state.getTranslationKey().equals("item.fantasydesire.starless_night");
+        return CapabilityUtils.SEConditionMatcher.of(entity)
+                .requireTranslation("item.fantasydesire.starless_night")
+                .match() != null;
     }
-
-    // AddonSlashUtils.doAddonFDSlash(player, event.getRoll(), player.getYRot(), 0,
-    // state.getColorCode(), 0, Vec3.ZERO,
-    // false,
-    // false, event.getDamage(), KnockBacks.cancel, 10f);
 }

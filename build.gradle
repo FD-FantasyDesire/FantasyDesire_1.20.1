@@ -158,16 +158,11 @@ dependencies {
     //开发环境jei
     implementation fg.deobf("curse.maven:jei-238222:6075247")
     //拔刀剑重锋依赖
-    implementation fg.deobf("curse.maven:slashblade-resharped-1022428:7234815")
+    implementation fg.deobf("curse.maven:slashblade-resharped-1022428:7363505")
     //IngameNBT
     implementation fg.deobf("curse.maven:NBTEdit-678133:5984630")
 
     implementation fg.deobf("curse.maven:SJAP-310187:6846059")
-//    //伤害数值显示
-//    implementation fg.deobf("curse.maven:damage-number-998849:5538112")
-//    implementation fg.deobf("curse.maven:attributefix-280510:4911084")
-
-//    implementation fg.deobf("curse.maven:jade-324717:5672013")
 
     implementation fg.deobf("curse.maven:MoonLight-499980:6380635")
 

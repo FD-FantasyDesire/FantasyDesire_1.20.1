@@ -87,21 +87,6 @@ public class VecMathUtils {
         return new Vec3(x, y, z);
     }
 
-
-    public static Vec3 getReversedDirection(float yaw, float pitch) {
-        float reversedYaw = -yaw;
-        float reversedPitch = -pitch;
-        // 根据反转后的yaw、pitch计算方向向量
-        double radYaw = Math.toRadians(reversedYaw);
-        double radPitch = Math.toRadians(reversedPitch);
-
-        double x = -Math.cos(radPitch) * Math.sin(radYaw);
-        double y = -Math.sin(radPitch);
-        double z = Math.cos(radPitch) * Math.cos(radYaw);
-
-        return new Vec3(x, y, z);
-    }
-
     public static Vec3 rotateTowards(Vec3 from, Vec3 to, float maxRadians) {
         Vec3 fromNorm = from.normalize();
         Vec3 toNorm = to.normalize();

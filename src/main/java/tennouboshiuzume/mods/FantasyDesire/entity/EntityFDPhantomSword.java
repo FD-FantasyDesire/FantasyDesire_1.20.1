@@ -157,12 +157,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
     @Override
     public void tick() {
-        this.xo = this.getX();
-        this.yo = this.getY();
-        this.zo = this.getZ();
-        this.xRotO = this.getXRot();
-        this.yRotO = this.getYRot();
-
         // 测试使用GunBladeEffects.java类测试
         // 检定：如果绑定于玩家，则根据玩家位置，适用视角对应的位置修正，类似BlisteringSwords
         // 如果绑定于世界，则适用默认方向修正 （STANDBY_YAW 、STANDBY_PITCH）
@@ -807,7 +801,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         }
     }
 
-    private void tryInit() {
+    public void tryInit() {
         if (this.getStandbyMode().equals("WORLD")) {
             this.yRotO = -getStandbyYawPitch()[0];
             this.xRotO = -getStandbyYawPitch()[1];
@@ -815,9 +809,15 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             this.setXRot(this.xRotO);
             inited = true;
         } else if (this.getStandbyMode().equals("PLAYER") && getShooter() != null) {
-            this.setPos(this.getShooter().position().add(getCenterOffset())
-                    .add(getOffset().xRot((float) Math.toRadians(-this.getShooter().getXRot()))
-                            .yRot((float) Math.toRadians(-this.getShooter().getYRot()))));
+
+            Vec3 pos = this.getShooter().position().add(this.getCenterOffset());
+            Vec3 offset = this.getOffset();
+            offset = offset
+                    .xRot((float) Math.toRadians(-this.getShooter().getXRot()))
+                    .yRot((float) Math.toRadians(-this.getShooter().getYRot()));
+            pos = pos.add(offset);
+            this.setDeltaMovement(this.getShooter().getDeltaMovement());
+            setPos(pos);
             Vec3 base = new Vec3(0, 0, 1).xRot((float) Math.toRadians(getStandbyYawPitch()[1]))
                     .yRot((float) Math.toRadians(getStandbyYawPitch()[0]));
             Vec3 rotateXAxis = new Vec3(1, 0, 0).yRot((float) Math.toRadians(this.getShooter().getYRot()));
@@ -902,7 +902,10 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     // 待命固定朝向
 
     public float[] getStandbyYawPitch() {
-        return new float[] { this.entityData.get(STANDBY_YAW), this.entityData.get(STANDBY_PITCH) };
+        return new float[] {
+                this.entityData.get(STANDBY_YAW),
+                this.entityData.get(STANDBY_PITCH)
+        };
     }
 
     public void setStandbyYawPitch(float yaw, float pitch) {

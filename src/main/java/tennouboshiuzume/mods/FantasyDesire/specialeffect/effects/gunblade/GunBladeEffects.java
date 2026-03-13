@@ -29,6 +29,7 @@ import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -42,42 +43,50 @@ public class GunBladeEffects {
             return;
         if (!(event.getUser() instanceof Player player))
             return;
-//        shift不触发SE
+        // shift不触发SE
         if (player.isShiftKeyDown())
             return;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        if (!state.getTranslationKey().equals("item.fantasydesire.smart_pistol"))
+
+        CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, player)
+                .requireTranslation("item.fantasydesire.smart_pistol")
+                .match();
+
+        if (ctx == null)
             return;
+
+        ISlashBladeState state = ctx.state;
+        IFantasySlashBladeState fdState = ctx.fantasyState;
+
         int ammo = fdState.getSpecialCharge();
-        boolean TripleOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TripleBullet, player,
-                "item.fantasydesire.smart_pistol")
-                && state.getSlashArts().equals(FDSpecialAttacks.CHARGE_SHOT.get())
-                && state.getSlashArts() == FDSpecialAttacks.CHARGE_SHOT.get();
-        boolean EnergyOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.EnergyBullet, player,
-                "item.fantasydesire.smart_pistol")
-                && state.getSlashArts().equals(FDSpecialAttacks.OVER_CHARGE.get())
-                && state.getSlashArts() == FDSpecialAttacks.OVER_CHARGE.get();
-        boolean ExplosiveOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.ExplosiveBullet,
-                player, "item.fantasydesire.smart_pistol");
-        boolean ThunderOn = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.ThunderBullet, player,
-                "item.fantasydesire.smart_pistol");
+        boolean TripleOn = CapabilityUtils.SEConditionMatcher.of(blade, player)
+                .requireSE(FDSpecialEffects.TripleBullet)
+                .requireSA(FDSpecialAttacks.CHARGE_SHOT.get())
+                .match() != null;
+        boolean EnergyOn = CapabilityUtils.SEConditionMatcher.of(blade, player)
+                .requireSE(FDSpecialEffects.EnergyBullet)
+                .requireSA(FDSpecialAttacks.OVER_CHARGE.get())
+                .match() != null;
+        boolean ExplosiveOn = CapabilityUtils.SEConditionMatcher.of(blade, player)
+                .requireSE(FDSpecialEffects.ExplosiveBullet)
+                .match() != null;
+        boolean ThunderOn = CapabilityUtils.SEConditionMatcher.of(blade, player)
+                .requireSE(FDSpecialEffects.ThunderBullet)
+                .match() != null;
 
         int cost = TripleOn && !EnergyOn ? 1 : 2;
         int soulcost = 36;
-//        简单装填检测
+        // 简单装填检测
         if (ammo < cost) {
-//            符合装填条件时，取消斩击进入装填冷却
-//            否则使用常规拔刀近战攻击
-            if (reload(player, blade, state, fdState, soulcost)) event.setCanceled(true);
+            // 符合装填条件时，取消斩击进入装填冷却
+            // 否则使用常规拔刀近战攻击
+            if (reload(player, blade, state, fdState, soulcost))
+                event.setCanceled(true);
             return;
         }
         fdState.setSpecialCharge(fdState.getSpecialCharge() - cost);
         Random random = new Random();
-
         if (!(player.level() instanceof ServerLevel))
             return;
-
         if (TripleOn && !EnergyOn) {
             // 智能弹
             int volleyCount = ExplosiveOn ? 1 : 3;
@@ -89,7 +98,7 @@ public class GunBladeEffects {
             int delay = ExplosiveOn ? 300 : 100;
             int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             // 横扫之刃附魔增加锁定距离
-            float lockDistance = 15 + sweepLevel * sweepRangeMult;
+            float lockDistance = (ExplosiveOn ? 35 : 15) + sweepLevel * sweepRangeMult;
             // 力量附魔增加伤害
             float damage = state.getBaseAttackModifier() + state.getAttackAmplifier()
                     + blade.getEnchantmentLevel(Enchantments.POWER_ARROWS) * 3;
@@ -123,51 +132,62 @@ public class GunBladeEffects {
                 ss.setHasTail(true);
                 ss.setScale(0.2f);
                 ss.setTailNodes(tailNodes);
-//              如果“绝肃爆裂弹头”效果激活，首先尝试从候选目标列表中找到没有 MISSILE_LOCKED 效果的实体。
-//              如果所有候选目标都已有该效果，则选择 目标锁定 剩余时间最短的那个实体。
-//              选中目标后，为其添加持续 60 ticks (3秒) 的 目标锁定 效果。
-//              如果已有选定的目标（例如拔刀剑本身锁定的目标），则优先使用该目标。
-                Entity finalTarget = null;
-                if (state.getTargetEntity(player.level()) != null) {
-                    finalTarget = state.getTargetEntity(player.level());
-                } else if (!targets.isEmpty()) {
-                    LivingEntity chosenLiving = null;
+                // 如果“绝肃爆裂弹头”效果激活，首先尝试从候选目标列表中找到没有 MISSILE_LOCKED 效果的实体。
+                // 如果所有候选目标都已有该效果，则选择 目标锁定 级别最短的那个实体。
+                // 选中目标后，为其添加持续 60 ticks (3秒) 的 目标锁定 效果，如果已有 目标锁定 则等级+1。
+                // 如果已有选定的目标（例如拔刀剑本身锁定的目标），则优先使用该目标。
+                Entity finalTarget = state.getTargetEntity(player.level());
+                if (finalTarget == null && !targets.isEmpty()) {
+                    LivingEntity chosen;
                     if (ExplosiveOn) {
-                        for (LivingEntity candidate : targets) {
-                            if (!candidate.hasEffect(FDPotionEffects.MISSILE_LOCKED.get())) {
-                                chosenLiving = candidate;
-                                break;
-                            }
-                        }
-                        if (chosenLiving == null) {
-                            chosenLiving = targets.stream()
+                        Optional<LivingEntity> noLockTarget = targets.stream()
+                                .filter(e -> e.getEffect(FDPotionEffects.MISSILE_LOCKED.get()) == null)
+                                .findAny();
+                        if (noLockTarget.isPresent()) {
+                            chosen = noLockTarget.get();
+                        } else {
+                            chosen = targets.stream()
                                     .min(Comparator.comparingInt(e -> {
                                         MobEffectInstance effect = e.getEffect(FDPotionEffects.MISSILE_LOCKED.get());
-                                        return effect != null ? effect.getDuration() : 0;
-                                    })).orElse(targets.get(0));
+                                        return effect != null ? effect.getAmplifier() : Integer.MAX_VALUE;
+                                    }))
+                                    .orElse(targets.get(0));
                         }
                     } else {
-                        chosenLiving = targets.get(i % targets.size());
+                        chosen = targets.get(i % targets.size());
                     }
-                    finalTarget = chosenLiving;
+                    finalTarget = chosen;
                 }
-
-                if (finalTarget != null) {
+                if (finalTarget instanceof LivingEntity livingTarget) {
                     ss.setTargetId(finalTarget.getId());
-                    if (ExplosiveOn && finalTarget instanceof LivingEntity livingTarget) {
-                        livingTarget.addEffect(new MobEffectInstance(FDPotionEffects.MISSILE_LOCKED.get(), 60, 0));
+                    if (ExplosiveOn) {
+                        MobEffectInstance existing = livingTarget.getEffect(FDPotionEffects.MISSILE_LOCKED.get());
+                        int newAmplifier;
+                        if (existing != null) {
+                            newAmplifier = Math.min(existing.getAmplifier() + 1, 18);
+                        } else {
+                            newAmplifier = 0;
+                        }
+                        livingTarget.addEffect(
+                                new MobEffectInstance(
+                                        FDPotionEffects.MISSILE_LOCKED.get(),
+                                        60,
+                                        newAmplifier,
+                                        false,
+                                        false,
+                                        true));
                     }
                 }
-                ss.setPos(player.position().add(new Vec3(0, player.getBbHeight() / 2, 0)));
                 ss.setCenterOffset(new Vec3(0, player.getEyeHeight(), 0));
                 ss.setOffset(new Vec3(0, 0, 0.75f));
+                ss.setPos(player.position());
+                ss.tryInit();
                 player.level().addFreshEntity(ss);
             }
         }
-
         if (EnergyOn && !TripleOn) {
-//          能量弹
-//          我真没招了，想不到该怎么设计这个好，就当是BFG的弱势之处吧
+            // 能量弹
+            // 我真没招了，想不到该怎么设计这个好，就当是BFG的弱势之处吧
             float damage = state.getBaseAttackModifier() + state.getAttackAmplifier()
                     + blade.getEnchantmentLevel(Enchantments.POWER_ARROWS) * 5;
             EntityFDEnergyBullet ss = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
@@ -183,8 +203,8 @@ public class GunBladeEffects {
             ss.setDelay(60);
             ss.setDelayTicks(1);
             ss.setMultipleHit(true);
-//            宙霆能量电容
-//            击中带有5米溅射效果
+            // 宙霆能量电容
+            // 击中带有5米溅射效果
             ss.setExpRadius(ThunderOn ? 5 : 0);
             ss.setFireSound(SoundEvents.SHULKER_SHOOT, 1, 2f);
             ss.setHasTail(true);
@@ -192,11 +212,13 @@ public class GunBladeEffects {
             ss.setPos(player.position().add(new Vec3(0, player.getBbHeight() / 2, 0)));
             ss.setCenterOffset(new Vec3(0, player.getEyeHeight(), 0));
             ss.setOffset(new Vec3(0, 0, 0.75f));
+            ss.tryInit();
             player.level().addFreshEntity(ss);
         }
         event.setCanceled(true);
     }
-//    填弹上膛
+
+    // 填弹上膛
     public static boolean reload(Player player, ItemStack blade, ISlashBladeState state,
             IFantasySlashBladeState fdState, int soulcost) {
         if (state.getProudSoulCount() < soulcost) {

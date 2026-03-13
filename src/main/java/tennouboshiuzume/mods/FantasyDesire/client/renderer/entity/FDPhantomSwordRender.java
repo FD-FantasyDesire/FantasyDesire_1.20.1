@@ -111,11 +111,8 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
         if (trail == null || trail.size() < 2)
             return;
         ResourceLocation tex = getTextureLocation(entity);
-        // Ensure we get a VertexConsumer to draw the trail and core highlight
         VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(tex));
-        // Use eyes() render type for additive/emissive (glow) effect for the inner core
         VertexConsumer coreBuilder = bufferIn.getBuffer(RenderType.eyes(tex));
-        // partialTicks intentionally unused here
 
         Vec3 camPos = this.entityRenderDispatcher.camera.getPosition();
         double lerpX = Mth.lerp(partialTicks, entity.xo, entity.getX());

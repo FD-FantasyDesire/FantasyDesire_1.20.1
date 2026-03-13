@@ -35,5 +35,4 @@ public class FDSpecialEffectBase extends SpecialEffect {
     public static int getDescColumn(ResourceLocation id) {
         return ((FDSpecialEffectBase) ((IForgeRegistry) SpecialEffectsRegistry.REGISTRY.get()).getValue(id)).getDescColumn();
     }
-
 }

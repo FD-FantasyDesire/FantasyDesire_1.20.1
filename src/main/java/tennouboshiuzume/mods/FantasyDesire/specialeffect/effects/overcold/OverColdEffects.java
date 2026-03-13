@@ -3,6 +3,7 @@ package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.overcold;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -20,13 +21,19 @@ public class OverColdEffects {
         ItemStack blade = event.getBlade();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade))
             return;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        if (state.getTranslationKey().equals("item.fantasydesire.over_cold")) {
-            fdState.setSpecialCharge(
-                    Math.min(fdState.getSpecialCharge() + event.getOriginCount(), fdState.getMaxSpecialCharge()));
-        }
-        if (fdState.getSpecialCharge() == fdState.getMaxSpecialCharge()) {
+        // 使用新的 SEConditionMatcher，只检查翻译键
+        CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, null)
+                .requireTranslation("item.fantasydesire.over_cold")
+                .match();
+        if (ctx == null)
+            return;
+        ISlashBladeState state = ctx.state;
+        IFantasySlashBladeState fdState = ctx.fantasyState;
+        fdState.setSpecialCharge(
+                Math.min(fdState.getSpecialCharge() + event.getOriginCount(), fdState.getMaxSpecialCharge()));
+
+        // 满值处理进化
+        if (fdState.getSpecialCharge() >= fdState.getMaxSpecialCharge()) {
             switch (fdState.getSpecialType()) {
                 case "OverCold_0":
                     state.setModel(new ResourceLocation(FantasyDesire.MODID, "models/overcold_1.obj"));

@@ -12,11 +12,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.init.FDCombo;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
 import java.util.Set;
@@ -48,6 +50,20 @@ public class StarlessNightEffects {
                 ParticleUtils.generateRingParticles(ParticleTypes.END_ROD, target.level(), target.getX(),
                         target.getY() + target.getBbHeight() / 4, target.getZ(), 10, 48);
             }
+        }
+    }
+    @SubscribeEvent
+    public static void OnComboCancel(SlashBladeEvent.NextComboEvent event) {
+        ItemStack blade = event.getBlade();
+        if (!(blade.getItem() instanceof ItemFantasySlashBlade))
+            return;
+        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
+        if (!state.getTranslationKey().equals("item.fantasydesire.starless_night"))
+            return;
+        if (event.getNextCombo() != FDCombo.ECHOING_VOID_1.getId() || event.getNextCombo() != FDCombo.ECHOING_VOID_2.getId()){
+            ItemUtils.ConvertModel(event.getUser(),
+                    event.getBlade(),
+                    "models/sn.obj");
         }
     }
 

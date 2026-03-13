@@ -12,6 +12,7 @@ import mods.flammpfeil.slashblade.event.client.UserPoseOverrider;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -35,8 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleProvider;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.ShardParticle;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
-import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometElytraLayer;
-import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.ImmortalSoulLayer;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
 import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
@@ -98,8 +98,8 @@ public class ClientHandler {
         for (String skin : event.getSkins()) {
             LivingEntityRenderer<Player, EntityModel<Player>> renderer = event.getSkin(skin);
             if (renderer != null) {
-                renderer.addLayer(new ImmortalSoulLayer<>(renderer));
-//                renderer.addLayer(new CometElytraLayer<>(renderer));
+                PlayerRenderer rendererd = event.getSkin(skin);
+                rendererd.addLayer(new CometBladeLayer(rendererd));
             }
         }
     }

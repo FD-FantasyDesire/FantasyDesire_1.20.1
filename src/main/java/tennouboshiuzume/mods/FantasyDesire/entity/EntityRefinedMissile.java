@@ -4,9 +4,12 @@ import mods.flammpfeil.slashblade.entity.Projectile;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 
 public class EntityRefinedMissile extends EntityFDPhantomSword {
     // 绝肃·爆裂 智能弹头
@@ -48,6 +51,24 @@ public class EntityRefinedMissile extends EntityFDPhantomSword {
             int minInterval = 2;
             int interval = (int) (maxInterval - (maxInterval - minInterval) * factor);
             interval = Math.max(1, interval);
+            if (this.tickCount % 20 == 0){
+                if (!this.level().isClientSide && target instanceof LivingEntity livingTarget) {
+                    MobEffectInstance existing =
+                            livingTarget.getEffect(FDPotionEffects.MISSILE_LOCKED.get());
+                    if (existing != null) {
+                        livingTarget.addEffect(
+                                new MobEffectInstance(
+                                        FDPotionEffects.MISSILE_LOCKED.get(),
+                                        60,
+                                        existing.getAmplifier(),
+                                        false,
+                                        false,
+                                        true
+                                )
+                        );
+                    }
+                }
+            }
             if (this.tickCount % interval == 0) {
                 // 在最短追踪时飞行越久，伤害越高，最高300点
                 if (interval == 2) {

@@ -27,67 +27,27 @@ public class TwinBladeEffects {
     public static void onTwinSlash(SlashBladeEvent.DoSlashEvent event) {
         if (!(event.getUser() instanceof Player player))
             return;
-        ItemStack blade = player.getMainHandItem();
-        ItemStack offBlade = player.getOffhandItem();
-        if (!(blade.getItem() instanceof ItemFantasySlashBlade)
-                || !(offBlade.getItem() instanceof ItemFantasySlashBlade))
+
+        CapabilityUtils.BladeContext mainCtx = CapabilityUtils.SEConditionMatcher.of(player)
+                .requireTranslation("item.fantasydesire.twin_blade")
+                .requireSE(FDSpecialEffects.TwinSet)
+                .match();
+
+        CapabilityUtils.BladeContext offCtx = CapabilityUtils.SEConditionMatcher.of(player)
+                .onlyOffhand()
+                .requireTranslation("item.fantasydesire.twin_blade")
+                .requireSE(FDSpecialEffects.TwinSet)
+                .match();
+
+        if (mainCtx == null || offCtx == null)
             return;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        ISlashBladeState offState = CapabilityUtils.getBladeState(offBlade);
-        IFantasySlashBladeState offFdState = CapabilityUtils.getFantasyBladeState(offBlade);
-        boolean main = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.TwinSet, player,
-                "item.fantasydesire.twin_blade");
-        boolean off = CapabilityUtils.isSpecialEffectActiveForItem(offState, FDSpecialEffects.TwinSet, player,
-                "item.fantasydesire.twin_blade");
-        if (!main || !off)
+        if (mainCtx.fantasyState.getSpecialType().equals(offCtx.fantasyState.getSpecialType()))
             return;
-        if (fdState.getSpecialType().equals(offFdState.getSpecialType()))
-            return;
-        int offColor = offState.getColorCode();
+
+        int offColor = offCtx.state.getColorCode();
         double damage = event.getDamage();
+        System.out.println(mainCtx.state.getComboSeq());
         AddonSlashUtils.doAddonSlash(player, event.getRoll() - 180, player.getYRot(), 0, offColor, 0, Vec3.ZERO, false,
                 false, damage, KnockBacks.cancel);
-    }
-
-    // 用于SA施放的检定，必须双持同名拔刀并且形态不同且必须由玩家施放
-    public static boolean AntiNTR(LivingEntity entity) {
-        if (!(entity instanceof Player player))
-            return false;
-        ItemStack blade = entity.getMainHandItem();
-        ItemStack offblade = entity.getOffhandItem();
-        if (!(blade.getItem() instanceof ItemFantasySlashBlade)
-                || !(offblade.getItem() instanceof ItemFantasySlashBlade))
-            return false;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        ISlashBladeState offState = CapabilityUtils.getBladeState(offblade);
-        IFantasySlashBladeState offFdState = CapabilityUtils.getFantasyBladeState(offblade);
-        boolean main = CapabilityUtils.isRightTranslationKey(state, "item.fantasydesire.twin_blade");
-        boolean off = CapabilityUtils.isRightTranslationKey(offState, "item.fantasydesire.twin_blade");
-        if (fdState.getSpecialType().equals(offFdState.getSpecialType()))
-            return false;
-        return main && off;
-    }
-
-    public static void ConvertForm(LivingEntity entity, ItemStack blade) {
-        if (!(blade.getItem() instanceof ItemFantasySlashBlade))
-            return;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        if (state.getTranslationKey().equals("item.fantasydesire.twin_blade")) {
-            if (fdState.getSpecialType().equals("TwinBladeL")) {
-                state.setTexture(new ResourceLocation(FantasyDesire.MODID, "models/twinbladeright.png"));
-                state.setSlashArtsKey(FDSpecialAttacks.TWIN_SYSTEM_R.getId());
-                state.setColorCode(0xFF0089);
-                fdState.setSpecialType("TwinBladeR");
-            } else if (fdState.getSpecialType().equals("TwinBladeR")) {
-                state.setTexture(new ResourceLocation(FantasyDesire.MODID, "models/twinbladeleft.png"));
-                state.setSlashArtsKey(FDSpecialAttacks.TWIN_SYSTEM_L.getId());
-                state.setColorCode(0x00C8FF);
-                fdState.setSpecialType("TwinBladeL");
-            }
-            entity.playSound(SoundEvents.RESPAWN_ANCHOR_CHARGE, 1, 2);
-        }
     }
 }

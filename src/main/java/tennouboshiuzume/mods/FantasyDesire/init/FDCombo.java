@@ -24,7 +24,6 @@ import tennouboshiuzume.mods.FantasyDesire.specialattack.EchoingVoid;
 import tennouboshiuzume.mods.FantasyDesire.specialattack.RainbowStar;
 import tennouboshiuzume.mods.FantasyDesire.specialattack.TwinSlash;
 import tennouboshiuzume.mods.FantasyDesire.specialattack.WingToTheFuture;
-import tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.twinblade.TwinBladeEffects;
 import tennouboshiuzume.mods.FantasyDesire.specialeffect.globalevent.DelayTaskManager;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
@@ -91,9 +90,9 @@ public class FDCombo extends ComboStateRegistry {
                                         .nextOfTimeout(entity -> FantasyDesire
                                                         .prefix("wing_to_the_future_elytra_loops1"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                        .put(1, entityIn -> WingToTheFuture.WingToTheFutureElytra(
-                                                entityIn, entityIn.getMainHandItem()))
-                                        .build())
+                                                        .put(1, entityIn -> WingToTheFuture.WingToTheFutureElytra(
+                                                                        entityIn, entityIn.getMainHandItem()))
+                                                        .build())
                                         .addHitEffect(StunManager::setStun)::build);
 
         public static final RegistryObject<ComboState> WING_TO_THE_FUTURE_ELYTRA_LOOPS1 = FD_COMBO_STATES.register(
@@ -163,23 +162,23 @@ public class FDCombo extends ComboStateRegistry {
                                         .motionLoc(DefaultResources.ExMotionLocation)
                                         .next(entity -> SlashBlade.prefix("none"))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
-                                        .clickAction(entity -> TwinBladeEffects.ConvertForm(entity,
+                                        .clickAction(entity -> TwinSlash.ConvertForm(entity,
                                                         entity.getMainHandItem()))::build);
 
-//      启动程式：MOOD
-//      参考自黑兽·卯 奥义 云解显现
-//      蓄力，瞬步跃升斩将敌人上斩滞空
-//      回旋斩击2次后重锤落
-//      并且召唤幻影剑追加攻击
+        // 启动程式：MOOD
+        // 参考自黑兽·卯 奥义 云解显现
+        // 蓄力，瞬步跃升斩将敌人上斩滞空
+        // 回旋斩击2次后重锤落
+        // 并且召唤幻影剑追加攻击
 
         // MOOD 施放前检测
         public static final RegistryObject<ComboState> MOOD_SLASH = FD_COMBO_STATES.register("mood_slash",
                         ComboState.Builder.newInstance().startAndEnd(0, 1).priority(80)
                                         .motionLoc(DefaultResources.ExMotionLocation)
-                                        .next(entity -> TwinBladeEffects.AntiNTR(entity)
+                                        .next(entity -> TwinSlash.AntiNTR(entity)
                                                         ? FantasyDesire.prefix("mood_slash_0")
                                                         : FantasyDesire.prefix("twin_mode"))
-                                        .nextOfTimeout(entity -> TwinBladeEffects.AntiNTR(entity)
+                                        .nextOfTimeout(entity -> TwinSlash.AntiNTR(entity)
                                                         ? FantasyDesire.prefix("mood_slash_0")
                                                         : FantasyDesire.prefix("twin_mode"))::build);
         // 1段，滑步突击
@@ -257,62 +256,32 @@ public class FDCombo extends ComboStateRegistry {
                                                 AttackManager.doSlash(entityIn, 90 + 15, true, false, 2.875f);
                                                 entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
                                                                 new Vec3(0, -0.5, 1.25));
-                                                TwinBladeEffects.ConvertForm(entityIn, entityIn.getMainHandItem());
-                                                TwinBladeEffects.ConvertForm(entityIn, entityIn.getOffhandItem());
+                                                TwinSlash.ConvertForm(entityIn, entityIn.getMainHandItem());
+                                                TwinSlash.ConvertForm(entityIn, entityIn.getOffhandItem());
                                         }).build()).addTickAction(FallHandler::fallDecrease)
                                         .addHitEffect((target, attacker) -> {
                                                 StunManager.setStun(target, 40);
-//                                            for (int i = 0; i < 4; i++) {
-                                                TwinSlash.MoodFinalRuneSword(attacker,target,attacker.getMainHandItem());
-                                                TwinSlash.MoodFinalRuneSword(attacker,target,attacker.getOffhandItem());
-//                                            }
-//                                                弃用逻辑
-//                                                DelayTaskManager.add(target, 40, () -> {
-//                                                        if (target.isAlive() && attacker != null) {
-//                                                                target.playSound(SoundEvents.TRIDENT_THUNDER, 1f, 2f);
-//                                                                DamageSource ds = FDDamageSource.entityDamageSource(
-//                                                                                attacker.level(),
-//                                                                                FDDamageSource.RESOLUTION, attacker);
-//                                                                float damage = (float) AttackHelper
-//                                                                                .calculateTotalDamage(attacker, target,
-//                                                                                                4.0f, true);
-//                                                                target.hurt(ds, damage);
-//                                                                for (int i = 0; i < 4; i++) {
-//                                                                        Vec3 start = target.position().add(0,
-//                                                                                        target.getBbHeight() / 2, 0);
-//                                                                        Vec3 end = new Vec3(0, 0, 4);
-//                                                                        end = end.yRot((float) Math.toRadians(
-//                                                                                        Math.random() * 360f))
-//                                                                                        .xRot((float) Math.toRadians(
-//                                                                                                        Math.random() * 360f))
-//                                                                                        .add(start);
-//                                                                        ParticleUtils.LightBoltParticles(target.level(),
-//                                                                                        start, end, 0x00C8FF, 0.05f, 20,
-//                                                                                        0.75f, true, 2, 8);
-//                                                                        ParticleUtils.LightBoltParticles(target.level(),
-//                                                                                        start, end, 0xFF0089, 0.05f, 20,
-//                                                                                        0.75f, true, 2, 8);
-//                                                                }
-//                                                        }
-//                                                });
-
+                                                TwinSlash.MoodFinalRuneSword(attacker, target,
+                                                                attacker.getMainHandItem());
+                                                TwinSlash.MoodFinalRuneSword(attacker, target,
+                                                                attacker.getOffhandItem());
                                         })::build);
 
-//    终结程式：DOOM
-//    参考自血天下鸡舞乱刀
-//    施放后瞬移自动锁定15m内敌人
-//    主动输入攻击键可以循环2，3连段
-//    每次输入攻击循环会烧血
-//    直到停止输入或者玩家低于50%血量
+        // 终结程式：DOOM
+        // 参考自血天下鸡舞乱刀
+        // 施放后瞬移自动锁定15m内敌人
+        // 主动输入攻击键可以循环2，3连段
+        // 每次输入攻击循环会烧血
+        // 直到停止输入或者玩家低于50%血量
 
         // DOOM 施放前检测
         public static final RegistryObject<ComboState> DOOM_SLASH = FD_COMBO_STATES.register("doom_slash",
                         ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
                                         .motionLoc(DefaultResources.ExMotionLocation)
-                                        .next(entity -> TwinBladeEffects.AntiNTR(entity)
+                                        .next(entity -> TwinSlash.AntiNTR(entity)
                                                         ? FantasyDesire.prefix("doom_slash_0")
                                                         : FantasyDesire.prefix("twin_mode"))
-                                        .nextOfTimeout(entity -> TwinBladeEffects.AntiNTR(entity)
+                                        .nextOfTimeout(entity -> TwinSlash.AntiNTR(entity)
                                                         ? FantasyDesire.prefix("doom_slash_0")
                                                         : FantasyDesire.prefix("twin_mode"))::build);
         // 1段，闪击
@@ -374,7 +343,9 @@ public class FDCombo extends ComboStateRegistry {
         public static final RegistryObject<ComboState> DOOM_SLASH_2 = FD_COMBO_STATES.register("doom_slash_2",
                         ComboState.Builder.newInstance().startAndEnd(710, 720).priority(80)
                                         .next(ComboState.TimeoutNext.buildFromFrame(3,
-                                                        entity -> entity.getHealth()<entity.getMaxHealth()/2 ? FantasyDesire.prefix("doom_slash_3"):FantasyDesire.prefix("doom_slash_4")))
+                                                        entity -> entity.getHealth() > entity.getMaxHealth() / 2
+                                                                        ? FantasyDesire.prefix("doom_slash_3")
+                                                                        : FantasyDesire.prefix("doom_slash_4")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("doom_slash_4"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, entityIn -> {
                                                 TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
@@ -411,7 +382,9 @@ public class FDCombo extends ComboStateRegistry {
         public static final RegistryObject<ComboState> DOOM_SLASH_3 = FD_COMBO_STATES.register("doom_slash_3",
                         ComboState.Builder.newInstance().startAndEnd(710, 720).priority(80)
                                         .next(ComboState.TimeoutNext.buildFromFrame(3,
-                                                        entity -> entity.getHealth()<entity.getMaxHealth()/2 ? FantasyDesire.prefix("doom_slash_3"):FantasyDesire.prefix("doom_slash_4")))
+                                                        entity -> entity.getHealth() > entity.getMaxHealth() / 2
+                                                                        ? FantasyDesire.prefix("doom_slash_2")
+                                                                        : FantasyDesire.prefix("doom_slash_4")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("doom_slash_4"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, entityIn -> {
                                                 TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
@@ -446,7 +419,7 @@ public class FDCombo extends ComboStateRegistry {
                                         .addHitEffect(StunManager::setStun)::build);
         // 5段，重锤落，追加群攻
         public static final RegistryObject<ComboState> DOOM_SLASH_4 = FD_COMBO_STATES.register("doom_slash_4",
-                        ComboState.Builder.newInstance().startAndEnd(500, 576).priority(50)
+                        ComboState.Builder.newInstance().startAndEnd(500, 576).priority(80)
                                         .motionLoc(DefaultResources.ExMotionLocation)
                                         .next(ComboState.TimeoutNext.buildFromFrame(26,
                                                         entity -> SlashBlade.prefix("none")))
@@ -456,8 +429,8 @@ public class FDCombo extends ComboStateRegistry {
                                                 AttackManager.doSlash(entityIn, 90 + 15, true, false, 2.875f);
                                                 entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
                                                                 new Vec3(0, -0.5, 5.25));
-                                                TwinBladeEffects.ConvertForm(entityIn, entityIn.getMainHandItem());
-                                                TwinBladeEffects.ConvertForm(entityIn, entityIn.getOffhandItem());
+                                                TwinSlash.ConvertForm(entityIn, entityIn.getMainHandItem());
+                                                TwinSlash.ConvertForm(entityIn, entityIn.getOffhandItem());
                                         }).build()).addHitEffect((target, attacker) -> {
                                                 StunManager.setStun(target, 40);
                                                 if (target.isAlive() && attacker != null) {

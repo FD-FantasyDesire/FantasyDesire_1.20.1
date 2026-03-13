@@ -27,12 +27,17 @@ public class RainbowStar {
                 Vec3 pos = player.position().add(new Vec3(0,40,0));
                 Random random = new Random();
                 for (int i = 0; i < 21; i++) {
+                    float yaw = (float) random.nextInt(360);
+                    float pitch = 90 +(float) random.nextGaussian()*3;
+                    System.out.println(yaw+","+pitch);
                     EntityFDRainbowPhantomSword ss = new EntityFDRainbowPhantomSword(FDEntitys.FDRainbowPhantomSword.get(),player.level());
                     ss.setDelay(200);
                     ss.setPos(pos.add(new Vec3(random.nextGaussian()*3,random.nextGaussian()*3,random.nextGaussian()*3)));
                     ss.setDelayTicks(5+i);
                     ss.setStandbyMode("WORLD");
-                    ss.setStandbyYawPitch((float) random.nextInt(360), 90 +(float) random.nextGaussian()*3);
+                    ss.setStandbyYawPitch(yaw,pitch);
+                    ss.setYRot(yaw);
+                    ss.setXRot(pitch);
                     ss.setColor(ColorUtils.getSmoothTransitionColor(i,21,true));
                     ss.setDamage(magicDamage);
                     ss.setRoll(random.nextInt(360));

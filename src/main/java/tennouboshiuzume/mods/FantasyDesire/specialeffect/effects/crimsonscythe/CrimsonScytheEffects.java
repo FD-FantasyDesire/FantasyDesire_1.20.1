@@ -1,5 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.specialeffect.effects.crimsonscythe;
 
+import com.mojang.math.Axis;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.util.KnockBacks;
@@ -26,7 +27,6 @@ import java.util.Random;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CrimsonScytheEffects {
-    // 狩魂 爪刃斩击
     @SubscribeEvent
     public static void onSlash(SlashBladeEvent.DoSlashEvent event) {
         ItemStack blade = event.getBlade();
@@ -39,6 +39,7 @@ public class CrimsonScytheEffects {
         boolean mainActive = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.CrimsonStrike, entity,
                 "item.fantasydesire.crimson_scythe");
         int color = state.getColorCode();
+        // 狩魂 爪刃斩击
         if (mainActive) {
             Vec3 forward = Vec3.directionFromRotation(0, entity.getYRot());
             Vec3 baseForwardUp = Vec3.directionFromRotation(-25, entity.getYRot());
@@ -53,17 +54,16 @@ public class CrimsonScytheEffects {
             AddonSlashUtils.doAddonSlash(entity, event.getRoll(), downYawPitch[0], downYawPitch[1], color, 0, Vec3.ZERO,
                     false, false, ratio, KnockBacks.cancel);
         }
+        // 幻猎 幻影剑击中时拉近敌人
         boolean offActive = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.BloodDrain,
                 entity,
                 "item.fantasydesire.crimson_scythe");
         if (offActive) {
             int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
-            // 横扫之刃附魔增加锁定距离
             float lockDistance = 15 + sweepLevel * 10;
             int volleyCount = 3 + sweepLevel;
             float angleDeg = 30 + sweepLevel * 10;
             List<LivingEntity> targets = FDTargetSelector.getTargetsInSight(entity, lockDistance, angleDeg, true, null);
-            // Sort descending by distance
             targets.sort((e1, e2) -> Double.compare(e2.distanceToSqr(entity), e1.distanceToSqr(entity)));
             Random random = new Random();
             for (int i = 0; i < volleyCount; i++) {
@@ -102,29 +102,6 @@ public class CrimsonScytheEffects {
                 ss.setCenterOffset(new Vec3(0, entity.getEyeHeight(), 0));
                 ss.setOffset(new Vec3(0, 0, -0.75f));
                 entity.level().addFreshEntity(ss);
-            }
-        }
-    }
-
-    // 幻猎 幻影剑击中时拉近敌人
-    @SubscribeEvent
-    public static void onSummonedSwordHitEvent(SlashBladeEvent.SummonedSwordOnHitEntityEvent event) {
-        if (event.getSummonedSword().getShooter() instanceof LivingEntity entity) {
-            ItemStack blade = entity.getMainHandItem();
-            if (!(blade.getItem() instanceof ItemFantasySlashBlade))
-                return;
-            ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-            boolean mainActive = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.BloodDrain,
-                    entity,
-                    "item.fantasydesire.crimson_scythe");
-            if (mainActive) {
-                if (event.getTarget() instanceof LivingEntity targetEntity) {
-                    if (entity.distanceTo(targetEntity) > 5) {
-                        Vec3 motion = entity.position().subtract(targetEntity.position()).normalize().scale(0.8);
-                        targetEntity.setDeltaMovement(motion);
-                        targetEntity.hurtMarked = true;
-                    }
-                }
             }
         }
     }

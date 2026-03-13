@@ -76,13 +76,9 @@ public class WingToTheFuture {
     // }
 
     public static boolean AntiNTR(LivingEntity entity) {
-        if (!(entity instanceof Player player))
-            return false;
-        ItemStack blade = entity.getMainHandItem();
-        if (!(blade.getItem() instanceof ItemSlashBlade))
-            return false;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        return state.getTranslationKey().equals("item.fantasydesire.chikeflare");
+        return CapabilityUtils.SEConditionMatcher.of(entity)
+                .requireTranslation("item.fantasydesire.chikeflare")
+                .match() != null;
     }
 
     public static void WingToTheFuture(LivingEntity player, ItemStack blade) {
@@ -142,6 +138,7 @@ public class WingToTheFuture {
                         } else if (!targets.isEmpty()) {
                             ss.setTargetId(targets.get(countdownValue % targets.size()).getId());
                         }
+                        ss.tryInit();
                         player.level().addFreshEntity(ss);
                     }
                 }
@@ -225,7 +222,7 @@ public class WingToTheFuture {
     }
 
     public static void WingToTheFutureBoost(LivingEntity player) {
-        if (player instanceof Player && player.isFallFlying()){
+        if (player instanceof Player && player.isFallFlying()) {
             Vec3 vec3d1 = player.getLookAngle();
             Vec3 vec3d2 = player.getDeltaMovement();
             player.setDeltaMovement(vec3d2.add(vec3d1.x * 0.1D + (vec3d1.x * 1.5D - vec3d2.x) * 0.5D,
