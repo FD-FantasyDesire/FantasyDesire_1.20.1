@@ -17,13 +17,15 @@ public class FDPotionEffects {
         public static final RegistryObject<MobEffect> RAINBOW_SEVEN_EDGE = MOB_EFFECTS.register("rainbow_seven_edge",
                         RainbowSevenEdgeEffect::new);
         public static final RegistryObject<MobEffect> TELEPORT_BLOCKED = MOB_EFFECTS.register("teleport_blocked",
-                        TeleportBlocked::new);
+                        TeleportBlockedEffect::new);
         public static final RegistryObject<MobEffect> IMMORTAL_SOUL = MOB_EFFECTS.register("immortal_soul",
                         ImmortalSoulEffect::new);
         public static final RegistryObject<MobEffect> MISSILE_LOCKED = MOB_EFFECTS.register("missile_locked",
                         MissileLockedEffect::new);
         public static final RegistryObject<MobEffect> COMET_ELYTRA = MOB_EFFECTS.register("comet_elytra",
-                CometElytraEffect::new);
+                        CometElytraEffect::new);
+        public static final RegistryObject<MobEffect> DIMENSION_BREAK = MOB_EFFECTS.register("dimension_break",
+                        DimensionBreakEffect::new);
 
         public static void register(IEventBus eventBus) {
                 MOB_EFFECTS.register(eventBus);

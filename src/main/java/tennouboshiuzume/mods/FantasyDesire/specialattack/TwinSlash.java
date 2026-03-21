@@ -203,10 +203,8 @@ public class TwinSlash {
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
         if (state == null || fdState == null)
             return;
-
         if (!state.getTranslationKey().equals("item.fantasydesire.twin_blade"))
             return;
-
         if (fdState.getSpecialType().equals("TwinBladeL")) {
             state.setTexture(new ResourceLocation(FantasyDesire.MODID, "models/twinbladeright.png"));
             state.setSlashArtsKey(FDSpecialAttacks.TWIN_SYSTEM_R.getId());

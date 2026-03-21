@@ -120,7 +120,7 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             AbstractClientPlayer player,
             float ageInTicks) {
 
-        float radius = 0.5f;
+        float radius = 1f;
         float speed = 2.0f;
         float time = ageInTicks * speed;
 
@@ -129,16 +129,21 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             poseStack.translate(0.0D, 0.35D, 0.65D);
             float baseAngle = i * 45f;
             float angle = baseAngle + time;
-            float offsetX = Mth.cos((float) Math.toRadians(angle)) * radius;
-            float offsetY = -Mth.sin((float) Math.toRadians(angle)) * radius;
+
+            // Calculate cross-star shape instead of circular orbit
+            float radians = (float) Math.toRadians(angle);
+            float sin = Mth.sin(radians);
+            float cos = Mth.cos(radians);
+            float currentRadius = radius * (float) (1.0 - Math.pow(Math.sin(2 * radians), 2) * 0.5);
+
+            float offsetX = cos * currentRadius;
+            float offsetY = -sin * currentRadius;
 
             poseStack.translate(offsetX, offsetY, 0);
 
             poseStack.mulPose(Axis.XP.rotationDegrees(90f));
 
             poseStack.mulPose(Axis.YN.rotationDegrees(angle - 90f));
-
-            // poseStack.mulPose(Axis.ZP.rotationDegrees(angle));
 
             applyBladeScale(poseStack, 0.0075f * 0.3f);
 

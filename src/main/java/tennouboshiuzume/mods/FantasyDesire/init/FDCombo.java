@@ -132,6 +132,16 @@ public class FDCombo extends ComboStateRegistry {
                                         .releaseAction(ComboState::releaseActionQuickCharge)::build);
         // 虹光星雨
         public static final RegistryObject<ComboState> RAINBOW_STAR = FD_COMBO_STATES.register("rainbow_star",
+                        ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> RainbowStar.AntiNTR(entity)
+                                                        ? FantasyDesire.prefix("rainbow_star_0")
+                                                        : SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> RainbowStar.AntiNTR(entity)
+                                                        ? FantasyDesire.prefix("rainbow_star_0")
+                                                        : SlashBlade.prefix("none"))::build);
+
+        public static final RegistryObject<ComboState> RAINBOW_STAR_0 = FD_COMBO_STATES.register("rainbow_star_0",
                         ComboState.Builder.newInstance().startAndEnd(400, 459).priority(50)
                                         .motionLoc(DefaultResources.ExMotionLocation)
                                         .next(ComboState.TimeoutNext.buildFromFrame(15,

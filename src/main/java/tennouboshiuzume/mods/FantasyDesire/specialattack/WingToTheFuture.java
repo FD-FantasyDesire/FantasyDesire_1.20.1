@@ -17,64 +17,6 @@ import tennouboshiuzume.mods.FantasyDesire.utils.*;
 import java.util.List;
 
 public class WingToTheFuture {
-    // 已弃用，1.12.2版本
-    // public static void WingToTheFuture(LivingEntity player, ItemStack blade) {
-    // if (blade.getItem() instanceof ItemSlashBlade) {
-    // ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-    // if (state.getTranslationKey().equals("item.fantasydesire.chikeflare")) {
-    // if (player.level().isClientSide()) return;
-    // if (!(player instanceof Player)) return;
-    // int wingCount = (int) Math.min(Math.max(Math.sqrt(Math.abs(((Player)
-    // player).experienceLevel)) - 5, 1), 3);
-    // float baseModif = state.getDamage();
-    // float magicDamage = 1.0f + (baseModif / 2.0f);
-    // int countdown = 1;
-    // for (int i = 0; i < wingCount; i++) {
-    // int count = 1;
-    // for (int j = 1; j <= 32; j++) {
-    // count++;
-    // countdown++;
-    // boolean front = (count % 2 == 0);
-    // int currentValue = count / 2;
-    // int countdownValue = countdown / 2;
-    // Vec3 base = new Vec3(0, 0, 1);
-    // Vec3 sec = base.yRot((float) Math.toRadians(front ? 120 :
-    // -120)).normalize().scale(1.5 + 0.5 * currentValue);
-    // EntityFDPhantomSword ss = new
-    // EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
-    // ss.setPos(player.position());
-    // ss.setIsCritical(false);
-    // ss.setOwner(player);
-    // ss.setOffset(sec);
-    // ss.setCenterOffset(new Vec3(0, player.getEyeHeight(), 0));
-    // ss.setColor(front ? 0xFFFF00 : 0x00FFFF);
-    // ss.setRoll(front ? -45.0f : 45.0f);
-    // ss.setStandbyMode("PLAYER");
-    // ss.setSpeed(2.5f);
-    // ss.setDamage(magicDamage);
-    // ss.setDelayTicks(20 + countdownValue);
-    // ss.setDelay(200 + countdownValue);
-    // ss.setScale(1.5f);
-    // ss.setExpRadius(1);
-    // ss.setParticleType(ParticleTypes.END_ROD);
-    // if (state.getTargetEntity(player.level()) != null) {
-    // ss.setTargetId(state.getTargetEntityId());
-    // } else if (TargetUtils.getLockTarget(player).isPresent()) {
-    // ss.setTargetId(TargetUtils.getLockTarget(player).get().getId());
-    // }
-    // player.level().addFreshEntity(ss);
-    // }
-    // }
-    // } else {
-    // ItemStack newBlade = ItemUtils.dataBakeBlade(blade,
-    // FantasyDesire.getBladeAsRegistry(player.level(),
-    // FantasySlashBladeBuiltInRegistry.ChikeFlare));
-    // player.setItemInHand(InteractionHand.MAIN_HAND, newBlade);
-    // }
-    //
-    // }
-    // }
-
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation("item.fantasydesire.chikeflare")

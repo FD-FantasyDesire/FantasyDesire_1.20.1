@@ -8,8 +8,8 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 
 import javax.annotation.Nullable;
 
-public class TeleportBlocked extends MobEffect {
-    public TeleportBlocked() {
+public class TeleportBlockedEffect extends MobEffect {
+    public TeleportBlockedEffect() {
         super(MobEffectCategory.HARMFUL, 0x80FF80);
     }
 

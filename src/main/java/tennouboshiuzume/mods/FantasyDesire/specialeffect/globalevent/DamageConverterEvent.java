@@ -101,7 +101,7 @@ public class DamageConverterEvent {
             return;
         LivingEntity attackerLiving = (LivingEntity) attacker;
         if (source.is(FDDamageSource.OMEGA)) {
-            if (target.getHealth()<=attackerLiving.getMaxHealth()){
+            if (target.getHealth() <= attackerLiving.getMaxHealth()) {
                 target.kill();
             }
         }
@@ -212,13 +212,25 @@ public class DamageConverterEvent {
                     totalReduce += old.getAmount(); // 累加旧值
                     maxHealth.removeModifier(old); // 移除旧的，避免重复
                 }
+
+                double oldHealth = maxHealth.getValue();
+
                 AttributeModifier mod = new AttributeModifier(
                         ETERNITY_HEALTH_MODIFIER,
                         "eternity_reduce",
                         totalReduce,
                         AttributeModifier.Operation.ADDITION);
                 maxHealth.addPermanentModifier(mod);
-                // System.out.println(target.getMaxHealth());
+
+                double newHealth = maxHealth.getValue();
+
+                // 防止降低到1以下，或者出现负负得正导致血量反而增加的情况
+                if (newHealth < 1.0 || newHealth > oldHealth) {
+                    maxHealth.removeModifier(ETERNITY_HEALTH_MODIFIER);
+                    if (old != null) {
+                        maxHealth.addPermanentModifier(old);
+                    }
+                }
             }
         }
         // 吸收（Absorb）

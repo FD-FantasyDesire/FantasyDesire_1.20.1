@@ -145,7 +145,6 @@ public class ChikeFlareEffects {
             Vec3 lookVec = target.position().add(0, target.getBbHeight() / 2, 0).subtract(spawnPos).normalize();
             float lookYaw = (float) (Math.atan2(-lookVec.x, lookVec.z) * (180f / Math.PI));
             float lookPitch = (float) (Math.asin(-lookVec.y) * (180f / Math.PI));
-            System.out.println(lookYaw + "," + lookPitch);
             EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
             ss.setIsCritical(false);
             ss.setOwner(player);

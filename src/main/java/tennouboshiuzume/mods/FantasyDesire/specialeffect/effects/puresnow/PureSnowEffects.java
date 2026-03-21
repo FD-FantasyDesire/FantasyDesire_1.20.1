@@ -7,7 +7,6 @@ import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -27,16 +26,18 @@ import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PureSnowEffects {
-    //    虹光通量
+    // 虹光通量
     @SubscribeEvent
     public static void updateEvent(SlashBladeEvent.UpdateEvent event) {
         ItemStack blade = event.getBlade();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade))
             return;
-        if (!(event.getEntity() instanceof Player player)) return;
+        if (!(event.getEntity() instanceof Player player))
+            return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        boolean mainActive = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.RainbowFlux, player, "item.fantasydesire.pure_snow");
+        boolean mainActive = CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.RainbowFlux, player,
+                "item.fantasydesire.pure_snow");
         if (mainActive && !player.level().isClientSide()) {
             int eachColorZone = 15;
             int totalSteps = eachColorZone * 7;
@@ -47,33 +48,39 @@ public class PureSnowEffects {
             int stepsPerType = totalSteps / 7;
             int damageTypeIndex = ((timeStep + stepsPerType / 2) * 7 / totalSteps) % 7;
             fdState.setSpecialAttackEffect(damageTypes[damageTypeIndex]);
-//            System.out.println(tickCount +" "+damageTypeIndex);
+            // System.out.println(tickCount +" "+damageTypeIndex);
         }
     }
 
-
-    //    虹羽七刃剑
+    // 虹羽七刃剑
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onSlash(SlashBladeEvent.DoSlashEvent event) {
         ItemStack blade = event.getBlade();
-        if (!(blade.getItem() instanceof ItemFantasySlashBlade)) return;
-        if (!(event.getUser() instanceof Player player)) return;
-        if (!event.getUser().hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get())) return;
+        if (!(blade.getItem() instanceof ItemFantasySlashBlade))
+            return;
+        if (!(event.getUser() instanceof Player player))
+            return;
+        if (!event.getUser().hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get()))
+            return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        if (!CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.RainbowFlux, player, "item.fantasydesire.pure_snow"))
+        if (!CapabilityUtils.isSpecialEffectActiveForItem(state, FDSpecialEffects.RainbowFlux, player,
+                "item.fantasydesire.pure_snow"))
             return;
         double damage = event.getDamage();
         String fdDamageType = fdState.getSpecialAttackEffect();
         if (fdDamageType != null && !fdDamageType.equals("Null")) {
-            DamageSource fds = FDDamageSource.getEntityDamageSource(player.level(), FDDamageSource.fromString(fdDamageType), player);
-            FDAttackManager.areaAttackWithSource(event.getUser(), KnockBacks.cancel.action, (float) (damage * 7), true, true, false, null, fds);
+            DamageSource fds = FDDamageSource.getEntityDamageSource(player.level(),
+                    FDDamageSource.fromString(fdDamageType), player);
+            FDAttackManager.areaAttackWithSource(event.getUser(), KnockBacks.cancel.action, (float) (damage * 7), true,
+                    true, false, null, fds);
         }
         for (int i = 0; i < 7; i++) {
             int cl = ColorUtils.getSmoothTransitionColor(i, 7, true);
             EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, player.level());
-            Vec3 adds = new Vec3(0,0,jc.getBbHeight()/2).yRot((float) Math.toRadians(360/7*i));
-            adds = VecMathUtils.rotateAroundAxis(adds,new Vec3(0,0,1).yRot((float) Math.toRadians(-player.getYRot())),event.getRoll());
+            Vec3 adds = new Vec3(0, 0, jc.getBbHeight() / 2).yRot((float) Math.toRadians(360 / 7 * i));
+            adds = VecMathUtils.rotateAroundAxis(adds,
+                    new Vec3(0, 0, 1).yRot((float) Math.toRadians(-player.getYRot())), event.getRoll());
             Vec3 pos = player.position().add(adds);
             jc.setPos(pos.x, pos.y + player.getBbHeight() / 2, pos.z);
             jc.setOwner(null);
@@ -96,14 +103,6 @@ public class PureSnowEffects {
         event.setCanceled(true);
     }
 
-    public static boolean AntiNTR(LivingEntity entity) {
-        if (!(entity instanceof Player player)) return false;
-        ItemStack blade = entity.getMainHandItem();
-        if (!(blade.getItem() instanceof ItemFantasySlashBlade)) return false;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-        return state.getTranslationKey().equals("item.fantasydesire.pure_snow");
-    }
-    //    棱光通量
-    public static String[] damageTypes = {"wrath", "lust", "sloth", "gluttony", "gloom", "pride", "envy"};
+    // 棱光通量
+    public static String[] damageTypes = { "wrath", "lust", "sloth", "gluttony", "gloom", "pride", "envy" };
 }
