@@ -1,0 +1,33 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:twin_blade_l",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "kill": 100,
+        "name": "slashblade:rodai_iron",
+        "sword_type": [
+          "broken"
+        ]
+      }
+    },
+    "L": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "R": {
+      "item": "minecraft:magenta_dye"
+    }
+  },
+  "pattern": [
+    "RLR",
+    "LBL",
+    "RLR"
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

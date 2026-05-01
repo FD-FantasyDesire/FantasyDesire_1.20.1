@@ -38,7 +38,7 @@ import tennouboshiuzume.mods.FantasyDesire.client.particle.ShardParticle;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
-import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
+import tennouboshiuzume.mods.FantasyDesire.init.FDItemsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
 
 @SuppressWarnings("removal")
@@ -58,7 +58,7 @@ public class ClientHandler {
         LockonCircleRender.getInstance().register();
         AdvancementsRecipeRenderer.getInstance().register();
         RankRenderer.getInstance().register();
-        ItemProperties.register(FDItems.fantasyslashblade, new ResourceLocation("slashblade:user"),
+        ItemProperties.register(FDItemsRegistry.FANTASY_SLASHBLADE.get(), new ResourceLocation("slashblade:user"),
                 new ClampedItemPropertyFunction() {
                     @Override
                     public float unclampedCall(ItemStack p_174564_, @Nullable ClientLevel p_174565_,
@@ -71,7 +71,7 @@ public class ClientHandler {
 
     @SubscribeEvent
     public static void Baked(final ModelEvent.ModifyBakingResult event) {
-        bakeBlade(FDItems.fantasyslashblade, event);
+        bakeBlade(FDItemsRegistry.FANTASY_SLASHBLADE.get(), event);
     }
 
     public static void bakeBlade(Item blade, final ModelEvent.ModifyBakingResult event) {

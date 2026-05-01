@@ -1,0 +1,38 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:smart_pistol_a",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "kill": 1000
+      }
+    },
+    "D": {
+      "tag": "forge:dyes/blue"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "I": {
+      "tag": "forge:ingots/iron"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "S": {
+      "tag": "forge:string"
+    }
+  },
+  "pattern": [
+    " EI",
+    "PBD",
+    "SI "
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

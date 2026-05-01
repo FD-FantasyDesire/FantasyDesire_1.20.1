@@ -8,4 +8,5 @@ public class EntityFDSoulPhantomSword extends EntityFDPhantomSword{
     public EntityFDSoulPhantomSword(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
+
 }

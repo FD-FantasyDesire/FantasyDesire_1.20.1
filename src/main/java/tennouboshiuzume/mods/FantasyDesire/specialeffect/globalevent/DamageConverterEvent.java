@@ -184,22 +184,19 @@ public class DamageConverterEvent {
         DamageSource source = event.getSource();
         LivingEntity target = event.getEntity();
         float amount = event.getAmount();
-
         // 攻击者
         Entity attacker = source.getEntity();
         if (!(attacker instanceof LivingEntity))
             return;
         LivingEntity attackerLiving = (LivingEntity) attacker;
-
         // 虚空强袭叠加对回响伤害增伤
-        if (target.hasEffect(FDPotionEffects.VOID_STRIKE.get()) && event.getSource().is(FDDamageSource.ECHO)) {
+        if (target.hasEffect(FDPotionEffects.VOID_STRIKE.get())) {
             MobEffect voidStrike = FDPotionEffects.VOID_STRIKE.get();
             MobEffectInstance current = target.getEffect(voidStrike);
             if (current != null) {
                 amount *= current.getAmplifier() + 1;
             }
         }
-
         // 永劫
         if (source.is(FDDamageSource.ETERNITY)) {
             float reduce = amount * 0.1f;
@@ -212,25 +209,12 @@ public class DamageConverterEvent {
                     totalReduce += old.getAmount(); // 累加旧值
                     maxHealth.removeModifier(old); // 移除旧的，避免重复
                 }
-
-                double oldHealth = maxHealth.getValue();
-
                 AttributeModifier mod = new AttributeModifier(
                         ETERNITY_HEALTH_MODIFIER,
                         "eternity_reduce",
                         totalReduce,
                         AttributeModifier.Operation.ADDITION);
                 maxHealth.addPermanentModifier(mod);
-
-                double newHealth = maxHealth.getValue();
-
-                // 防止降低到1以下，或者出现负负得正导致血量反而增加的情况
-                if (newHealth < 1.0 || newHealth > oldHealth) {
-                    maxHealth.removeModifier(ETERNITY_HEALTH_MODIFIER);
-                    if (old != null) {
-                        maxHealth.addPermanentModifier(old);
-                    }
-                }
             }
         }
         // 吸收（Absorb）
@@ -247,6 +231,7 @@ public class DamageConverterEvent {
         }
         // 回响 (Echo)
         if (source.is(FDDamageSource.ECHO)) {
+
             MobEffectInstance current = target.getEffect(FDPotionEffects.VOID_STRIKE.get());
             if (current != null && current.getAmplifier() == 5) {
                 float spreadDamage = amount * 3.0f; // 最终伤害300%
@@ -274,9 +259,7 @@ public class DamageConverterEvent {
     // 在玩家死亡时清理
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof Player player) {
-            clearEternity(player);
-        }
+        clearEternity(event.getEntity());
     }
 
     // 在玩家上床时清理
@@ -293,11 +276,11 @@ public class DamageConverterEvent {
         }
     }
 
+
     // 终焉伤害禁用传送
     @SubscribeEvent
     public void onEntityTeleport(EntityTeleportEvent.EnderPearl event) {
         Entity entity = event.getEntity();
-
         if (entity instanceof Player player) {
             // 如果玩家处于禁传送状态，就阻止
             if (player.hasEffect(FDPotionEffects.TELEPORT_BLOCKED.get())) {

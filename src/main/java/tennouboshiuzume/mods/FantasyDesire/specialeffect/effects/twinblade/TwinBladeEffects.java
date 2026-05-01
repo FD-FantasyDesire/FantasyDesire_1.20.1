@@ -27,26 +27,21 @@ public class TwinBladeEffects {
     public static void onTwinSlash(SlashBladeEvent.DoSlashEvent event) {
         if (!(event.getUser() instanceof Player player))
             return;
-
         CapabilityUtils.BladeContext mainCtx = CapabilityUtils.SEConditionMatcher.of(player)
                 .requireTranslation("item.fantasydesire.twin_blade")
                 .requireSE(FDSpecialEffects.TwinSet)
                 .match();
-
         CapabilityUtils.BladeContext offCtx = CapabilityUtils.SEConditionMatcher.of(player)
                 .onlyOffhand()
                 .requireTranslation("item.fantasydesire.twin_blade")
                 .requireSE(FDSpecialEffects.TwinSet)
                 .match();
-
         if (mainCtx == null || offCtx == null)
             return;
         if (mainCtx.fantasyState.getSpecialType().equals(offCtx.fantasyState.getSpecialType()))
             return;
-
         int offColor = offCtx.state.getColorCode();
         double damage = event.getDamage();
-        System.out.println(mainCtx.state.getComboSeq());
         AddonSlashUtils.doAddonSlash(player, event.getRoll() - 180, player.getYRot(), 0, offColor, 0, Vec3.ZERO, false,
                 false, damage, KnockBacks.cancel);
     }

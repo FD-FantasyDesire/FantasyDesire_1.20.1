@@ -1,0 +1,30 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:twin_blade_r",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "kill": 200,
+        "name": "fantasydesire:twin_blade_l"
+      }
+    },
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "L": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "  L",
+    " L ",
+    "BG "
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraftforge.registries.ForgeRegistries;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.init.FDItems;
+import tennouboshiuzume.mods.FantasyDesire.init.FDItemsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.FantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
@@ -34,12 +34,15 @@ public class FantasySlashBladeDefinition {
     public static final Codec<FantasySlashBladeDefinition> CODEC = RecordCodecBuilder.create((instance) -> {
         return instance.group(ResourceLocation.CODEC.fieldOf("name").forGetter(FantasySlashBladeDefinition::getName),
                 RenderDefinition.CODEC.fieldOf("render").forGetter(FantasySlashBladeDefinition::getRenderDefinition),
-                PropertiesDefinition.CODEC.fieldOf("properties").forGetter(FantasySlashBladeDefinition::getStateDefinition),
+                PropertiesDefinition.CODEC.fieldOf("properties")
+                        .forGetter(FantasySlashBladeDefinition::getStateDefinition),
                 FantasyDefinition.CODEC.fieldOf("fantasy").forGetter(FantasySlashBladeDefinition::getFantasyDefinition),
-                EnchantmentDefinition.CODEC.listOf().optionalFieldOf("enchantments", Lists.newArrayList()).forGetter(FantasySlashBladeDefinition::getEnchantments)
-        ).apply(instance, FantasySlashBladeDefinition::new);
+                EnchantmentDefinition.CODEC.listOf().optionalFieldOf("enchantments", Lists.newArrayList())
+                        .forGetter(FantasySlashBladeDefinition::getEnchantments))
+                .apply(instance, FantasySlashBladeDefinition::new);
     });
-    public static final ResourceKey<Registry<FantasySlashBladeDefinition>> REGISTRY_KEY = ResourceKey.createRegistryKey(FantasyDesire.prefix("fantasyslashblade"));
+    public static final ResourceKey<Registry<FantasySlashBladeDefinition>> REGISTRY_KEY = ResourceKey
+            .createRegistryKey(FantasyDesire.prefix("fantasyslashblade"));
     private final ResourceLocation name;
     private final RenderDefinition renderDefinition;
     private final PropertiesDefinition stateDefinition;
@@ -47,7 +50,9 @@ public class FantasySlashBladeDefinition {
     private final List<EnchantmentDefinition> enchantments;
     public static final FantasySlashBladeDefinition.BladeComparator COMPARATOR = new FantasySlashBladeDefinition.BladeComparator();
 
-    public FantasySlashBladeDefinition(ResourceLocation name, RenderDefinition renderDefinition, PropertiesDefinition stateDefinition, FantasyDefinition fantasyDefinition, List<EnchantmentDefinition> enchantments) {
+    public FantasySlashBladeDefinition(ResourceLocation name, RenderDefinition renderDefinition,
+            PropertiesDefinition stateDefinition, FantasyDefinition fantasyDefinition,
+            List<EnchantmentDefinition> enchantments) {
         this.name = name;
         this.renderDefinition = renderDefinition;
         this.stateDefinition = stateDefinition;
@@ -80,12 +85,13 @@ public class FantasySlashBladeDefinition {
     }
 
     public ItemStack getBlade() {
-        return this.getBlade(FDItems.fantasyslashblade);
+        return this.getBlade(FDItemsRegistry.FANTASY_SLASHBLADE.get());
     }
 
     public ItemStack getBlade(Item bladeItem) {
         ItemStack result = new ItemStack(bladeItem);
-        ISlashBladeState state = (ISlashBladeState)result.getCapability(ItemSlashBlade.BLADESTATE).orElse(new SlashBladeState(result));
+        ISlashBladeState state = (ISlashBladeState) result.getCapability(ItemSlashBlade.BLADESTATE)
+                .orElse(new SlashBladeState(result));
         state.setBaseAttackModifier(this.stateDefinition.getBaseAttackModifier());
         state.setMaxDamage(this.stateDefinition.getMaxDamage());
         state.setComboRoot(this.stateDefinition.getComboRoot());
@@ -116,7 +122,8 @@ public class FantasySlashBladeDefinition {
             state.setTranslationKey(this.getTranslationKey());
         }
         result.getOrCreateTag().put("bladeState", state.serializeNBT());
-        IFantasySlashBladeState fdState = (IFantasySlashBladeState)result.getCapability(ItemFantasySlashBlade.FDBLADESTATE).orElse(new FantasySlashBladeState(result));
+        IFantasySlashBladeState fdState = (IFantasySlashBladeState) result
+                .getCapability(ItemFantasySlashBlade.FDBLADESTATE).orElse(new FantasySlashBladeState(result));
         fdState.setSpecialCharge(this.fantasyDefinition.getSpecialCharge());
         fdState.setMaxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge());
         fdState.setSpecialLore(this.fantasyDefinition.getSpecialLore());
@@ -125,12 +132,12 @@ public class FantasySlashBladeDefinition {
         fdState.setSpecialType(this.fantasyDefinition.getSpecialType());
         fdState.setSpecialChargeName(this.fantasyDefinition.getSpecialChargeName());
         fdState.setSpecialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect());
-        result.getOrCreateTag().put("fdBladeState",fdState.serializeNBT());
+        result.getOrCreateTag().put("fdBladeState", fdState.serializeNBT());
 
         Iterator var4 = this.enchantments.iterator();
 
-        while(var4.hasNext()) {
-            EnchantmentDefinition instance = (EnchantmentDefinition)var4.next();
+        while (var4.hasNext()) {
+            EnchantmentDefinition instance = (EnchantmentDefinition) var4.next();
             Enchantment enchantment = (Enchantment) ForgeRegistries.ENCHANTMENTS.getValue(instance.getEnchantmentID());
             result.enchant(enchantment, instance.getEnchantmentLevel());
         }
@@ -142,7 +149,8 @@ public class FantasySlashBladeDefinition {
         private BladeComparator() {
         }
 
-        public int compare(Holder.Reference<FantasySlashBladeDefinition> left, Holder.Reference<FantasySlashBladeDefinition> right) {
+        public int compare(Holder.Reference<FantasySlashBladeDefinition> left,
+                Holder.Reference<FantasySlashBladeDefinition> right) {
             ResourceLocation leftKey = left.key().location();
             ResourceLocation rightKey = right.key().location();
             boolean checkSame = leftKey.getNamespace().equalsIgnoreCase(rightKey.getNamespace());

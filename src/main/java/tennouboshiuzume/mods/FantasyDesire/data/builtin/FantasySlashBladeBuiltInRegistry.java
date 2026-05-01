@@ -401,10 +401,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .maxDamage(58)
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
-                                                                // .maxSpecialCharge(140)
-                                                                // .specialLore(4)
-                                                                // .specialEffectLore(6)
-                                                                // .specialAttackLore(5)
                                                                 .specialType("EGO")
                                                                 .build(),
                                                 List.of()));
@@ -427,10 +423,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 FDSpecialEffects.EchoingStrike.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
-                                                                // .maxSpecialCharge(140)
-                                                                // .specialLore(4)
-                                                                // .specialEffectLore(6)
-                                                                // .specialAttackLore(5)
+                                                                 .specialLore(1)
                                                                 .specialType("StarlessNight")
                                                                 .specialAttackEffect("echo")
                                                                 .build(),

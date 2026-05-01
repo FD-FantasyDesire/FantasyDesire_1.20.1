@@ -481,8 +481,7 @@ public class FDCombo extends ComboStateRegistry {
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("echoing_void_1"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .put((int) TimeValueHelper.getTicksFromFrames(30), entityIn -> {
-                                                                ItemUtils.ConvertModel(entityIn,
-                                                                                entityIn.getMainHandItem(),
+                                                                ItemUtils.ConvertModel(entityIn.getMainHandItem(),
                                                                                 "models/sn_huge.obj");
                                                                 for (int i = 0; i < 16; i++) {
                                                                         Vec3 start = entityIn.position().add(0,
@@ -548,7 +547,7 @@ public class FDCombo extends ComboStateRegistry {
                                                                         false, false, 1f, KnockBacks.cancel, 10f,
                                                                         10))
                                                         .put((int) TimeValueHelper.getTicksFromFrames(17),
-                                                                        entityIn -> ItemUtils.ConvertModel(entityIn,
+                                                                        entityIn -> ItemUtils.ConvertModel(
                                                                                         entityIn.getMainHandItem(),
                                                                                         "models/sn.obj"))
                                                         .build())::build);

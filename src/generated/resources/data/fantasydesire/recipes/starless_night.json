@@ -1,0 +1,33 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:starless_night",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_block"
+    },
+    "B": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "kill": 500,
+        "name": "slashblade:rodai_diamond"
+      }
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "pattern": [
+    " AO",
+    "AEA",
+    "BA "
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

@@ -1,8 +1,8 @@
 package tennouboshiuzume.mods.FantasyDesire.utils;
 
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.registry.SlashBladeItems;
 import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +28,7 @@ public class ItemUtils {
     public static void fillSEShards(CreativeModeTab.Output output) {
         FDSpecialEffects.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
             SpecialEffect se = specialEffectRegistryObject.get();
-            ItemStack sphere = new ItemStack(SBItems.proudsoul_crystal);
+            ItemStack sphere = new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get());
             CompoundTag tag = new CompoundTag();
             tag.putString("SpecialEffectType", se.toString());
             sphere.setTag(tag);
@@ -55,7 +55,7 @@ public class ItemUtils {
         return blade1;
     }
 
-    public static void ConvertModel(LivingEntity entity, ItemStack blade, String model) {
+    public static void ConvertModel(ItemStack blade, String model) {
         if (blade.getItem() instanceof ItemSlashBlade) {
             ISlashBladeState state = CapabilityUtils.getBladeState(blade);
             state.setModel(new ResourceLocation(FantasyDesire.MODID, model));

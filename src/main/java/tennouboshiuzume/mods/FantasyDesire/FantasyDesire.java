@@ -46,19 +46,12 @@ public class FantasyDesire {
         FDSpecialEffects.SPECIAL_EFFECT.register(eventBus);
         FDPotionEffects.register(eventBus);
         FDTab.register(eventBus);
+        FDRecipeSerializerRegistry.register(eventBus);
+        FDItemsRegistry.register(eventBus);
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class RegistryEvents {
-        @SubscribeEvent
-        public static void register(RegisterEvent event) {
-
-            event.register(ForgeRegistries.Keys.ITEMS, helper -> {
-                helper.register(new ResourceLocation(MODID, "fantasyslashblade"),
-                        new ItemFantasySlashBlade(new ItemTierSlashBlade(40, 4F), 4, -2.4F, (new Item.Properties())));
-            });
-        }
-
         @SubscribeEvent
         public static void onRegisterCapability(final RegisterCapabilitiesEvent event) {
             CapabilityFantasySlashBlade.register(event);
@@ -66,13 +59,10 @@ public class FantasyDesire {
 
         @SubscribeEvent
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-            // event.registerEntityRenderer(RegistryEvents.FDSummonSwordBase,
-            // FDSummonSwordRenderer::new);
         }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
-        // MinecraftForge.EVENT_BUS.register(new CapabilityAttachHandler());
     }
 
     private static String classToString(Class<? extends Entity> entityClass) {

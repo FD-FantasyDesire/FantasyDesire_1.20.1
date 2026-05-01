@@ -1,0 +1,33 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:crucible",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "kill": 666,
+        "name": "slashblade:rodai_netherite"
+      }
+    },
+    "L": {
+      "tag": "forge:ingots/gold"
+    },
+    "M": {
+      "item": "minecraft:magma_block"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    }
+  },
+  "pattern": [
+    " ML",
+    "MNM",
+    "BM "
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

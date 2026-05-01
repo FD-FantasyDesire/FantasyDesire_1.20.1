@@ -31,4 +31,5 @@ public class SmartPistolMode {
         ss.setOffset(new Vec3(0, 0, 0.75f));
         player.level().addFreshEntity(ss);
     }
+
 }

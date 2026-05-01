@@ -1,0 +1,32 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:crimson_scythe",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "kill": 300,
+        "sword_type": [
+          "broken"
+        ]
+      }
+    },
+    "G": {
+      "tag": "forge:ingots/gold"
+    },
+    "L": {
+      "item": "minecraft:redstone_block"
+    }
+  },
+  "pattern": [
+    "  L",
+    " L ",
+    "BG "
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

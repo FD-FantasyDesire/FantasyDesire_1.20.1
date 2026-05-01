@@ -26,7 +26,6 @@ public class FDPotionEffects {
                         CometElytraEffect::new);
         public static final RegistryObject<MobEffect> DIMENSION_BREAK = MOB_EFFECTS.register("dimension_break",
                         DimensionBreakEffect::new);
-
         public static void register(IEventBus eventBus) {
                 MOB_EFFECTS.register(eventBus);
         }

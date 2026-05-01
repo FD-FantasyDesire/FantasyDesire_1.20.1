@@ -1,7 +1,7 @@
 package tennouboshiuzume.mods.FantasyDesire.init;
 
-import mods.flammpfeil.slashblade.init.SBItems;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
+import mods.flammpfeil.slashblade.registry.SlashBladeItems;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,14 +23,14 @@ public class FDTab {
     public static final RegistryObject<CreativeModeTab> FANTASY_TAB = CREATIVE_MODE_TABS.register("fantasy_tab",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.fantasydesire")).icon(() -> {
-                        ItemStack stack = new ItemStack(SBItems.slashblade);
+                        ItemStack stack = new ItemStack(SlashBladeItems.SLASHBLADE.get());
                         stack.getCapability(ItemSlashBlade.BLADESTATE).ifPresent(s -> {
                             s.setModel(new ResourceLocation(FantasyDesire.MODID, "models/chikeflare.obj"));
                             s.setTexture(new ResourceLocation(FantasyDesire.MODID, "models/chikeflare.png"));
                         });
                         return stack;
                     }).displayItems((parameters, output) -> {
-//                        output.accept(ItemUtils.CustomEffectShard(new ItemStack(SBItems.proudsoul_crystal), SpecialEffectsRegistry.WITHER_EDGE.get())); // 添加物品
+//                        output.accept(ItemUtils.CustomEffectShard(new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get()), SpecialEffectsRegistry.WITHER_EDGE.get())); // 添加物品
                         fillBlades(parameters, output);
                         ItemUtils.fillSEShards(output);
 //                        fillBlades(parameters, output);

@@ -52,6 +52,7 @@ public class StarlessNightEffects {
             }
         }
     }
+
     @SubscribeEvent
     public static void OnComboCancel(SlashBladeEvent.NextComboEvent event) {
         ItemStack blade = event.getBlade();
@@ -61,8 +62,7 @@ public class StarlessNightEffects {
         if (!state.getTranslationKey().equals("item.fantasydesire.starless_night"))
             return;
         if (event.getNextCombo() != FDCombo.ECHOING_VOID_1.getId() || event.getNextCombo() != FDCombo.ECHOING_VOID_2.getId()){
-            ItemUtils.ConvertModel(event.getUser(),
-                    event.getBlade(),
+            ItemUtils.ConvertModel(event.getBlade(),
                     "models/sn.obj");
         }
     }

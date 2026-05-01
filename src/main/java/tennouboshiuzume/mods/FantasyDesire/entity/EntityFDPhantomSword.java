@@ -323,7 +323,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
             if (!blockstate.isAir() && !disallowedHitBlock) {
                 VoxelShape voxelshape = blockstate.getCollisionShape(this.level(), blockpos);
                 if (!voxelshape.isEmpty()) {
-                    AABB swordBox = this.getBoundingBox().inflate(getScale());
                     for (AABB axisalignedbb : voxelshape.toAabbs()) {
                         if (axisalignedbb.move(blockpos).contains(new Vec3(this.getX(), this.getY(), this.getZ()))) {
                             this.setInGround(true);
@@ -332,7 +331,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                     }
                 }
             }
-
             if (this.isInWaterOrRain()) {
                 this.clearFire();
             }

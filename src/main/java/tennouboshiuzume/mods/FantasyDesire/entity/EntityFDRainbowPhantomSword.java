@@ -27,14 +27,15 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
     public EntityFDRainbowPhantomSword(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
+    boolean bursted = false;
 
     @Override
     public void tick() {
         super.tick();
         if (getShooter() != null)
             makeSurePierce();
-        if (!getInGround() && (getPierce() > 0 || getHitEntity() == null))
-            playRainbowParticle();
+//        if (!getInGround() && (getPierce() > 0 || getHitEntity() == null))
+//            playRainbowParticle();
     }
 
     private void playRainbowParticle() {
@@ -74,7 +75,7 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
                     0.05);
         }
     }
-
+//    天降类技能防止被洞穴挡住
     private void makeSurePierce() {
         if (getShooter().position().y + this.getDeltaMovement().length() <= this.position().y) {
             this.setNoClip(true);
@@ -86,29 +87,32 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
     @Override
     protected void onHitEntity(EntityHitResult entityHitResult) {
         super.onHitEntity(entityHitResult);
-        this.burst();
+        if (!bursted){
+            RainbowShockwave(entityHitResult.getLocation());
+        }
     }
 
     @Override
     protected void onHitBlock(BlockHitResult blockraytraceresult) {
         super.onHitBlock(blockraytraceresult);
-        this.burst();
+        if (!bursted){
+            RainbowShockwave(blockraytraceresult.getLocation());
+        }
     }
 
     @Override
     public void burst() {
-        RainbowShockwave();
         super.burst();
     }
 
-    private void RainbowShockwave() {
+    private void RainbowShockwave(Vec3 centerPosition) {
         LivingEntity player = (LivingEntity) this.getShooter();
         if (player == null)
             return;
         for (int i = 0; i < 7; i++) {
             int cl = ColorUtils.getSmoothTransitionColor(i, 7, true);
             EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, player.level());
-            Vec3 pos = this.position().add(
+            Vec3 pos = centerPosition.add(
                     new Vec3(0, 0, jc.getBbHeight() / 2).yRot(-(float) Math.toRadians(360 / 7 * i + player.getYRot())));
             jc.setPos(pos.x, pos.y + this.getBbHeight() / 2, pos.z);
             jc.setOwner(null);
@@ -134,6 +138,7 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
         for (LivingEntity targetEntity : target) {
             AttackManager.doMeleeAttack(player, targetEntity, true, true, 3.5f);
         }
+        burst();
     }
 
     public static Vector3f hexToVector3f(int hexColor) {
