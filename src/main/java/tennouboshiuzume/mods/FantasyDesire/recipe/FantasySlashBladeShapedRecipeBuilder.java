@@ -5,8 +5,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mods.flammpfeil.slashblade.recipe.RequestDefinition;
-import mods.flammpfeil.slashblade.recipe.SlashBladeIngredient;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
@@ -46,7 +44,8 @@ public class FantasySlashBladeShapedRecipeBuilder extends CraftingRecipeBuilder 
     private boolean showNotification = true;
     private ResourceLocation blade = null;
 
-    private static final ResourceLocation FANTASY_SLASHBLADE = new ResourceLocation(FantasyDesire.MODID, "fantasyslashblade");
+    private static final ResourceLocation FANTASY_SLASHBLADE = new ResourceLocation(FantasyDesire.MODID,
+            "fantasyslashblade");
 
     public FantasySlashBladeShapedRecipeBuilder(ItemLike item, int count) {
         this.result = item.asItem();
@@ -99,7 +98,8 @@ public class FantasySlashBladeShapedRecipeBuilder extends CraftingRecipeBuilder 
     }
 
     @Override
-    public @NotNull FantasySlashBladeShapedRecipeBuilder unlockedBy(@NotNull String key, @NotNull CriterionTriggerInstance trigger) {
+    public @NotNull FantasySlashBladeShapedRecipeBuilder unlockedBy(@NotNull String key,
+            @NotNull CriterionTriggerInstance trigger) {
         this.advancement.addCriterion(key, trigger);
         return this;
     }
@@ -122,7 +122,8 @@ public class FantasySlashBladeShapedRecipeBuilder extends CraftingRecipeBuilder 
 
     @Override
     public void save(@NotNull Consumer<FinishedRecipe> consumer) {
-        this.save(consumer, this.blade != null ? this.blade : Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(this.getResult())));
+        this.save(consumer, this.blade != null ? this.blade
+                : Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(this.getResult())));
     }
 
     @Override
@@ -180,8 +181,8 @@ public class FantasySlashBladeShapedRecipeBuilder extends CraftingRecipeBuilder 
         private final boolean showNotification;
 
         public Result(ResourceLocation id, Item result, int count, ResourceLocation bladeId, String group,
-                      List<String> pattern, Map<Character, Ingredient> key, Advancement.Builder advancement,
-                      ResourceLocation advancementId, boolean showNotification) {
+                List<String> pattern, Map<Character, Ingredient> key, Advancement.Builder advancement,
+                ResourceLocation advancementId, boolean showNotification) {
             super(CraftingBookCategory.EQUIPMENT);
             this.id = id;
             this.result = result;
@@ -217,7 +218,8 @@ public class FantasySlashBladeShapedRecipeBuilder extends CraftingRecipeBuilder 
 
             json.add("key", jsonobject);
             JsonObject jsonobject1 = new JsonObject();
-            jsonobject1.addProperty("item", Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(this.result)).toString());
+            jsonobject1.addProperty("item",
+                    Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(this.result)).toString());
             if (this.count > 1) {
                 jsonobject1.addProperty("count", this.count);
             }

@@ -2,14 +2,12 @@ package tennouboshiuzume.mods.FantasyDesire;
 
 import com.google.common.base.CaseFormat;
 import com.mojang.logging.LogUtils;
-import mods.flammpfeil.slashblade.item.ItemTierSlashBlade;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -19,13 +17,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegisterEvent;
 import org.slf4j.Logger;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 import tennouboshiuzume.mods.FantasyDesire.init.*;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.CapabilityFantasySlashBlade;
-import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 
 @Mod(FantasyDesire.MODID)
 @SuppressWarnings("removal")
@@ -42,8 +37,8 @@ public class FantasyDesire {
         FDEntitys.register(eventBus);
         FDParticles.PARTICLES.register(eventBus);
         FDCombo.FD_COMBO_STATES.register(eventBus);
-        FDSpecialAttacks.FD_SLASH_ARTS.register(eventBus);
-        FDSpecialEffects.SPECIAL_EFFECT.register(eventBus);
+        FDSlashArtRegistry.FD_SLASH_ARTS.register(eventBus);
+        FDSpecialEffectsRegistry.SPECIAL_EFFECT.register(eventBus);
         FDPotionEffects.register(eventBus);
         FDTab.register(eventBus);
         FDRecipeSerializerRegistry.register(eventBus);

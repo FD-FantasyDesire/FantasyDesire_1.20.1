@@ -8,10 +8,7 @@
       "item": "slashblade:slashblade",
       "request": {
         "kill": 100,
-        "name": "slashblade:rodai_iron",
-        "sword_type": [
-          "broken"
-        ]
+        "name": "slashblade:rodai_iron"
       }
     },
     "L": {

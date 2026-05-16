@@ -27,8 +27,8 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.textutils.TextNode;
 import tennouboshiuzume.mods.FantasyDesire.textutils.TextParser;
 import tennouboshiuzume.mods.FantasyDesire.textutils.TextRenderer;
-import tennouboshiuzume.mods.FantasyDesire.specialattack.FDSlashArts;
-import tennouboshiuzume.mods.FantasyDesire.specialeffect.FDSpecialEffectBase;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.FDSlashArts;
+import tennouboshiuzume.mods.FantasyDesire.specialeffects.FDSpecialEffectBase;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 import javax.annotation.Nullable;
@@ -122,10 +122,21 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         ISlashBladeState state = CapabilityUtils.getBladeState(stack);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(stack);
         if (swordType.contains(SwordType.BEWITCHED) && !swordType.contains(SwordType.SEALED)) {
-            if (state.getSlashArts() instanceof FDSlashArts slashArts && slashArts.hasAltName()) {
-                String key = slashArts.getDescriptionId() + ".alt";
-                Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)), Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
-                tooltip.add(Component.translatable("slashblade.tooltip.slash_art", finalText).withStyle(ChatFormatting.GRAY));
+            if (state.getSlashArts() instanceof FDSlashArts slashArts) {
+                // 处理 FDSlashArts 类型
+                if (slashArts.hasAltName()) {
+                    // 有 altname 的情况
+                    String key = slashArts.getDescriptionId() + ".alt";
+                    Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)), Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
+                    tooltip.add(Component.translatable("slashblade.tooltip.slash_art", finalText).withStyle(ChatFormatting.GRAY));
+                } else {
+                    // 没有 altname 的情况，使用基本描述
+                    String key = slashArts.getDescriptionId();
+                    Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)), Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
+                    tooltip.add(Component.translatable("slashblade.tooltip.slash_art", finalText).withStyle(ChatFormatting.GRAY));
+                }
+                
+                // 显示详细描述（如果有）
                 if (Screen.hasControlDown() && slashArts.getDescColumn() > 0) {
                     for (int i = 0; i < slashArts.getDescColumn(); i++) {
                         String key1 = slashArts.getDescriptionId() + ".desc_" + i;
@@ -134,6 +145,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                     }
                 }
             } else {
+                // 处理非 FDSlashArts 类型（原版或其他模组的 SA）
                 tooltip.add(Component.translatable("slashblade.tooltip.slash_art", new Object[]{s.getSlashArts().getDescription()}).withStyle(ChatFormatting.GRAY));
             }
         }

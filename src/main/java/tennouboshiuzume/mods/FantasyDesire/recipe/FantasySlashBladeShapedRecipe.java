@@ -25,7 +25,8 @@ public class FantasySlashBladeShapedRecipe extends ShapedRecipe {
     public static final RecipeSerializer<FantasySlashBladeShapedRecipe> SERIALIZER = new FantasySlashBladeShapedRecipeSerializer<>(
             RecipeSerializer.SHAPED_RECIPE, FantasySlashBladeShapedRecipe::new);
 
-    private static final ResourceLocation FANTASY_SLASHBLADE = new ResourceLocation(FantasyDesire.MODID, "fantasyslashblade");
+    private static final ResourceLocation FANTASY_SLASHBLADE = new ResourceLocation(FantasyDesire.MODID,
+            "fantasyslashblade");
 
     private final ResourceLocation outputBlade;
 
@@ -36,10 +37,14 @@ public class FantasySlashBladeShapedRecipe extends ShapedRecipe {
     }
 
     private static ItemStack getResultBlade(ResourceLocation outputBlade) {
-        Item bladeItem = ForgeRegistries.ITEMS.containsKey(outputBlade) ? ForgeRegistries.ITEMS.getValue(outputBlade)
-                : ForgeRegistries.ITEMS.getValue(FANTASY_SLASHBLADE);
-
-        return Objects.requireNonNullElseGet(bladeItem, () -> ForgeRegistries.ITEMS.getValue(FANTASY_SLASHBLADE)).getDefaultInstance();
+        if (outputBlade == null) {
+            return ForgeRegistries.ITEMS.getValue(FANTASY_SLASHBLADE).getDefaultInstance();
+        }
+        Item bladeItem = ForgeRegistries.ITEMS.getValue(outputBlade);
+        if (bladeItem == null) {
+            bladeItem = ForgeRegistries.ITEMS.getValue(FANTASY_SLASHBLADE);
+        }
+        return bladeItem.getDefaultInstance();
     }
 
     public ResourceLocation getOutputBlade() {

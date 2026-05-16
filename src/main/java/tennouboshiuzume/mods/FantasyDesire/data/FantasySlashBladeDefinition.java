@@ -89,16 +89,22 @@ public class FantasySlashBladeDefinition {
     }
 
     public ItemStack getBlade(Item bladeItem) {
+
         ItemStack result = new ItemStack(bladeItem);
         ISlashBladeState state = (ISlashBladeState) result.getCapability(ItemSlashBlade.BLADESTATE)
                 .orElse(new SlashBladeState(result));
+
+        // Base SlashBlade State Init
+        state.setNonEmpty();
         state.setBaseAttackModifier(this.stateDefinition.getBaseAttackModifier());
         state.setMaxDamage(this.stateDefinition.getMaxDamage());
         state.setComboRoot(this.stateDefinition.getComboRoot());
         state.setSlashArtsKey(this.stateDefinition.getSpecialAttackType());
+
         List<ResourceLocation> var10000 = this.stateDefinition.getSpecialEffects();
         Objects.requireNonNull(state);
         var10000.forEach(state::addSpecialEffect);
+
         this.stateDefinition.getDefaultType().forEach((type) -> {
             switch (type) {
                 case BEWITCHED:
@@ -111,17 +117,21 @@ public class FantasySlashBladeDefinition {
                 case SEALED:
                     state.setSealed(true);
             }
-
         });
+
         state.setModel(this.renderDefinition.getModelName());
         state.setTexture(this.renderDefinition.getTextureName());
         state.setColorCode(this.renderDefinition.getSummonedSwordColor());
         state.setEffectColorInverse(this.renderDefinition.isSummonedSwordColorInverse());
         state.setCarryType(this.renderDefinition.getStandbyRenderType());
+
         if (!this.getName().equals(SlashBlade.prefix("none"))) {
             state.setTranslationKey(this.getTranslationKey());
         }
+
         result.getOrCreateTag().put("bladeState", state.serializeNBT());
+
+        // Fantasy Desire State Init
         IFantasySlashBladeState fdState = (IFantasySlashBladeState) result
                 .getCapability(ItemFantasySlashBlade.FDBLADESTATE).orElse(new FantasySlashBladeState(result));
         fdState.setSpecialCharge(this.fantasyDefinition.getSpecialCharge());
@@ -134,12 +144,18 @@ public class FantasySlashBladeDefinition {
         fdState.setSpecialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect());
         result.getOrCreateTag().put("fdBladeState", fdState.serializeNBT());
 
-        Iterator var4 = this.enchantments.iterator();
+        Iterator<EnchantmentDefinition> var4 = this.enchantments.iterator();
 
         while (var4.hasNext()) {
-            EnchantmentDefinition instance = (EnchantmentDefinition) var4.next();
-            Enchantment enchantment = (Enchantment) ForgeRegistries.ENCHANTMENTS.getValue(instance.getEnchantmentID());
-            result.enchant(enchantment, instance.getEnchantmentLevel());
+            EnchantmentDefinition instance = var4.next();
+            Enchantment enchantment = ForgeRegistries.ENCHANTMENTS.getValue(instance.getEnchantmentID());
+            if (enchantment != null) {
+                result.enchant(enchantment, instance.getEnchantmentLevel());
+            }
+        }
+
+        if (this.stateDefinition.isUnbreakable()) {
+            result.getOrCreateTag().putBoolean("Unbreakable", true);
         }
 
         return result;

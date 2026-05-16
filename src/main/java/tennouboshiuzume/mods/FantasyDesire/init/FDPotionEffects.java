@@ -26,6 +26,11 @@ public class FDPotionEffects {
                         CometElytraEffect::new);
         public static final RegistryObject<MobEffect> DIMENSION_BREAK = MOB_EFFECTS.register("dimension_break",
                         DimensionBreakEffect::new);
+        public static final RegistryObject<MobEffect> FROST_STORM = MOB_EFFECTS.register("frost_storm",
+                        FrostStormEffect::new);
+        public static final RegistryObject<MobEffect> FROST_BITE = MOB_EFFECTS.register("frost_bite",
+                        FrostBiteEffect::new);
+
         public static void register(IEventBus eventBus) {
                 MOB_EFFECTS.register(eventBus);
         }

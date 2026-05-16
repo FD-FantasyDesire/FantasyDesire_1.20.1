@@ -10,6 +10,12 @@
       "type": "slashblade:blade",
       "item": "slashblade:slashblade",
       "request": {
+        "enchantments": [
+          {
+            "id": "minecraft:unbreaking",
+            "lvl": 3
+          }
+        ],
         "kill": 500,
         "name": "slashblade:rodai_diamond"
       }

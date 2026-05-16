@@ -30,7 +30,8 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
     private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(EntityFDSlashEffect.class,
             EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> LIFETIME = SynchedEntityData.defineId(EntityFDSlashEffect.class,
-            EntityDataSerializers.INT);
+            EntityDataSerializers.INT);private static final EntityDataAccessor<Boolean> DISABLE_S_LEVEL_CRIT_PARTICLES = SynchedEntityData.defineId(EntityFDSlashEffect.class,
+            EntityDataSerializers.BOOLEAN);
 
     public EntityFDSlashEffect(EntityType<? extends EntitySlashEffect> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
@@ -41,6 +42,7 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
         super.defineSynchedData();
         this.entityData.define(SCALE, 1.0F);
         this.entityData.define(LIFETIME, 10);
+        this.entityData.define(DISABLE_S_LEVEL_CRIT_PARTICLES, false);
     }
 
     public void setScale(float scale) {
@@ -59,11 +61,20 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
         return this.entityData.get(LIFETIME);
     }
 
+    public void setDisableSLevelCritParticles(boolean disable) {
+        this.entityData.set(DISABLE_S_LEVEL_CRIT_PARTICLES, disable);
+    }
+
+    public boolean getDisableSLevelCritParticles() {
+        return this.entityData.get(DISABLE_S_LEVEL_CRIT_PARTICLES);
+    }
+
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putFloat("Scale", this.getScale());
         tag.putInt("Lifetime", this.getLifetime());
+        tag.putBoolean("DisableSLevelCritParticles", this.getDisableSLevelCritParticles());
     }
 
     @Override
@@ -74,6 +85,9 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
         }
         if (tag.contains("Lifetime")) {
             this.setLifetime(tag.getInt("Lifetime"));
+        }
+        if (tag.contains("DisableSLevelCritParticles")) {
+            this.setDisableSLevelCritParticles(tag.getBoolean("DisableSLevelCritParticles"));
         }
     }
 
@@ -146,7 +160,7 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
     }
 
     protected void spawnCritParticles(Vec3 start, Vector4f normal, Vector4f dir, Vec3 normal3d) {
-        if (IConcentrationRank.ConcentrationRanks.S.level < getRankCode().level) {
+        if (!getDisableSLevelCritParticles() && IConcentrationRank.ConcentrationRanks.S.level < getRankCode().level) {
             Vec3 vec3 = start.add(normal3d.scale(this.getBaseSize() * 2.5));
             this.level().addParticle(ParticleTypes.CRIT, vec3.x(), vec3.y(), vec3.z(), dir.x() + normal.x(),
                     dir.y() + normal.y(), dir.z() + normal.z());

@@ -6,13 +6,12 @@ import mods.flammpfeil.slashblade.registry.SlashBladeItems;
 import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
+import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +25,7 @@ public class ItemUtils {
     }
 
     public static void fillSEShards(CreativeModeTab.Output output) {
-        FDSpecialEffects.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
+        FDSpecialEffectsRegistry.SPECIAL_EFFECT.getEntries().forEach(specialEffectRegistryObject -> {
             SpecialEffect se = specialEffectRegistryObject.get();
             ItemStack sphere = new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get());
             CompoundTag tag = new CompoundTag();

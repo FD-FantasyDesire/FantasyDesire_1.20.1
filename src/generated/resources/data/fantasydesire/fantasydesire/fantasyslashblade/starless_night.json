@@ -23,7 +23,7 @@
   },
   "name": "fantasydesire:starless_night",
   "properties": {
-    "attack_base": 14.0,
+    "attack_base": 9.0,
     "max_damage": 1561,
     "slash_art": "fantasydesire:echoing_void",
     "special_effects": [

@@ -37,6 +37,7 @@ import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticlePr
 import tennouboshiuzume.mods.FantasyDesire.client.particle.ShardParticle;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.FrostCrownLayer;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItemsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
@@ -100,6 +101,7 @@ public class ClientHandler {
             if (renderer != null) {
                 PlayerRenderer rendererd = event.getSkin(skin);
                 rendererd.addLayer(new CometBladeLayer(rendererd));
+                rendererd.addLayer(new FrostCrownLayer(rendererd));
             }
         }
     }

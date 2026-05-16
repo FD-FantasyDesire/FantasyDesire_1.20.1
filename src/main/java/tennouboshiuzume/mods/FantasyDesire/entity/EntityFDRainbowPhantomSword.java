@@ -3,6 +3,7 @@ package tennouboshiuzume.mods.FantasyDesire.entity;
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSlashEffect;
 import mods.flammpfeil.slashblade.entity.Projectile;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;
@@ -17,6 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.utils.ColorUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
@@ -111,7 +113,7 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
             return;
         for (int i = 0; i < 7; i++) {
             int cl = ColorUtils.getSmoothTransitionColor(i, 7, true);
-            EntitySlashEffect jc = new EntitySlashEffect(SlashBlade.RegistryEvents.SlashEffect, player.level());
+            EntityFDSlashEffect jc = new EntityFDSlashEffect(FDEntitys.FDSlashEffect.get(), player.level());
             Vec3 pos = centerPosition.add(
                     new Vec3(0, 0, jc.getBbHeight() / 2).yRot(-(float) Math.toRadians(360 / 7 * i + player.getYRot())));
             jc.setPos(pos.x, pos.y + this.getBbHeight() / 2, pos.z);
@@ -124,6 +126,7 @@ public class EntityFDRainbowPhantomSword extends EntityFDPhantomSword {
             jc.setIsCritical(false);
             jc.setDamage(0.5);
             jc.setKnockBack(KnockBacks.cancel);
+            jc.setDisableSLevelCritParticles(true); // Disable S.Level crit particles
             if (player != null) {
                 player.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT).ifPresent((rank) -> {
                     jc.setRank(rank.getRankLevel(player.level().getGameTime()));

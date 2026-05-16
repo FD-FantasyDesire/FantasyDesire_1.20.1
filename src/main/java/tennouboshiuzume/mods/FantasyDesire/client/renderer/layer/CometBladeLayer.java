@@ -2,7 +2,6 @@ package tennouboshiuzume.mods.FantasyDesire.client.renderer.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
@@ -13,12 +12,8 @@ import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
-import org.checkerframework.checker.units.qual.A;
-import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffects;
-import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
+import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -45,18 +40,18 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
 
         boolean hasTyrant = CapabilityUtils.SEConditionMatcher.of(player)
                 .requireTranslation("item.fantasydesire.chikeflare")
-                .requireSE(FDSpecialEffects.TyrantStrike)
+                .requireSE(FDSpecialEffectsRegistry.TyrantStrike)
                 .match() != null;
 
         boolean hasShield = CapabilityUtils.SEConditionMatcher.of(player)
                 .requireTranslation("item.fantasydesire.chikeflare")
-                .requireSE(FDSpecialEffects.SoulShield)
+                .requireSE(FDSpecialEffectsRegistry.SoulShield)
                 .match() != null;
 
         boolean hasImmortal = CapabilityUtils.SEConditionMatcher.of(player)
                 .allowBothHands()
                 .requireTranslation("item.fantasydesire.chikeflare")
-                .requireSE(FDSpecialEffects.ImmortalSoul)
+                .requireSE(FDSpecialEffectsRegistry.ImmortalSoul)
                 .match() != null;
 
         if (!hasTyrant && !hasShield && !hasImmortal) {

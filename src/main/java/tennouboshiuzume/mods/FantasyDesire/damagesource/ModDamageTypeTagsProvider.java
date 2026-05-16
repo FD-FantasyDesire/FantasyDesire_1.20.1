@@ -25,20 +25,9 @@ public class ModDamageTypeTagsProvider extends DamageTypeTagsProvider {
                 .add(FDDamageSource.OMEGA)
                 .add(FDDamageSource.ETERNITY)
         ;
-//      无视无敌帧
+//      无视无敌
         this.tag(DamageTypeTags.BYPASSES_INVULNERABILITY)
-                .add(FDDamageSource.DIMENSION)
-                .add(FDDamageSource.OMEGA)
                 .add(FDDamageSource.ETERNITY)
-                .add(FDDamageSource.RESOLUTION)
-                .add(FDDamageSource.ECHO)
-                .add(FDDamageSource.WRATH)
-                .add(FDDamageSource.LUST)
-                .add(FDDamageSource.SLOTH)
-                .add(FDDamageSource.GLUTTONY)
-                .add(FDDamageSource.GLOOM)
-                .add(FDDamageSource.PRIDE)
-                .add(FDDamageSource.ENVY)
         ;
 //      无视盾牌
         this.tag(DamageTypeTags.BYPASSES_SHIELD)

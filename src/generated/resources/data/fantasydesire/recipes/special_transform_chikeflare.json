@@ -1,0 +1,19 @@
+{
+  "type": "fantasydesire:special_transform",
+  "add1Tooltip": "jei.fantasydesire.special_transform.chikeflare",
+  "baseTooltip": "jei.fantasydesire.special_transform.slashblade.any",
+  "blade": "fantasydesire:chikeflare",
+  "ingredients": [
+    {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {}
+    },
+    {
+      "item": "slashblade:proudsoul_sphere"
+    }
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  }
+}

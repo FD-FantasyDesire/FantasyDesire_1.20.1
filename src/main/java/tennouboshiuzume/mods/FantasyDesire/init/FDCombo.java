@@ -6,12 +6,11 @@ import mods.flammpfeil.slashblade.event.handler.FallHandler;
 import mods.flammpfeil.slashblade.init.DefaultResources;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
 import mods.flammpfeil.slashblade.registry.combo.ComboState;
-import mods.flammpfeil.slashblade.util.AttackHelper;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -19,12 +18,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
-import tennouboshiuzume.mods.FantasyDesire.specialattack.EchoingVoid;
-import tennouboshiuzume.mods.FantasyDesire.specialattack.RainbowStar;
-import tennouboshiuzume.mods.FantasyDesire.specialattack.TwinSlash;
-import tennouboshiuzume.mods.FantasyDesire.specialattack.WingToTheFuture;
-import tennouboshiuzume.mods.FantasyDesire.specialeffect.globalevent.DelayTaskManager;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.EchoingVoid;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.FreezeZero;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.RainbowStar;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.TwinSlash;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.WingToTheFuture;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
@@ -483,6 +481,7 @@ public class FDCombo extends ComboStateRegistry {
                                                         .put((int) TimeValueHelper.getTicksFromFrames(30), entityIn -> {
                                                                 ItemUtils.ConvertModel(entityIn.getMainHandItem(),
                                                                                 "models/sn_huge.obj");
+                                                                entityIn.playSound(SoundEvents.TRIDENT_THUNDER, 1.0f, 1.5f);
                                                                 for (int i = 0; i < 16; i++) {
                                                                         Vec3 start = entityIn.position().add(0,
                                                                                         entityIn.getBbHeight() / 2, 0);
@@ -509,7 +508,7 @@ public class FDCombo extends ComboStateRegistry {
                                                         entityIn -> AddonSlashUtils.doAddonFDSlash(entityIn,
                                                                         180 - 42,
                                                                         entityIn.getYRot(), 0, 0x8000FF, 0, Vec3.ZERO,
-                                                                        false, false, 1f, KnockBacks.cancel, 10f, 10))
+                                                                        false, false, 0.1f, KnockBacks.cancel, 10f, 10))
                                                         .build())::build);
 
         public static final RegistryObject<ComboState> ECHOING_VOID_2 = FD_COMBO_STATES.register("echoing_void_2",
@@ -518,42 +517,70 @@ public class FDCombo extends ComboStateRegistry {
                                                         entity -> FantasyDesire.prefix("echoing_void_end")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("echoing_void_end"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(4, (entityIn) -> AddonSlashUtils.doAddonEnderSlash(
+                                                        .put(4, (entityIn) -> EchoingVoid.doEnderSlash(
                                                                         entityIn,
                                                                         0,
                                                                         entityIn.getYRot() + 180, 0, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 1f, KnockBacks.cancel, 10f,
+                                                                        false, false, 3f, KnockBacks.cancel, 10f,
                                                                         10))
-                                                        .put(5, (entityIn) -> AddonSlashUtils.doAddonEnderSlash(
+                                                        .put(5, (entityIn) -> EchoingVoid.doEnderSlash(
                                                                         entityIn,
                                                                         0,
                                                                         entityIn.getYRot() + 270, 0, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 1f, KnockBacks.cancel, 10f,
+                                                                        false, false, 5f, KnockBacks.cancel, 10f,
                                                                         10))
-                                                        .put(6, (entityIn) -> AddonSlashUtils.doAddonEnderSlash(
+                                                        .put(6, (entityIn) -> EchoingVoid.doEnderSlash(
                                                                         entityIn,
                                                                         0,
                                                                         entityIn.getYRot(), +360, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 1f, KnockBacks.cancel, 10f,
+                                                                        false, false, 7f, KnockBacks.cancel, 10f,
                                                                         10))
-                                                        .put(7, (entityIn) -> AddonSlashUtils.doAddonEnderSlash(
+                                                        .put(7, (entityIn) -> EchoingVoid.doEnderSlash(
                                                                         entityIn,
                                                                         0,
                                                                         entityIn.getYRot() + 450, 0, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 1f, KnockBacks.cancel, 10f,
+                                                                        false, false, 9f, KnockBacks.cancel, 10f,
                                                                         10))
-                                                        .put((int) TimeValueHelper.getTicksFromFrames(17),
-                                                                        entityIn -> ItemUtils.ConvertModel(
-                                                                                        entityIn.getMainHandItem(),
-                                                                                        "models/sn.obj"))
                                                         .build())::build);
 
         public static final RegistryObject<ComboState> ECHOING_VOID_END = FD_COMBO_STATES.register("echoing_void_end",
                         ComboState.Builder.newInstance().startAndEnd(743, 764).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> SlashBlade.prefix("none"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(0, AttackManager::playQuickSheathSoundAction).build())
+                                        .releaseAction(ComboState::releaseActionQuickCharge)::build);
+
+        // 寒霜风暴
+        public static final RegistryObject<ComboState> FREEZE_ZERO = FD_COMBO_STATES.register("freeze_zero",
+                        ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> FreezeZero.AntiNTR(entity)
+                                                        ? FantasyDesire.prefix("freeze_zero_0")
+                                                        : SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> FreezeZero.AntiNTR(entity)
+                                                        ? FantasyDesire.prefix("freeze_zero_0")
+                                                        : SlashBlade.prefix("none"))::build);
+
+        public static final RegistryObject<ComboState> FREEZE_ZERO_0 = FD_COMBO_STATES.register("freeze_zero_0",
+                        ComboState.Builder.newInstance().startAndEnd(1, 33).priority(50)
+                                        .motionLoc(DefaultResources.testLocation)
+                                        .next(ComboState.TimeoutNext.buildFromFrame(33,
+                                                        entity -> FantasyDesire.prefix("freeze_zero_end")))
+                                        .nextOfTimeout(entity -> FantasyDesire.prefix("freeze_zero_end"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put((int) TimeValueHelper.getTicksFromFrames(30), entityIn -> {
+                                                                FreezeZero.FreezeZero(entityIn);
+                                                                entityIn.playSound(SoundEvents.EVOKER_CAST_SPELL, 1.0f, 1.2f);
+                                                        }).build())::build);
+
+        public static final RegistryObject<ComboState> FREEZE_ZERO_END = FD_COMBO_STATES.register("freeze_zero_end",
+                        ComboState.Builder.newInstance().startAndEnd(33, 48).priority(50)
                                         .motionLoc(DefaultResources.ExMotionLocation)
                                         .next(entity -> SlashBlade.prefix("none"))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
