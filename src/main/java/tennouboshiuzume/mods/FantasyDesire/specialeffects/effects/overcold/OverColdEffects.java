@@ -7,8 +7,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
+import tennouboshiuzume.mods.FantasyDesire.specialeffects.FDSpecialEffectBase;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 @SuppressWarnings("removal")
@@ -23,6 +25,7 @@ public class OverColdEffects {
         // 使用新的 SEConditionMatcher，只检查翻译键
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, null)
                 .requireTranslation("item.fantasydesire.over_cold")
+                .requireSE(FDSpecialEffectsRegistry.EvolutionIce)
                 .match();
         if (ctx == null)
             return;
@@ -61,12 +64,4 @@ public class OverColdEffects {
         }
     }
 
-    @SubscribeEvent
-    public static void OnUpdate(SlashBladeEvent.UpdateEvent event) {
-        ItemStack blade = event.getBlade();
-        if (!(blade.getItem() instanceof ItemFantasySlashBlade))
-            return;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-    }
 }

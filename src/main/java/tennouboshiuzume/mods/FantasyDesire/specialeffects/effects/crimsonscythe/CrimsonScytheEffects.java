@@ -13,6 +13,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDHuntSword;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
@@ -79,8 +80,8 @@ public class CrimsonScytheEffects {
                 ss.setRoll(random.nextInt(180));
                 ss.setDamage(0.001);
                 ss.setSpeed(1);
-                ss.setStandbyMode("PLAYER");
-                ss.setMovingMode("SEEK");
+                ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
+                ss.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
                 ss.setDelay(120);
                 ss.setDelayTicks(1);
                 ss.setSeekDelay(5);

@@ -94,8 +94,8 @@ public class FrostStormEffect extends MobEffect {
                     ss.setDelay(20); // 存在时间 20 tick
                     ss.setParticleType(ParticleTypes.SNOWFLAKE);
                     ss.setHasTail(true);
-                    ss.setStandbyMode("WORLD");
-                    ss.setMovingMode("NORMAL");
+                    ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
+                    ss.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
                     ss.setNoClip(false);
                     ss.setColor(0x6699FF);
                     ss.setDelayTicks(0); // 无发射延迟，立即发射

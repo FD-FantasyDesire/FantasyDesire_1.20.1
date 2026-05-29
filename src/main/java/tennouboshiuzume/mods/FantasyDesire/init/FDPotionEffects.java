@@ -30,6 +30,8 @@ public class FDPotionEffects {
                         FrostStormEffect::new);
         public static final RegistryObject<MobEffect> FROST_BITE = MOB_EFFECTS.register("frost_bite",
                         FrostBiteEffect::new);
+        public static final RegistryObject<MobEffect> ECHO_TIMER = MOB_EFFECTS.register("echo_timer",
+                        EchoTimerEffect::new);
 
         public static void register(IEventBus eventBus) {
                 MOB_EFFECTS.register(eventBus);

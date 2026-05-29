@@ -66,8 +66,8 @@ public class WingToTheFuture {
                 ss.setCenterOffset(new Vec3(0, player.getEyeHeight(), 0));
                 ss.setColor(front ? 0xFFFF00 : 0x00FFFF);
                 ss.setRoll(front ? -45.0f : 45.0f);
-                ss.setStandbyMode("PLAYER");
-                ss.setMovingMode("ADV_SEEK");
+                ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
+                ss.setMovingMode(EntityFDPhantomSword.MovingMode.ADV_SEEK);
                 ss.setSpeed(2.5f);
                 // ss.setParticleType(ParticleTypes.END_ROD);
                 ss.setStandbyYawPitch(-yRotDeg, xRotDeg);
@@ -131,8 +131,8 @@ public class WingToTheFuture {
         ss.setCenterOffset(centerOffset);
         ss.setColor(color);
         ss.setRoll(roll);
-        ss.setStandbyMode("PLAYER");
-        ss.setMovingMode("SEEK");
+        ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
+        ss.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
         ss.setSpeed(0.5f);
         ss.setStandbyYawPitch(sYaw, sPitch);
         ss.setPos(player.position());

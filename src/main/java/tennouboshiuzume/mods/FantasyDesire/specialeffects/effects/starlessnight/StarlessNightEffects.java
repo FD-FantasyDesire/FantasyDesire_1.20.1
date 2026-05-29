@@ -123,8 +123,8 @@ public class StarlessNightEffects {
         ResourceLocation currentCombo = CapabilityUtils.getBladeState(blade).getComboSeq();
         ResourceLocation newCombo = event.getCombo();
 
-        // 检查是否从 EchoingVoid 连段切换到其他连段
-        if (isEchoingVoidCombo(currentCombo) && !isEchoingVoidCombo(newCombo)) {
+        // 检查新的连段是否不是 EchoingVoid 的白名单连段
+        if (!isEchoingVoidCombo(newCombo)) {
             // 切换回原始模型
             ItemUtils.ConvertModel(blade, "models/sn.obj");
         }
@@ -136,24 +136,31 @@ public class StarlessNightEffects {
             return false;
         }
         String comboPath = combo.getPath();
-        return comboPath.equals("echoing_void") || 
-               comboPath.equals("echoing_void_0") || 
-               comboPath.equals("echoing_void_1") || 
-               comboPath.equals("echoing_void_2") || 
-               comboPath.equals("echoing_void_end");
+        return comboPath.equals("echoing_void") ||
+                comboPath.equals("echoing_void_0") ||
+                comboPath.equals("echoing_void_1") ||
+                comboPath.equals("echoing_void_2") ||
+                comboPath.equals("echoing_void_end");
     }
 
     private static void stackVoidStrike(LivingEntity entity) {
-        int duration = 60;
-        int amplifier = 0;
+        stackVoidStrike(entity, 1);
+    }
+
+    public static void stackVoidStrike(LivingEntity entity, int stacks) {
+        if (stacks <= 0)
+            return;
         MobEffect voidStrike = FDPotionEffects.VOID_STRIKE.get();
-        // 如果已有这个效果，叠加等级
         MobEffectInstance current = entity.getEffect(voidStrike);
+        int duration = 200; // max duration 10 seconds (200 ticks)
+        int amplifier = stacks - 1;
+
         if (current != null) {
-            amplifier = Math.min(current.getAmplifier() + 1, 5);
-            duration = current.getDuration();
+            amplifier = current.getAmplifier() + stacks;
         }
-        entity.addEffect(new MobEffectInstance(voidStrike, duration, amplifier));
+        amplifier = Math.min(amplifier, 49); // max 50 stacks
+
+        entity.forceAddEffect(new MobEffectInstance(voidStrike, duration, amplifier), null);
     }
 
     // 重置无敌帧
@@ -198,7 +205,7 @@ public class StarlessNightEffects {
         // 链式传递，最多连锁3次
         LivingEntity currentTarget = primaryTarget;
         Vec3 prevTargetPos = primaryTarget.position().add(0, primaryTarget.getBbHeight() / 2, 0);
-        
+
         for (int chainCount = 0; chainCount < 3; chainCount++) {
             // 从剩余目标中选择层数最低的（排除当前目标）
             LivingEntity nextTarget = null;
@@ -221,33 +228,30 @@ public class StarlessNightEffects {
 
             Vec3 nextTargetPos = nextTarget.position().add(0, nextTarget.getBbHeight() / 2, 0);
 
-            // 从上一个目标生成闪电到当前目标（链式传递）
-            ParticleUtils.LightBoltParticles(
-                    player.level(),
-                    prevTargetPos,
-                    nextTargetPos,
-                    0x8000ff, // 紫色
-                    0.05f, // 粗细
-                    5, // 存活时间
-                    1.0f, // 透明度
-                    true, // 渐隐
-                    0.5, // 随机性
-                    3 // 细分层级
-            );
+            // 连线和环形粒子效果
+            if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                int lineColor = 0x8000ff;
+                int baseLifetime = 20;
+                tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions lineOpts = new tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions(
+                        prevTargetPos, nextTargetPos, lineColor, 0.05f, 1.0f, true, baseLifetime);
+                serverLevel.sendParticles(lineOpts, prevTargetPos.x, prevTargetPos.y, prevTargetPos.z, 1, 0, 0, 0, 0);
 
-            // 在目标位置播放环形末地烛粒子效果，半径2，粒子数量8
-            ParticleUtils.generateRingParticles(
-                    ParticleTypes.END_ROD,
-                    nextTarget.level(),
-                    nextTarget.getX(),
-                    nextTarget.getY() + nextTarget.getBbHeight() / 2,
-                    nextTarget.getZ(),
-                    2.0, // 半径
-                    8 // 粒子数量
-            );
-            
+                double distance = prevTargetPos.distanceTo(nextTargetPos);
+                int numRings = (int) (distance / 2.0);
+                if (numRings > 0) {
+                    net.minecraft.world.phys.Vec3 direction = nextTargetPos.subtract(prevTargetPos).normalize();
+                    for (int i = 1; i <= numRings; i++) {
+                        net.minecraft.world.phys.Vec3 ringPos = prevTargetPos.add(direction.scale(i * 2.0));
+                        int ringLifetime = baseLifetime + i * 5;
+                        tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions ringOpts = new tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions(
+                                lineColor, 0.2f, 0.05f, ringLifetime);
+                        serverLevel.sendParticles(ringOpts, ringPos.x, ringPos.y, ringPos.z, 1, 0, 0, 0, 0);
+                    }
+                }
+            }
+
             stackVoidStrike(nextTarget);
-            
+
             // 更新当前目标和上一个目标位置，用于下一次链式传递
             currentTarget = nextTarget;
             prevTargetPos = nextTargetPos;
@@ -256,8 +260,6 @@ public class StarlessNightEffects {
 
     // 获取实体的虚空强袭层数
     private static int getVoidStrikeLayers(LivingEntity entity) {
-        MobEffect voidStrike = FDPotionEffects.VOID_STRIKE.get();
-        MobEffectInstance effect = entity.getEffect(voidStrike);
-        return effect != null ? effect.getAmplifier() + 1 : 0;
+        return tennouboshiuzume.mods.FantasyDesire.potioneffect.VoidStrikeEffect.getVoidStrikeLayers(entity);
     }
 }

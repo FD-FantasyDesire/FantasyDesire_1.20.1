@@ -23,6 +23,7 @@ import tennouboshiuzume.mods.FantasyDesire.slasharts.FreezeZero;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.RainbowStar;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.TwinSlash;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.WingToTheFuture;
+import tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.starlessnight.StarlessNightEffects;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
@@ -84,40 +85,16 @@ public class FDCombo extends ComboStateRegistry {
                         "wing_to_the_future_elytra",
                         ComboState.Builder.newInstance().startAndEnd(400, 459).priority(50)
                                         .motionLoc(DefaultResources.ExMotionLocation)
-                                        .next(entity -> FantasyDesire.prefix("wing_to_the_future_elytra_loops1"))
-                                        .nextOfTimeout(entity -> FantasyDesire
-                                                        .prefix("wing_to_the_future_elytra_loops1"))
+                                        .next(entity -> FantasyDesire.prefix("wing_to_the_future_end"))
+                                        .nextOfTimeout(entity -> FantasyDesire.prefix("wing_to_the_future_end"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(1, entityIn -> WingToTheFuture.WingToTheFutureElytra(
-                                                                        entityIn, entityIn.getMainHandItem()))
+                                                        .put(1, entityIn -> {
+                                                                entityIn.addEffect(new MobEffectInstance(
+                                                                                FDPotionEffects.COMET_ELYTRA.get(),
+                                                                                1200, 0));
+                                                        })
                                                         .build())
                                         .addHitEffect(StunManager::setStun)::build);
-
-        public static final RegistryObject<ComboState> WING_TO_THE_FUTURE_ELYTRA_LOOPS1 = FD_COMBO_STATES.register(
-                        "wing_to_the_future_elytra_loops1",
-                        ComboState.Builder.newInstance().startAndEnd(0, 1).loop().timeout(5000).priority(50)
-                                        .motionLoc(DefaultResources.ExMotionLocation)
-                                        .next(entity -> FantasyDesire.prefix("wing_to_the_future_end"))
-                                        .nextOfTimeout(entity -> entity.isFallFlying()
-                                                        ? FantasyDesire.prefix("wing_to_the_future_elytra_loops2")
-                                                        : FantasyDesire.prefix("wing_to_the_future_end"))
-                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(1, entityIn -> WingToTheFuture.WingToTheFutureElytra(
-                                                                        entityIn, entityIn.getMainHandItem()))
-                                                        .build())::build);
-
-        public static final RegistryObject<ComboState> WING_TO_THE_FUTURE_ELYTRA_LOOPS2 = FD_COMBO_STATES.register(
-                        "wing_to_the_future_elytra_loops2",
-                        ComboState.Builder.newInstance().startAndEnd(0, 1).loop().timeout(5000).priority(50)
-                                        .motionLoc(DefaultResources.ExMotionLocation)
-                                        .next(entity -> FantasyDesire.prefix("wing_to_the_future_end"))
-                                        .nextOfTimeout(entity -> entity.isFallFlying()
-                                                        ? FantasyDesire.prefix("wing_to_the_future_elytra_loops2")
-                                                        : FantasyDesire.prefix("wing_to_the_future_end"))
-                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(1, entityIn -> WingToTheFuture.WingToTheFutureElytra(
-                                                                        entityIn, entityIn.getMainHandItem()))
-                                                        .build())::build);
 
         public static final RegistryObject<ComboState> WING_TO_THE_FUTURE_END = FD_COMBO_STATES.register(
                         "wing_to_the_future_end",
@@ -481,7 +458,8 @@ public class FDCombo extends ComboStateRegistry {
                                                         .put((int) TimeValueHelper.getTicksFromFrames(30), entityIn -> {
                                                                 ItemUtils.ConvertModel(entityIn.getMainHandItem(),
                                                                                 "models/sn_huge.obj");
-                                                                entityIn.playSound(SoundEvents.TRIDENT_THUNDER, 1.0f, 1.5f);
+                                                                entityIn.playSound(SoundEvents.TRIDENT_THUNDER, 1.0f,
+                                                                                1.5f);
                                                                 for (int i = 0; i < 16; i++) {
                                                                         Vec3 start = entityIn.position().add(0,
                                                                                         entityIn.getBbHeight() / 2, 0);
@@ -509,7 +487,10 @@ public class FDCombo extends ComboStateRegistry {
                                                                         180 - 42,
                                                                         entityIn.getYRot(), 0, 0x8000FF, 0, Vec3.ZERO,
                                                                         false, false, 0.1f, KnockBacks.cancel, 10f, 10))
-                                                        .build())::build);
+                                                        .build())
+                                        .addHitEffect((target, attacker) -> {
+                                                StarlessNightEffects.stackVoidStrike(target, 10);
+                                        })::build);
 
         public static final RegistryObject<ComboState> ECHOING_VOID_2 = FD_COMBO_STATES.register("echoing_void_2",
                         ComboState.Builder.newInstance().startAndEnd(725, 743).priority(50)
@@ -550,12 +531,30 @@ public class FDCombo extends ComboStateRegistry {
         public static final RegistryObject<ComboState> ECHOING_VOID_END = FD_COMBO_STATES.register("echoing_void_end",
                         ComboState.Builder.newInstance().startAndEnd(743, 764).priority(50)
                                         .motionLoc(DefaultResources.ExMotionLocation)
-                                        .next(entity -> SlashBlade.prefix("none"))
+                                        .next(ComboState.TimeoutNext.buildFromFrame(21,
+                                                        entity -> SlashBlade.prefix("none")))
+                                        .nextOfTimeout(entity -> FantasyDesire.prefix("echoing_void_end2"))::build);
+
+        public static final RegistryObject<ComboState> ECHOING_VOID_END2 = FD_COMBO_STATES.register("echoing_void_end2",
+                        ComboState.Builder.newInstance().startAndEnd(764, 787).priority(50).speed(0.5f)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(ComboState.TimeoutNext.buildFromFrame(21,
+                                                        entity -> SlashBlade.prefix("none")))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(0, AttackManager::playQuickSheathSoundAction).build())
+                                                        .put(0, AttackManager::playQuickSheathSoundAction)
+                                                        .put(1, (entityIn) -> {
+                                                                java.util.List<net.minecraft.world.entity.LivingEntity> targets = tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector
+                                                                                .getLivingEntitiesInRadius(entityIn,
+                                                                                                entityIn.position(),
+                                                                                                40.0, false, null);
+                                                                for (net.minecraft.world.entity.LivingEntity target : targets) {
+                                                                        tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper
+                                                                                        .detonateArea(target, 10.0);
+                                                                }
+                                                        })
+                                                        .build())
                                         .releaseAction(ComboState::releaseActionQuickCharge)::build);
-
         // 寒霜风暴
         public static final RegistryObject<ComboState> FREEZE_ZERO = FD_COMBO_STATES.register("freeze_zero",
                         ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
@@ -576,7 +575,8 @@ public class FDCombo extends ComboStateRegistry {
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .put((int) TimeValueHelper.getTicksFromFrames(30), entityIn -> {
                                                                 FreezeZero.FreezeZero(entityIn);
-                                                                entityIn.playSound(SoundEvents.EVOKER_CAST_SPELL, 1.0f, 1.2f);
+                                                                entityIn.playSound(SoundEvents.EVOKER_CAST_SPELL, 1.0f,
+                                                                                1.2f);
                                                         }).build())::build);
 
         public static final RegistryObject<ComboState> FREEZE_ZERO_END = FD_COMBO_STATES.register("freeze_zero_end",
@@ -587,4 +587,75 @@ public class FDCombo extends ComboStateRegistry {
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .put(0, AttackManager::playQuickSheathSoundAction).build())
                                         .releaseAction(ComboState::releaseActionQuickCharge)::build);
+
+        public static final RegistryObject<ComboState> FREEZE_ZERO_JUST = FD_COMBO_STATES.register("freeze_zero_just",
+                        ComboState.Builder.newInstance().startAndEnd(1923, 1928).priority(45).speed(0.75F)
+                                        .next(entity -> FantasyDesire.prefix("freeze_zero_just"))
+                                        .nextOfTimeout(entity -> FantasyDesire.prefix("freeze_zero_just_end"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(1, entityIn -> {
+                                                                FreezeZero.FreezeZero(entityIn);
+                                                                entityIn.playSound(SoundEvents.EVOKER_CAST_SPELL, 1.0f,
+                                                                                1.2f);
+                                                        }).build())::build);
+
+        public static final RegistryObject<ComboState> FREEZE_ZERO_JUST_END = FD_COMBO_STATES.register(
+                        "freeze_zero_just_end",
+                        ComboState.Builder.newInstance().startAndEnd(1928, 1963).priority(50)
+                                        .next(entity -> SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> SlashBlade.prefix("none"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(0, AttackManager::playQuickSheathSoundAction).build())
+                                        .releaseAction(ComboState::releaseActionQuickCharge)::build);
+
+        // SmartPistol 模式切换
+        public static final RegistryObject<ComboState> CHARGE_SHOT = FD_COMBO_STATES.register("charge_shot",
+                        ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
+                                                        .AntiNTR(entity)
+                                                                        ? FantasyDesire.prefix("smart_pistol_a_to_b")
+                                                                        : SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
+                                                        .AntiNTR(entity)
+                                                                        ? FantasyDesire.prefix("smart_pistol_a_to_b")
+                                                                        : SlashBlade.prefix("none"))::build);
+
+        public static final RegistryObject<ComboState> OVER_CHARGE = FD_COMBO_STATES.register("over_charge",
+                        ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
+                                                        .AntiNTR(entity)
+                                                                        ? FantasyDesire.prefix("smart_pistol_b_to_a")
+                                                                        : SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
+                                                        .AntiNTR(entity)
+                                                                        ? FantasyDesire.prefix("smart_pistol_b_to_a")
+                                                                        : SlashBlade.prefix("none"))::build);
+
+        public static final RegistryObject<ComboState> SMART_PISTOL_A_TO_B = FD_COMBO_STATES.register(
+                        "smart_pistol_a_to_b",
+                        ComboState.Builder.newInstance().startAndEnd(0, 1).priority(80)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> SlashBlade.prefix("none"))
+                                        .clickAction(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
+                                                        .TransformToB(tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
+                                                                        .getBladeState(entity.getMainHandItem()),
+                                                                        tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
+                                                                                        .getFantasyBladeState(entity
+                                                                                                        .getMainHandItem())))::build);
+
+        public static final RegistryObject<ComboState> SMART_PISTOL_B_TO_A = FD_COMBO_STATES.register(
+                        "smart_pistol_b_to_a",
+                        ComboState.Builder.newInstance().startAndEnd(0, 1).priority(80)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> SlashBlade.prefix("none"))
+                                        .clickAction(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
+                                                        .TransformToA(tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
+                                                                        .getBladeState(entity.getMainHandItem()),
+                                                                        tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
+                                                                                        .getFantasyBladeState(entity
+                                                                                                        .getMainHandItem())))::build);
 }

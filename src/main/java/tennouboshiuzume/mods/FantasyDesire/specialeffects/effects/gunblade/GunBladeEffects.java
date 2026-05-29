@@ -43,7 +43,7 @@ public class GunBladeEffects {
         if (!(event.getUser() instanceof Player player))
             return;
         // shift不触发SE
-        if (player.isShiftKeyDown())
+        if (player.isShiftKeyDown() || player.getCooldowns().isOnCooldown(blade.getItem()))
             return;
 
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, player)
@@ -72,7 +72,7 @@ public class GunBladeEffects {
                 .requireSE(FDSpecialEffectsRegistry.ThunderBullet)
                 .match() != null;
 
-        int cost = TripleOn && !EnergyOn ? 1 : 2;
+        int cost = TripleOn && !EnergyOn ? 1 : 6;
         int soulcost = 36;
         // 简单装填检测
         if (ammo < cost) {
@@ -162,30 +162,37 @@ public class GunBladeEffects {
                 + state.getAttackAmplifier()
                 + blade.getEnchantmentLevel(Enchantments.POWER_ARROWS) * 5;
 
-        EntityFDEnergyBullet bullet = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
+        int pelletCount = thunder ? 4 : 8;
 
-        bullet.setIsCritical(false);
-        bullet.setOwner(player);
-        bullet.setColor(thunder ? 0xFFFF00 : state.getColorCode());
-        bullet.setRoll(random.nextInt(180));
-        bullet.setDamage(damage);
-        bullet.setNoClip(true);
-        bullet.setSpeed(5f);
+        for (int i = 0; i < pelletCount; i++) {
+            EntityFDEnergyBullet bullet = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
 
-        bullet.setStandbyMode("PLAYER");
-        bullet.setMovingMode("NORMAL");
+            bullet.setIsCritical(false);
+            bullet.setOwner(player);
+            bullet.setColor(thunder ? 0xFFFF00 : state.getColorCode());
+            bullet.setRoll(random.nextInt(180));
+            bullet.setDamage(damage / (pelletCount / 2.0f)); // 分摊伤害，但略微提升总伤
+            // bullet.setNoClip(true);
+            bullet.setSpeed(3f);
+            bullet.setGroundLifespan(5);
+            bullet.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
+            bullet.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
+            bullet.setDelay(10);
+            bullet.setDelayTicks(0);
+            bullet.setMultipleHit(true);
+            bullet.setPierce((byte) 3); // 可以穿透3个目标
+            bullet.setExpRadius(thunder ? 6 : 0);
+            bullet.setFireSound(SoundEvents.SHULKER_SHOOT, 1, 2f);
+            bullet.setHasTail(true);
+            bullet.setScale(0.5f);
 
-        bullet.setDelay(60);
-        bullet.setDelayTicks(1);
+            float spread = 2.5f; // 15度散射角
+            bullet.setStandbyYawPitch(
+                    (float) random.nextGaussian() * spread,
+                    (float) random.nextGaussian() * spread);
 
-        bullet.setMultipleHit(true);
-        bullet.setExpRadius(thunder ? 5 : 0);
-
-        bullet.setFireSound(SoundEvents.SHULKER_SHOOT, 1, 2f);
-        bullet.setHasTail(true);
-        bullet.setScale(0.5f);
-
-        spawnProjectile(player, bullet);
+            spawnProjectile(player, bullet);
+        }
     }
 
     private static void spawnProjectile(Player player, Entity ss) {
@@ -217,8 +224,8 @@ public class GunBladeEffects {
         ss.setRoll(random.nextInt(180));
         ss.setDamage(damage);
         ss.setSpeed(speed);
-        ss.setStandbyMode("PLAYER");
-        ss.setMovingMode("SEEK");
+        ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
+        ss.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
         ss.setDelay(delay + index);
         ss.setDelayTicks(index);
         ss.setSeekDelay(2 + index);
@@ -268,11 +275,11 @@ public class GunBladeEffects {
 
         int amp = existing == null ? 0 : Math.min(existing.getAmplifier() + 1, 18);
 
-        target.addEffect(new MobEffectInstance(
+        target.forceAddEffect(new MobEffectInstance(
                 FDPotionEffects.MISSILE_LOCKED.get(),
                 60,
                 amp,
-                false, false, true));
+                false, false, true), null);
     }
 
     // 填弹上膛

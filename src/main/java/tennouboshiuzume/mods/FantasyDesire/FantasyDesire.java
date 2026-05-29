@@ -50,6 +50,7 @@ public class FantasyDesire {
         @SubscribeEvent
         public static void onRegisterCapability(final RegisterCapabilitiesEvent event) {
             CapabilityFantasySlashBlade.register(event);
+            event.register(tennouboshiuzume.mods.FantasyDesire.capability.IEchoDamageCap.class);
         }
 
         @SubscribeEvent

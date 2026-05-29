@@ -1,7 +1,9 @@
 package tennouboshiuzume.mods.FantasyDesire.entity;
 
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import mods.flammpfeil.slashblade.entity.Projectile;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -13,74 +15,85 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions;
+import mods.flammpfeil.slashblade.util.TargetSelector;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
-public class EntityFDEnergyBullet extends EntityFDDriveEx{
+public class EntityFDEnergyBullet extends EntityFDPhantomSword {
+
     public EntityFDEnergyBullet(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult entityHitResult) {
-        Entity targetEntity = entityHitResult.getEntity();
-        Entity shooter = this.getShooter();
-        DamageSource damagesource;
-        targetEntity.invulnerableTime = 0;
-        if (shooter == null) {
-            damagesource = this.damageSources().indirectMagic(this, this);
-        } else {
-            damagesource = this.damageSources().indirectMagic(this, shooter);
-        }
-        if (targetEntity.hurt(damagesource, (float) this.getDamage())){
-            this.playSound(this.getHitEntitySound(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-            if (this.getExpRadius() > 0) {
-                List<Entity> excludeList = new ArrayList<>();
-                excludeList.add(this);
-                excludeList.add(this.getShooter());
-                List<LivingEntity> targets = FDTargetSelector.getNearbyLivingEntities(targetEntity, this.getExpRadius(),false,excludeList);
-                for (LivingEntity target : targets) {
-                    Vec3 start = targetEntity.position().add(0,target.getBbHeight()/2,0);
-                    Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);
-                    if (this.level() instanceof ServerLevel serverLevel) {
-                        ParticleUtils.LightBoltParticles(serverLevel,start,end,this.getColor(),0.05f,10,0.25f,false,2,4);
-                        serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,target.position().x,target.position().y+target.getBbHeight()/2,target.position().z,10,0,0,0,0.5);
-                    }
-                    target.invulnerableTime = 0;
-                    target.hurt(damagesource, (float) this.getDamage());
-                    target.invulnerableTime = 0;
-                }
-            }
-        }
+    public void tick() {
+        super.tick();
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult blockraytraceresult) {
-        if (this.getExpRadius() > 0) {
-            List<Entity> excludeList = new ArrayList<>();
-            excludeList.add(this);
-            excludeList.add(this.getShooter());
-            List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), this.getExpRadius(),false,excludeList);
+    protected void doExplosive() {
+        if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
+            float expRadius = this.getExpRadius();
+            if (expRadius <= 0)
+                return;
+
+            int color = this.getColor();
+            Vec3 center = this.position();
+
+            // 1. Spreading ring particle
+            SpreadingRingParticleOptions options = new SpreadingRingParticleOptions(color, expRadius, 0.5f, 10);
+            serverLevel.sendParticles(options, center.x, center.y, center.z, 1, 0, 0, 0, 0);
+
+            // 2. Find up to 5 entities within the ExpRadius
+            Entity shooterEntity = this.getShooter();
+            List<Entity> excludes = new ArrayList<>();
+            excludes.add(this);
+            if (shooterEntity != null) {
+                excludes.add(shooterEntity);
+            }
+            List<LivingEntity> targets = new ArrayList<>(
+                    FDTargetSelector.getLivingEntitiesInRadius(
+                            shooterEntity != null ? shooterEntity : this,
+                            center,
+                            expRadius,
+                            false,
+                            excludes));
+
+            // Sort by distance to the projectile
+            targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(this)));
+
+            int hitCount = 0;
             for (LivingEntity target : targets) {
-                Vec3 start = this.position();
-                Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);
-                if (this.level() instanceof ServerLevel serverLevel) {
-                    ParticleUtils.LightBoltParticles(serverLevel,start,end,this.getColor(),0.05f,10,0.25f,false,2,4);
-                    serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,target.position().x,target.position().y+target.getBbHeight()/2,target.position().z,10,0,0,0,0.5);
-                }
+                if (hitCount >= 5)
+                    break;
+
+                // Deal damage
                 Entity shooter = this.getShooter();
-                DamageSource damagesource;
-                if (shooter == null) {
-                    damagesource = this.damageSources().indirectMagic(this, this);
-                } else {
-                    damagesource = this.damageSources().indirectMagic(this, shooter);
+                DamageSource source = shooter == null ? this.damageSources().indirectMagic(this, this)
+                        : this.damageSources().indirectMagic(this, shooter);
+
+                target.invulnerableTime = 0;
+                if (target.hurt(source, (float) this.getDamage())) {
+                    // Create lightning particle lines
+                    Vec3 targetCenter = target.position().add(0, target.getBbHeight() / 2.0, 0);
+                    ParticleUtils.LightBoltParticles(
+                            serverLevel,
+                            center,
+                            targetCenter,
+                            color,
+                            0.05f, // thickness
+                            10, // lifetime
+                            1.0f, // alpha
+                            true, // fade
+                            0.5, // randomness
+                            3 // maxSegments
+                    );
+                    hitCount++;
                 }
-                target.invulnerableTime = 0;
-                target.hurt(damagesource, (float) this.getDamage());
-                target.invulnerableTime = 0;
             }
         }
-        this.burst();
     }
 }

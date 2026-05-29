@@ -34,7 +34,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleProvider;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.ShardParticle;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleProvider;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleProvider;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.ColorShardParticle;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.EnderShardParticle;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.FrostCrownLayer;
@@ -86,8 +89,8 @@ public class ClientHandler {
         event.registerEntityRenderer(FDEntitys.FDPhantomSword.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDDriveEx.get(), FDDriveExRender::new);
         event.registerEntityRenderer(FDEntitys.FDRainbowPhantomSword.get(), FDPhantomSwordRender::new);
-        event.registerEntityRenderer(FDEntitys.FDEnergyBullet.get(), FDEnergyBulletRender::new);
-        event.registerEntityRenderer(FDEntitys.FDBFG.get(), FDEnergyBulletRender::new);
+        event.registerEntityRenderer(FDEntitys.FDEnergyBullet.get(), FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDBFG.get(), FDBFGRender::new);
         event.registerEntityRenderer(FDEntitys.RefinedMissile.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDHuntSword.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDSlashEffect.get(), FDSlashEffectRender::new);
@@ -109,6 +112,9 @@ public class ClientHandler {
     @SubscribeEvent
     public static void onRegisterFactories(RegisterParticleProvidersEvent event) {
         event.registerSpecial(FDParticles.GLOWING_LINE.get(), new GlowingLineParticleProvider());
-        event.registerSpecial(FDParticles.SHARD.get(), new ShardParticle.Provider(null));
+        event.registerSpecial(FDParticles.SPREADING_RING.get(), new SpreadingRingParticleProvider());
+        event.registerSpecial(FDParticles.FLAT_SPREADING_RING.get(), new FlatSpreadingRingParticleProvider());
+        event.registerSpecial(FDParticles.COLOR_SHARD.get(), new ColorShardParticle.Provider());
+        event.registerSpecial(FDParticles.ENDER_SHARD.get(), new EnderShardParticle.Provider(null));
     }
 }

@@ -3,6 +3,7 @@ package tennouboshiuzume.mods.FantasyDesire.entity;
 import mods.flammpfeil.slashblade.entity.Projectile;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,26 +23,46 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
 
     @Override
     public void customEffectFired() {
+        if (this.tickCount % 5 != 0)
+            return; // 降低攻击频率，每5tick攻击一次
+
         List<Entity> excludeList = new ArrayList<>();
         excludeList.add(this.getShooter());
-        List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), 25,false,excludeList);
+        excludeList.add(this);
+        // 大范围搜索敌人
+        List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), 25, false,
+                excludeList);
         for (LivingEntity target : targets) {
             Vec3 start = this.position();
             Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);
+
+            // 造成伤害
+            DamageSource damagesource;
+            Entity shooter = this.getShooter();
+            if (shooter == null) {
+                damagesource = this.damageSources().indirectMagic(this, this);
+            } else {
+                damagesource = this.damageSources().indirectMagic(this, shooter);
+            }
+            target.hurt(damagesource, (float) this.getDamage() * 0.2f); // 每次闪电造成20%伤害
+            target.invulnerableTime = 0; // 确保可以被高频攻击
+
             if (this.level() instanceof ServerLevel serverLevel) {
-                ParticleUtils.LightBoltParticles(serverLevel,start,end,this.getColor(),0.1f,1,0.75f,false,2,8);
-                serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING,target.position().x,target.position().y+target.getBbHeight()/2,target.position().z,5,0,0,0,0.5);
+                ParticleUtils.LightBoltParticles(serverLevel, start, end, 0x00FF00, 0.1f, 1, 0.75f, false, 2, 8);
+                serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, target.position().x,
+                        target.position().y + target.getBbHeight() / 2, target.position().z, 5, 0, 0, 0, 0.5);
             }
         }
     }
 
-
-
     @Override
     protected void onHitBlock(BlockHitResult blockraytraceresult) {
         if (this.getExpRadius() > 0) {
-            this.level().explode(this.getShooter(), this.getX(), this.getY(), this.getZ(), this.getExpRadius(), Level.ExplosionInteraction.NONE);
+            this.level().explode(this.getShooter(), this.getX(), this.getY(), this.getZ(), this.getExpRadius(),
+                    Level.ExplosionInteraction.NONE);
             this.burst();
+        } else {
+            super.onHitBlock(blockraytraceresult);
         }
     }
 }

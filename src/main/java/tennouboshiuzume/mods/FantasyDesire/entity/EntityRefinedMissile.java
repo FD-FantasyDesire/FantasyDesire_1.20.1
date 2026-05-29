@@ -51,21 +51,19 @@ public class EntityRefinedMissile extends EntityFDPhantomSword {
             int minInterval = 2;
             int interval = (int) (maxInterval - (maxInterval - minInterval) * factor);
             interval = Math.max(1, interval);
-            if (this.tickCount % 20 == 0){
+            if (this.tickCount % 20 == 0) {
                 if (!this.level().isClientSide && target instanceof LivingEntity livingTarget) {
-                    MobEffectInstance existing =
-                            livingTarget.getEffect(FDPotionEffects.MISSILE_LOCKED.get());
+                    MobEffectInstance existing = livingTarget.getEffect(FDPotionEffects.MISSILE_LOCKED.get());
                     if (existing != null) {
-                        livingTarget.addEffect(
+                        livingTarget.forceAddEffect(
                                 new MobEffectInstance(
                                         FDPotionEffects.MISSILE_LOCKED.get(),
                                         60,
                                         existing.getAmplifier(),
                                         false,
                                         false,
-                                        true
-                                )
-                        );
+                                        true),
+                                this.getOwner());
                     }
                 }
             }

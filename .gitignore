@@ -22,7 +22,7 @@ eclipse
 run
 run-data
 deplib
-plan
+plans
 
 # Files from Forge MDK
 forge*changelog.txt

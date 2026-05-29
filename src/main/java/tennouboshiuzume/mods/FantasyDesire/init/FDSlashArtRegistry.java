@@ -7,7 +7,6 @@ import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.FDSlashArts;
 
-
 public class FDSlashArtRegistry {
         public static final DeferredRegister<SlashArts> FD_SLASH_ARTS = DeferredRegister.create(SlashArts.REGISTRY_KEY,
                         FantasyDesire.MODID);
@@ -22,14 +21,16 @@ public class FDSlashArtRegistry {
         public static final RegistryObject<SlashArts> TWIN_SYSTEM_R = FD_SLASH_ARTS.register("twin_system_r",
                         () -> new FDSlashArts((e) -> FDCombo.DOOM_SLASH.getId(), 4));
         public static final RegistryObject<SlashArts> CHARGE_SHOT = FD_SLASH_ARTS.register("charge_shot",
-                        () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), 2));
+                        () -> new FDSlashArts((e) -> FDCombo.CHARGE_SHOT.getId(), 2));
         public static final RegistryObject<SlashArts> OVER_CHARGE = FD_SLASH_ARTS.register("over_charge",
-                        () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), 2));
+                        () -> new FDSlashArts((e) -> FDCombo.OVER_CHARGE.getId(), 2));
         public static final RegistryObject<SlashArts> ECHOING_VOID = FD_SLASH_ARTS.register("echoing_void",
-                        () -> new FDSlashArts((e) -> FDCombo.ECHOING_VOID.getId(), 1));
+                        () -> new FDSlashArts((e) -> FDCombo.ECHOING_VOID.getId(), 3));
         public static final RegistryObject<SlashArts> FREEZE_ZERO = FD_SLASH_ARTS.register("freeze_zero",
-                        () -> new FDSlashArts((e) -> FDCombo.FREEZE_ZERO.getId(), 8));
-//        已废弃
-//        public static final RegistryObject<SlashArts> CHROMITE_COMET = FD_SLASH_ARTS.register("chromite_comet",
-//                        () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), 1));
+                        () -> new FDSlashArts((e) -> FDCombo.FREEZE_ZERO.getId(), 8)
+                                        .setComboStateJust((e) -> FDCombo.FREEZE_ZERO_JUST.getId()));
+        // 已废弃
+        // public static final RegistryObject<SlashArts> CHROMITE_COMET =
+        // FD_SLASH_ARTS.register("chromite_comet",
+        // () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), 1));
 }

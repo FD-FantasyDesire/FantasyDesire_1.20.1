@@ -133,8 +133,8 @@ public class TwinSlash {
             ss.setDamage(player.getMaxHealth() * 0.25);
             ss.setSpeed(1);
             ss.setColor(state.getColorCode());
-            ss.setStandbyMode("WORLD");
-            ss.setMovingMode("NORMAL");
+            ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
+            ss.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
             ss.setDelay(100);
             ss.setParticleType(ParticleTypes.ENCHANT);
             ss.setDelayTicks(40);

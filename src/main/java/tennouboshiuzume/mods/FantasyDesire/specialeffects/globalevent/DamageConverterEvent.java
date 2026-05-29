@@ -20,11 +20,14 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -37,7 +40,9 @@ import tennouboshiuzume.mods.FantasyDesire.utils.FDAttackManager;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -50,19 +55,6 @@ public class DamageConverterEvent {
             .get(new CapabilityToken<ISlashBladeState>() {
             });
     public static UUID ETERNITY_HEALTH_MODIFIER = UUID.fromString("a5b1b2f0-2f3c-4e3b-8a71-123456789abc");
-    // 根据伤害类型作出不同的效果追加
-    // 暴怒 特殊火焰 对持盾敌人造成3x伤害
-    // 色欲 使攻击者回复0.2生命值
-    // 暴食 使攻击者回复0.2饥饿值
-    // 忧郁 特殊溺水 消耗敌人的氧气条
-    // 傲慢 对拥有护甲的敌人1.5x伤害，暴击强化
-    // 嫉妒 对生命值大于你的敌人造成3x伤害
-    // 次元 真实伤害
-    // 永劫 伤害的10%造成生命值上限削减
-    // 吸收 使攻击者吸收同等生命值，溢出部分的10%转化为额外生命，最大20
-    // 决断 追加敌我生命值差值1/4的物理伤害
-    // 回响 对身上拥有虚空强袭的敌人增伤；击杀时溢出的伤害平均扩散至周围10米的敌人身上
-    // 终焉 直接斩杀当前生命值低于攻击者最大生命值的敌人
 
     // 伤害替换事件，用改进后的FDAttackManager处理特殊类型伤害
     @SubscribeEvent(priority = EventPriority.LOWEST)
@@ -85,11 +77,6 @@ public class DamageConverterEvent {
                 event.setDamage(0d);
             }
         }
-    }
-
-    // 重置无敌帧
-    public static void resetInvulnerable(Entity target) {
-        target.invulnerableTime = 0;
     }
 
     // 伤害造成前事件处理
@@ -121,61 +108,66 @@ public class DamageConverterEvent {
         if (!(attacker instanceof LivingEntity))
             return;
         LivingEntity attackerLiving = (LivingEntity) attacker;
-
         // 决断 (Resolution)
-        // 追加攻击方最大生命值25%的魔法伤害
+        // 追加本次伤害50%的魔法伤害
         if (source.is(FDDamageSource.RESOLUTION)) {
-            float extraDamage = attackerLiving.getHealth() * 0.25f;
-            if (attackerLiving instanceof Player) {
-                resetInvulnerable(target);
-                target.hurt(attackerLiving.damageSources().magic(), extraDamage);
-                resetInvulnerable(target);
-            } else {
-                resetInvulnerable(target);
-                target.hurt(attackerLiving.damageSources().magic(), extraDamage);
-                resetInvulnerable(target);
-            }
+            float extraDamage = amount * 0.5f;
+            resetInvulnerable(target);
+            target.hurt(attackerLiving.damageSources().magic(), extraDamage);
+            resetInvulnerable(target);
         }
         // 暴怒 (Wrath)
         if (source.is(FDDamageSource.WRATH)) {
-            if (target.isBlocking()) {
-                amount *= 3f;
-            }
-        }
-        // 色欲 (Lust)
-        if (source.is(FDDamageSource.LUST)) {
-            attackerLiving.heal(0.2f);
+            float missingHealthPercent = (target.getMaxHealth() - target.getHealth()) / target.getMaxHealth();
+            amount *= (1.0f + missingHealthPercent * 2.0f);
         }
         // 怠惰 (Sloth)
         if (source.is(FDDamageSource.SLOTH)) {
-            double moveSpeed = attackerLiving.getDeltaMovement().length();
-            double factor = 1.0 + (0.2 / Math.max(0.1, moveSpeed)); // 越慢倍率越高
-            amount *= (float) factor;
-        }
-        // 暴食 (Gluttony)
-        if (source.is(FDDamageSource.GLUTTONY)) {
-            if (attackerLiving instanceof Player player) {
-                player.getFoodData().eat(1, 0.2f);
+            if (target.level().random.nextFloat() < 0.5f) {
+                target.addEffect(new MobEffectInstance(net.minecraft.world.effect.MobEffects.MOVEMENT_SLOWDOWN, 20, 1));
+                target.addEffect(new MobEffectInstance(net.minecraft.world.effect.MobEffects.WEAKNESS, 20, 1));
             }
         }
         // 忧郁 (Gloom)
         if (source.is(FDDamageSource.GLOOM)) {
-            int oxygen = target.getAirSupply();
-            target.setAirSupply(Math.max(0, oxygen - (int) (amount * 3)));
-        }
-        // 傲慢 (Pride)
-        if (source.is(FDDamageSource.PRIDE)) {
-            if (attackerLiving.getDeltaMovement().y < 0 && !attackerLiving.onGround()) {
-                amount *= 2;
-            }
-            if (target.getArmorValue() > 0) {
+            int maxAir = target.getMaxAirSupply();
+            int currentAir = target.getAirSupply();
+            if (maxAir > 0) {
+                float airPercent = (float) currentAir / maxAir;
+                amount *= (1.0f + airPercent);
+                target.setAirSupply(0);
+            } else {
                 amount *= 1.5f;
             }
         }
+        // 傲慢 (Pride)
+        // 根据玩家当前生命值缩放
+        if (source.is(FDDamageSource.PRIDE)) {
+            float healthPercent = attackerLiving.getHealth() / attackerLiving.getMaxHealth();
+            float factor = 3.4375f * healthPercent - 0.4375f;
+            amount *= Math.max(0f, factor);
+        }
         // 嫉妒 (Envy)
+        // 根据双方护甲差，每1点+5%
         if (source.is(FDDamageSource.ENVY)) {
-            if (target.getHealth() > attackerLiving.getHealth()) {
-                amount *= 3f;
+            int targetArmor = target.getArmorValue();
+            int attackerArmor = attackerLiving.getArmorValue();
+            if (targetArmor > attackerArmor) {
+                int diff = targetArmor - attackerArmor;
+                amount *= (1.0f + diff * 0.05f);
+            }
+        }
+        // 回响（Echo）
+        if (source.is(FDDamageSource.ECHO)) {
+            target.forceAddEffect(new MobEffectInstance(FDPotionEffects.ECHO_TIMER.get(), 60, 0, false, false, false),
+                    attacker);
+            if (amount > 0.1f) {
+                float storeAmount = amount - 0.1f;
+                target.getCapability(tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider.ECHO_DAMAGE)
+                        .ifPresent(cap -> {
+                            cap.addDamage(attacker.getUUID(), storeAmount);
+                        });
+                amount = 0.1f;
             }
         }
         event.setAmount(amount);
@@ -193,12 +185,10 @@ public class DamageConverterEvent {
             return;
         LivingEntity attackerLiving = (LivingEntity) attacker;
         // 虚空强袭叠加对回响伤害增伤
-        if (target.hasEffect(FDPotionEffects.VOID_STRIKE.get())) {
-            MobEffect voidStrike = FDPotionEffects.VOID_STRIKE.get();
-            MobEffectInstance current = target.getEffect(voidStrike);
-            if (current != null) {
-                amount *= current.getAmplifier() + 1;
-            }
+        int voidStrikeLayers = tennouboshiuzume.mods.FantasyDesire.potioneffect.VoidStrikeEffect
+                .getVoidStrikeLayers(target);
+        if (voidStrikeLayers > 0) {
+            amount *= 1.0f + voidStrikeLayers * 0.1f;
         }
         // 永劫
         if (source.is(FDDamageSource.ETERNITY)) {
@@ -232,47 +222,43 @@ public class DamageConverterEvent {
                 attackerLiving.setAbsorptionAmount(newAbsorb);
             }
         }
-        if (source.is(FDDamageSource.ECHO)) {
-            float preHealth = target.getHealth();
-//            System.out.print(preHealth);
-            // 如果本次伤害足以击杀目标，计算溢出值
-            if (amount > 0 && preHealth > 0 && amount >= preHealth) {
-                float overflow = amount - preHealth;
-                if (overflow > 0) {
-                    // 使用 FDTargetSelector（基于 TargetSelector.AttackablePredicate）获取周围10米内的敌人
-                    List<LivingEntity> nearbyEnemies = FDTargetSelector.getLivingEntitiesInRadius(
-                            attackerLiving,
-                            target.position(),
-                            10.0,
-                            false,
-                            null);
-                    // 排除目标自身
-                    nearbyEnemies = nearbyEnemies.stream()
-                            .filter(e -> e.isAlive() && e.getId() != target.getId())
-                            .toList();
-                    if (!nearbyEnemies.isEmpty()) {
-                        // 平均分配溢出伤害
-                        float damagePerTarget = overflow / nearbyEnemies.size();
-                        for (LivingEntity enemy : nearbyEnemies) {
-                            resetInvulnerable(enemy);
-                            enemy.hurt(attackerLiving.damageSources().magic(), damagePerTarget);
-                            resetInvulnerable(enemy);
-                        }
-                    }
-                    target.playSound(SoundEvents.TRIDENT_RETURN, 1f, 1.5f);
-                    ParticleUtils.generateRingParticles(ParticleTypes.END_ROD, target.level(), target.getX(), 
-                            target.getY() + target.getBbHeight() / 4, target.getZ(), 10, 48);
+        // 色欲 (Lust)
+        if (source.is(FDDamageSource.LUST)) {
+            attackerLiving.heal(amount * 0.05f);
+        }
+        // 暴食 (Gluttony)
+        if (source.is(FDDamageSource.GLUTTONY)) {
+            if (attackerLiving instanceof Player player) {
+                float healFood = amount * 0.1f;
+                int foodNeeded = 20 - player.getFoodData().getFoodLevel();
+                if (healFood > foodNeeded) {
+                    player.getFoodData().setFoodLevel(20);
+                    float excess = healFood - foodNeeded;
+                    float bonusAbsorb = excess * 0.5f;
+                    float newAbsorb = Math.min(10f, attackerLiving.getAbsorptionAmount() + bonusAbsorb);
+                    attackerLiving.setAbsorptionAmount(newAbsorb);
+                } else {
+                    int newFood = Math.min(20, player.getFoodData().getFoodLevel() + (int) Math.max(1, healFood));
+                    player.getFoodData().setFoodLevel(newFood);
                 }
             }
         }
-
         event.setAmount(amount);
     }
 
     // 在玩家死亡时清理
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent event) {
-        clearEternity(event.getEntity());
+        LivingEntity entity = event.getEntity();
+        clearEternity(entity);
+    }
+
+    // 在实体进入世界时清理
+    @SubscribeEvent
+    public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof LivingEntity livingEntity) {
+            clearEternity(livingEntity);
+        }
     }
 
     // 在玩家上床时清理
@@ -281,15 +267,18 @@ public class DamageConverterEvent {
         clearEternity(event.getEntity());
     }
 
-    // 用于清理永劫计数
-    public static void clearEternity(LivingEntity entity) {
-        AttributeInstance maxHealth = entity.getAttribute(Attributes.MAX_HEALTH);
-        if (maxHealth != null && maxHealth.getModifier(ETERNITY_HEALTH_MODIFIER) != null) {
-            maxHealth.removeModifier(ETERNITY_HEALTH_MODIFIER);
+    // 终焉伤害禁用传送
+    @SubscribeEvent
+    public void onEntityTeleport(EntityTeleportEvent.ChorusFruit event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Player player) {
+            // 如果玩家处于禁传送状态，就阻止
+            if (player.hasEffect(FDPotionEffects.TELEPORT_BLOCKED.get())) {
+                event.setCanceled(true);
+            }
         }
     }
 
-    // 终焉伤害禁用传送
     @SubscribeEvent
     public void onEntityTeleport(EntityTeleportEvent.EnderPearl event) {
         Entity entity = event.getEntity();
@@ -308,4 +297,36 @@ public class DamageConverterEvent {
             event.setCanceled(true);
         }
     }
+
+    // 用于清理永劫计数
+    public static void clearEternity(LivingEntity entity) {
+        AttributeInstance maxHealth = entity.getAttribute(Attributes.MAX_HEALTH);
+        if (maxHealth != null && maxHealth.getModifier(ETERNITY_HEALTH_MODIFIER) != null) {
+            maxHealth.removeModifier(ETERNITY_HEALTH_MODIFIER);
+        }
+    }
+
+    // 重置无敌帧
+    public static void resetInvulnerable(Entity target) {
+        target.invulnerableTime = 0;
+    }
+
+    // 允许特定药水效果被强制赋予
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onMobEffectApplicable(MobEffectEvent.Applicable event) {
+        MobEffect effect = event.getEffectInstance().getEffect();
+        if (effect == FDPotionEffects.ECHO_TIMER.get() ||
+                effect == FDPotionEffects.VOID_STRIKE.get() ||
+                effect == FDPotionEffects.FROST_BITE.get() ||
+                effect == FDPotionEffects.FROST_STORM.get() ||
+                effect == FDPotionEffects.TELEPORT_BLOCKED.get() ||
+                effect == FDPotionEffects.DIMENSION_BREAK.get() ||
+                effect == FDPotionEffects.IMMORTAL_SOUL.get() ||
+                effect == FDPotionEffects.MISSILE_LOCKED.get() ||
+                effect == FDPotionEffects.RAINBOW_SEVEN_EDGE.get() ||
+                effect == FDPotionEffects.COMET_ELYTRA.get()) {
+            event.setResult(Result.ALLOW);
+        }
+    }
+
 }

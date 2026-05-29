@@ -147,8 +147,8 @@ public class ChikeFlareEffects {
             ss.setRoll(roll);
             ss.setDamage(target.getMaxHealth() / 4);
             ss.setSpeed(5);
-            ss.setStandbyMode("WORLD");
-            ss.setMovingMode("NORMAL");
+            ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
+            ss.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
             ss.setDelay(200);
             ss.setParticleType(ParticleTypes.EXPLOSION);
             ss.setDelayTicks(40);

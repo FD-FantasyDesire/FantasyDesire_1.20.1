@@ -54,6 +54,14 @@ import java.util.List;
 
 @SuppressWarnings("removal")
 public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
+    public enum StandbyMode {
+        NONE, PLAYER, WORLD
+    }
+
+    public enum MovingMode {
+        NORMAL, SEEK, ADV_SEEK
+    }
+
     // 发射延迟
     private static final EntityDataAccessor<Integer> DELAY_TICKS = SynchedEntityData
             .defineId(EntityFDPhantomSword.class, EntityDataSerializers.INT);
@@ -67,11 +75,11 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     private static final EntityDataAccessor<Integer> TARGET_ID = SynchedEntityData.defineId(EntityFDPhantomSword.class,
             EntityDataSerializers.INT);
     // 待命行为模式：绑定于玩家/绑定于世界 PLAYER/WORLD
-    private static final EntityDataAccessor<String> STANDBY_MODE = SynchedEntityData
-            .defineId(EntityFDPhantomSword.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Byte> STANDBY_MODE = SynchedEntityData
+            .defineId(EntityFDPhantomSword.class, EntityDataSerializers.BYTE);
     // 发射后行为模式：追踪/直射 NORMAL/SEEK/ADV_SEEK
-    private static final EntityDataAccessor<String> MOVING_MODE = SynchedEntityData.defineId(EntityFDPhantomSword.class,
-            EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Byte> MOVING_MODE = SynchedEntityData.defineId(EntityFDPhantomSword.class,
+            EntityDataSerializers.BYTE);
     // 待命固定朝向 (无论是玩家还是世界)
     private static final EntityDataAccessor<Float> STANDBY_YAW = SynchedEntityData.defineId(EntityFDPhantomSword.class,
             EntityDataSerializers.FLOAT);
@@ -115,6 +123,10 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     // 拖尾节点数
     private static final EntityDataAccessor<Integer> TAIL_NODES = SynchedEntityData.defineId(EntityFDPhantomSword.class,
             EntityDataSerializers.INT);
+    // 落地后存活时间
+    private static final EntityDataAccessor<Integer> GROUND_LIFESPAN = SynchedEntityData.defineId(
+            EntityFDPhantomSword.class,
+            EntityDataSerializers.INT);
 
     protected boolean inited = false;
     protected boolean isSeeking = false;
@@ -136,8 +148,8 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.define(SEEK_DELAY, 0);
         this.entityData.define(SCALE, 1.0f);
         this.entityData.define(TARGET_ID, -1);
-        this.entityData.define(STANDBY_MODE, "WORLD");// “PLAYER” or "WORLD"
-        this.entityData.define(MOVING_MODE, "NORMAL");// "NORMAL" or "SEEK"
+        this.entityData.define(STANDBY_MODE, (byte) StandbyMode.WORLD.ordinal());// “PLAYER” or "WORLD"
+        this.entityData.define(MOVING_MODE, (byte) MovingMode.NORMAL.ordinal());// "NORMAL" or "SEEK"
         this.entityData.define(STANDBY_YAW, 0f);
         this.entityData.define(STANDBY_PITCH, 0f);
         this.entityData.define(PARTICLE_TYPES, "Null");
@@ -153,6 +165,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.define(FORCE_TAIL, false);
         this.entityData.define(SEEK_ANGLE, 18.0f);
         this.entityData.define(TAIL_NODES, 8);
+        this.entityData.define(GROUND_LIFESPAN, 100);
     }
 
     @Override
@@ -166,7 +179,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         // Example：
         // 有目标，发射延迟<追踪延迟：以初始方向发射后再追踪敌人
         // 绑定于世界，有目标，无追踪延迟，有发射延迟：以基础方向生成，并且立即开始转向目标，延迟结束时按朝向发射
-        // 我的天哪怎么能有扩展性这么烂的基类，我都快把这玩意重写了个遍
         if (getShooter() == null || !getShooter().isAlive()) {
             if (tickCount > 20)
                 remove(RemovalReason.DISCARDED);
@@ -179,7 +191,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                 return;
         }
         // 待命绑定校准
-        if (getStandbyMode().equals("PLAYER") && getOwner() != null) {
+        if (getStandbyMode() == StandbyMode.PLAYER && getOwner() != null) {
             if (!getFired()) {
                 if (this.tickCount < this.getDelayTicks()) {
                     updateStandbyOrientationByShooter();
@@ -187,7 +199,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                     fire();
                 }
             }
-        } else if (getStandbyMode().equals("WORLD") && getOwner() != null) {
+        } else if (getStandbyMode() == StandbyMode.WORLD && getOwner() != null) {
             if (!getFired()) {
                 if (this.tickCount < this.getDelayTicks()) {
                     updateStandbyOrientation();
@@ -199,9 +211,9 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         // 发射后
         if (getFired()) {
             customEffectFired();
-            String movingMode = this.getMovingMode();
+            MovingMode movingMode = this.getMovingMode();
             if (tickCount > getSeekDelay()
-                    && (movingMode.equals("SEEK") || movingMode.equals("ADV_SEEK"))
+                    && (movingMode == MovingMode.SEEK || movingMode == MovingMode.ADV_SEEK)
                     && !getInGround()) { // 只有在未撞墙/未落地时才追踪
                 boolean targetFound = false;
                 if (getTargetId() != -1) {
@@ -215,7 +227,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
                     }
                 }
                 // 高级追踪逻辑，如果没有目标可以用视线指引
-                if (!targetFound && movingMode.equals("ADV_SEEK") && getShooter() instanceof LivingEntity shooter) {
+                if (!targetFound && movingMode == MovingMode.ADV_SEEK && getShooter() instanceof LivingEntity shooter) {
                     // 16m内可以无视地形追踪，为某些SA防止卡地形设计
                     if (this.distanceTo(shooter) >= 16) {
                         this.setNoClip(false);
@@ -253,6 +265,15 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         // 常驻播放粒子
         if (!getInGround() && (getPierce() > 0 || getHitEntity() == null))
             playparticle();
+
+        // 落地后倒计时消失
+        if (this.getInGround()) {
+            int currentLifespan = this.getGroundLifespan() - 1;
+            this.setGroundLifespan(currentLifespan);
+            if (currentLifespan <= 0 && !this.level().isClientSide()) {
+                this.discard();
+            }
+        }
     }
 
     public void customEffectFired() {
@@ -647,8 +668,8 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         tag.putInt("SeekDelay", this.entityData.get(SEEK_DELAY));
         tag.putFloat("Scale", this.entityData.get(SCALE));
         tag.putInt("TargetId", this.entityData.get(TARGET_ID));
-        tag.putString("StandbyMode", this.entityData.get(STANDBY_MODE));
-        tag.putString("MovingMode", this.entityData.get(MOVING_MODE));
+        tag.putByte("StandbyMode", this.entityData.get(STANDBY_MODE));
+        tag.putByte("MovingMode", this.entityData.get(MOVING_MODE));
         tag.putFloat("StandbyYaw", this.entityData.get(STANDBY_YAW));
         tag.putFloat("StandbyPitch", this.entityData.get(STANDBY_PITCH));
         tag.putString("ParticleTypes", this.entityData.get(PARTICLE_TYPES));
@@ -674,6 +695,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         tag.putBoolean("ForceTail", this.entityData.get(FORCE_TAIL));
         tag.putFloat("SeekAngle", this.entityData.get(SEEK_ANGLE));
         tag.putInt("TailNodes", this.entityData.get(TAIL_NODES));
+        tag.putInt("GroundLifespan", this.entityData.get(GROUND_LIFESPAN));
     }
 
     @Override
@@ -683,8 +705,24 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(SEEK_DELAY, tag.getInt("SeekDelay"));
         this.entityData.set(SCALE, tag.getFloat("Scale"));
         this.entityData.set(TARGET_ID, tag.getInt("TargetId"));
-        this.entityData.set(STANDBY_MODE, tag.getString("StandbyMode"));
-        this.entityData.set(MOVING_MODE, tag.getString("MovingMode"));
+        if (tag.contains("StandbyMode", 99)) {
+            this.entityData.set(STANDBY_MODE, tag.getByte("StandbyMode"));
+        } else if (tag.contains("StandbyMode", 8)) {
+            try {
+                this.entityData.set(STANDBY_MODE, (byte) StandbyMode.valueOf(tag.getString("StandbyMode")).ordinal());
+            } catch (Exception e) {
+                this.entityData.set(STANDBY_MODE, (byte) StandbyMode.WORLD.ordinal());
+            }
+        }
+        if (tag.contains("MovingMode", 99)) {
+            this.entityData.set(MOVING_MODE, tag.getByte("MovingMode"));
+        } else if (tag.contains("MovingMode", 8)) {
+            try {
+                this.entityData.set(MOVING_MODE, (byte) MovingMode.valueOf(tag.getString("MovingMode")).ordinal());
+            } catch (Exception e) {
+                this.entityData.set(MOVING_MODE, (byte) MovingMode.NORMAL.ordinal());
+            }
+        }
         this.entityData.set(STANDBY_YAW, tag.getFloat("StandbyYaw"));
         this.entityData.set(STANDBY_PITCH, tag.getFloat("StandbyPitch"));
         this.entityData.set(PARTICLE_TYPES, tag.getString("ParticleTypes"));
@@ -714,6 +752,9 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.set(FORCE_TAIL, tag.getBoolean("ForceTail"));
         this.entityData.set(SEEK_ANGLE, tag.getFloat("SeekAngle"));
         this.entityData.set(TAIL_NODES, tag.getInt("TailNodes"));
+        if (tag.contains("GroundLifespan")) {
+            this.entityData.set(GROUND_LIFESPAN, tag.getInt("GroundLifespan"));
+        }
     }
 
     private void updateStandbyOrientationByShooter() {
@@ -800,13 +841,13 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     }
 
     public void tryInit() {
-        if (this.getStandbyMode().equals("WORLD")) {
+        if (this.getStandbyMode() == StandbyMode.WORLD) {
             this.yRotO = -getStandbyYawPitch()[0];
             this.xRotO = -getStandbyYawPitch()[1];
             this.setYRot(this.yRotO);
             this.setXRot(this.xRotO);
             inited = true;
-        } else if (this.getStandbyMode().equals("PLAYER") && getShooter() != null) {
+        } else if (this.getStandbyMode() == StandbyMode.PLAYER && getShooter() != null) {
 
             Vec3 pos = this.getShooter().position().add(this.getCenterOffset());
             Vec3 offset = this.getOffset();
@@ -880,21 +921,45 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     }
 
     // 待命行为模式：PLAYER / WORLD
-    public String getStandbyMode() {
-        return this.entityData.get(STANDBY_MODE);
+    public StandbyMode getStandbyMode() {
+        byte ordinal = this.entityData.get(STANDBY_MODE);
+        if (ordinal >= 0 && ordinal < StandbyMode.values().length) {
+            return StandbyMode.values()[ordinal];
+        }
+        return StandbyMode.WORLD;
     }
 
-    public void setStandbyMode(String mode) {
-        this.entityData.set(STANDBY_MODE, mode);
+    public void setStandbyMode(StandbyMode mode) {
+        this.entityData.set(STANDBY_MODE, (byte) mode.ordinal());
+    }
+
+    public void setStandbyMode(String modeStr) {
+        try {
+            setStandbyMode(StandbyMode.valueOf(modeStr));
+        } catch (IllegalArgumentException e) {
+            setStandbyMode(StandbyMode.WORLD);
+        }
     }
 
     // 发射后行为模式：NORMAL / TRACKING
-    public String getMovingMode() {
-        return this.entityData.get(MOVING_MODE);
+    public MovingMode getMovingMode() {
+        byte ordinal = this.entityData.get(MOVING_MODE);
+        if (ordinal >= 0 && ordinal < MovingMode.values().length) {
+            return MovingMode.values()[ordinal];
+        }
+        return MovingMode.NORMAL;
     }
 
-    public void setMovingMode(String mode) {
-        this.entityData.set(MOVING_MODE, mode);
+    public void setMovingMode(MovingMode mode) {
+        this.entityData.set(MOVING_MODE, (byte) mode.ordinal());
+    }
+
+    public void setMovingMode(String modeStr) {
+        try {
+            setMovingMode(MovingMode.valueOf(modeStr));
+        } catch (IllegalArgumentException e) {
+            setMovingMode(MovingMode.NORMAL);
+        }
     }
 
     // 待命固定朝向
@@ -1021,6 +1086,14 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
     public int getTailNodes() {
         return this.entityData.get(TAIL_NODES);
+    }
+
+    public void setGroundLifespan(int lifespan) {
+        this.entityData.set(GROUND_LIFESPAN, lifespan);
+    }
+
+    public int getGroundLifespan() {
+        return this.entityData.get(GROUND_LIFESPAN);
     }
 
     //////////////////////////

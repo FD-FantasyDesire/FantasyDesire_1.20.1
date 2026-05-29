@@ -40,6 +40,9 @@ import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 import static mods.flammpfeil.slashblade.SlashBladeConfig.REFINE_DAMAGE_MULTIPLIER;
@@ -92,7 +95,7 @@ public class EntityFDDriveEx extends EntityFDPhantomSword {
         NBTHelper.getNBTCoupler(compound).put("BaseSize", this.getBaseSize())
                 .put("Speed", this.getSpeed()).put("Color", this.getColor()).put("Rank", this.getRank())
                 .put("damage", this.damage).put("crit", this.getIsCritical()).put("clip", this.isNoClip())
-               .put("Knockback", this.getKnockBack().ordinal());
+                .put("Knockback", this.getKnockBack().ordinal());
     }
 
     @Override
@@ -106,10 +109,9 @@ public class EntityFDDriveEx extends EntityFDPhantomSword {
                 .get("Knockback", this::setKnockBackOrdinal);
     }
 
-//    @Override
-//    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-//        return NetworkHooks.getEntitySpawningPacket(this);
-//    }
+    public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
+        return super.getAddEntityPacket();
+    }
 
     @Override
     @OnlyIn(Dist.CLIENT)
@@ -135,10 +137,11 @@ public class EntityFDDriveEx extends EntityFDPhantomSword {
                 this.remove(RemovalReason.DISCARDED);
         }
     }
+
     private void refreshFlags() {
         int newValue;
         if (this.level().isClientSide()) {
-            newValue = (Integer)this.entityData.get(FLAGS);
+            newValue = (Integer) this.entityData.get(FLAGS);
             if (this.intFlags != newValue) {
                 this.intFlags = newValue;
 
@@ -227,19 +230,21 @@ public class EntityFDDriveEx extends EntityFDPhantomSword {
         }
 
         targetEntity.invulnerableTime = 0;
-        if(this.getOwner() instanceof LivingEntity living) {
+        if (this.getOwner() instanceof LivingEntity living) {
             damageValue *= living.getAttributeValue(Attributes.ATTACK_DAMAGE);
-            //评分等级加成
-            if (living instanceof Player player){
+            // 评分等级加成
+            if (living instanceof Player player) {
                 IConcentrationRank.ConcentrationRanks rankBonus = player
                         .getCapability(ConcentrationRankCapabilityProvider.RANK_POINT)
                         .map(rp -> rp.getRank(player.getCommandSenderWorld().getGameTime()))
                         .orElse(IConcentrationRank.ConcentrationRanks.NONE);
                 float rankDamageBonus = rankBonus.level / 2.0f;
                 if (IConcentrationRank.ConcentrationRanks.S.level <= rankBonus.level) {
-                    int refine = player.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE).map(rp -> rp.getRefine()).orElse(0);
+                    int refine = player.getMainHandItem().getCapability(ItemSlashBlade.BLADESTATE)
+                            .map(rp -> rp.getRefine()).orElse(0);
                     int level = player.experienceLevel;
-                    rankDamageBonus = (float) Math.max(rankDamageBonus, Math.min(level, refine) * REFINE_DAMAGE_MULTIPLIER.get());
+                    rankDamageBonus = (float) Math.max(rankDamageBonus,
+                            Math.min(level, refine) * REFINE_DAMAGE_MULTIPLIER.get());
                 }
                 damageValue += rankDamageBonus;
             }

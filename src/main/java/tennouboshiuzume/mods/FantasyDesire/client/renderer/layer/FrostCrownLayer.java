@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 
+// 寒霜风暴 附加寒霜王冠特效
 public class FrostCrownLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
     public FrostCrownLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> parent) {

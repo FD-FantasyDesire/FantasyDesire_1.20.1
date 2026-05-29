@@ -21,7 +21,6 @@ public class ModDamageTypeTagsProvider extends DamageTypeTagsProvider {
 //      无视护甲
         this.tag(DamageTypeTags.BYPASSES_ARMOR)
                 .add(FDDamageSource.DIMENSION)
-                .add(FDDamageSource.LUST)
                 .add(FDDamageSource.OMEGA)
                 .add(FDDamageSource.ETERNITY)
         ;
@@ -33,27 +32,19 @@ public class ModDamageTypeTagsProvider extends DamageTypeTagsProvider {
         this.tag(DamageTypeTags.BYPASSES_SHIELD)
                 .add(FDDamageSource.OMEGA)
                 .add(FDDamageSource.WRATH);
-
 //      火焰伤害
-        this.tag(DamageTypeTags.IS_FIRE)
-                .add(FDDamageSource.WRATH);
-
+        this.tag(DamageTypeTags.IS_FIRE);
 //      射弹伤害
-        this.tag(DamageTypeTags.IS_PROJECTILE)
-                .add(FDDamageSource.LUST);
+        this.tag(DamageTypeTags.IS_PROJECTILE);
 
 //      冰冻伤害
-        this.tag(DamageTypeTags.IS_FREEZING)
-                .add(FDDamageSource.SLOTH);
-
+        this.tag(DamageTypeTags.IS_FREEZING);
 //      溺水伤害
-        this.tag(DamageTypeTags.IS_DROWNING)
-                .add(FDDamageSource.GLOOM);
+        this.tag(DamageTypeTags.IS_DROWNING);
 
 //      无视抗性药水效果
         this.tag(DamageTypeTags.BYPASSES_RESISTANCE)
                 .add(FDDamageSource.OMEGA)
-                .add(FDDamageSource.GLUTTONY)
                 .add(FDDamageSource.DIMENSION);
     }
 }

@@ -19,12 +19,13 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 @OnlyIn(Dist.CLIENT)
-public class ShardParticle extends Particle {
+public class EnderShardParticle extends Particle {
     private final SpriteSet sprites;
     private static final ResourceLocation END_SKY_LOCATION = new ResourceLocation("textures/environment/end_sky.png");
     private static final ResourceLocation END_PORTAL_LOCATION = new ResourceLocation("textures/entity/end_portal.png");
 
-    public ShardParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed,
+    public EnderShardParticle(ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed,
+            double zSpeed,
             SpriteSet sprites) {
         super(level, x, y, z);
         this.sprites = sprites;
@@ -45,15 +46,19 @@ public class ShardParticle extends Particle {
             this.remove();
         } else {
             this.move(this.xd, this.yd, this.zd);
+            float threshold = this.lifetime * 0.8F;
+            if (this.age > threshold) {
+                this.alpha = Math.max(0.0F, 1.0F - ((float) (this.age - threshold) / (this.lifetime * 0.2F)));
+            }
         }
     }
 
     @Override
     public void render(VertexConsumer consumer, Camera camera, float partialTicks) {
         Vec3 vec3 = camera.getPosition();
-        float f = (float) (this.x - vec3.x);
-        float f1 = (float) (this.y - vec3.y);
-        float f2 = (float) (this.z - vec3.z);
+        float f = (float) (net.minecraft.util.Mth.lerp(partialTicks, this.xo, this.x) - vec3.x);
+        float f1 = (float) (net.minecraft.util.Mth.lerp(partialTicks, this.yo, this.y) - vec3.y);
+        float f2 = (float) (net.minecraft.util.Mth.lerp(partialTicks, this.zo, this.z) - vec3.z);
         Quaternionf quaternionf = new Quaternionf();
         // Calculate rotation based on movement direction
         if (this.xd != 0 || this.yd != 0 || this.zd != 0) {
@@ -100,11 +105,12 @@ public class ShardParticle extends Particle {
     }
 
     private void renderTriangle(VertexConsumer consumer, Vector3f v1, Vector3f v2, Vector3f v3) {
-        // Simple white color, full alpha for now
-        consumer.vertex(v1.x(), v1.y(), v1.z()).color(255, 255, 255, 255).endVertex();
-        consumer.vertex(v2.x(), v2.y(), v2.z()).color(255, 255, 255, 255).endVertex();
-        consumer.vertex(v3.x(), v3.y(), v3.z()).color(255, 255, 255, 255).endVertex();
-        consumer.vertex(v3.x(), v3.y(), v3.z()).color(255, 255, 255, 255).endVertex();
+        int a = (int) (this.alpha * 255.0F);
+        // Simple white color
+        consumer.vertex(v1.x(), v1.y(), v1.z()).color(255, 255, 255, a).endVertex();
+        consumer.vertex(v2.x(), v2.y(), v2.z()).color(255, 255, 255, a).endVertex();
+        consumer.vertex(v3.x(), v3.y(), v3.z()).color(255, 255, 255, a).endVertex();
+        consumer.vertex(v3.x(), v3.y(), v3.z()).color(255, 255, 255, a).endVertex();
     }
 
     @Override
@@ -128,7 +134,7 @@ public class ShardParticle extends Particle {
 
         @Override
         public String toString() {
-            return "fantasydesire:shard";
+            return "fantasydesire:ender_shard";
         }
     };
 
@@ -143,7 +149,7 @@ public class ShardParticle extends Particle {
         @Override
         public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z,
                 double xSpeed, double ySpeed, double zSpeed) {
-            return new ShardParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites);
+            return new EnderShardParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, sprites);
         }
     }
 }
