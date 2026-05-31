@@ -1,0 +1,336 @@
+package tennouboshiuzume.mods.FantasyDesire.client.renderer.entity;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
+import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
+import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDHuntSword;
+
+import java.util.List;
+
+@OnlyIn(Dist.CLIENT)
+public class FDHuntSwordRender<T extends EntityFDHuntSword> extends EntityRenderer<T> {
+
+    @Override
+    public ResourceLocation getTextureLocation(T entity) {
+        return entity.getTextureLoc();
+    }
+
+    public FDHuntSwordRender(EntityRendererProvider.Context context) {
+        super(context);
+    }
+
+    @Override
+    public void render(T entity, float entityYaw, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
+            int packedLightIn) {
+
+        if ((entity.getFired() || entity.getForceTail()) && entity.getHasTail()) {
+            matrixStack.pushPose();
+            renderTrail(entity, partialTicks, matrixStack, bufferIn, packedLightIn);
+            matrixStack.popPose();
+        }
+
+        matrixStack.pushPose();
+        Entity shooter = entity.getShooter();
+        if (shooter != null && entity.getStandbyMode().equals("PLAYER") && !entity.getFired()) {
+            double sX = Mth.lerp(partialTicks, shooter.xo, shooter.getX());
+            double sY = Mth.lerp(partialTicks, shooter.yo, shooter.getY());
+            double sZ = Mth.lerp(partialTicks, shooter.zo, shooter.getZ());
+
+            float sYaw = Mth.rotLerp(partialTicks, shooter.yRotO, shooter.getYRot());
+            float sPitch = Mth.rotLerp(partialTicks, shooter.xRotO, shooter.getXRot());
+
+            Vec3 offset = entity.getOffset()
+                    .xRot((float) Math.toRadians(-sPitch))
+                    .yRot((float) Math.toRadians(-sYaw));
+            Vec3 pos = new Vec3(sX, sY, sZ).add(entity.getCenterOffset()).add(offset);
+
+            double eX = Mth.lerp(partialTicks, entity.xo, entity.getX());
+            double eY = Mth.lerp(partialTicks, entity.yo, entity.getY());
+            double eZ = Mth.lerp(partialTicks, entity.zo, entity.getZ());
+
+            matrixStack.translate(pos.x - eX, pos.y - eY, pos.z - eZ);
+        }
+
+        try {
+            Entity hits = entity.getHitEntity();
+            boolean hasHitEntity = hits != null;
+
+            if (hasHitEntity) {
+                matrixStack
+                        .mulPose(Axis.YN.rotationDegrees(Mth.rotLerp(partialTicks, hits.yRotO, hits.getYRot()) - 90));
+                matrixStack.mulPose(Axis.YN.rotationDegrees(entity.getOffsetYaw()));
+            } else {
+                matrixStack.mulPose(
+                        Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
+            }
+
+            matrixStack.mulPose(Axis.ZP.rotationDegrees(Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot())));
+
+            matrixStack.mulPose(Axis.XP.rotationDegrees(entity.getRoll()));
+
+            // 回旋镖一样旋转：在确定了Yaw, Pitch, Roll之后，绕着局部Y轴旋转
+
+            if (!hasHitEntity) {
+                float time = entity.tickCount + partialTicks;
+                matrixStack.mulPose(Axis.YN.rotationDegrees(time * 30.0F));
+            }
+
+            float scale = 0.0075f * entity.getScale();
+            matrixStack.scale(scale, scale, scale);
+            matrixStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+
+            // 使用 ss.obj 模型中的 sb 分件
+            WavefrontObject model = BladeModelManager.getInstance().getModel(entity.getModelLoc());
+            BladeRenderState.setCol(entity.getColor(), false);
+            BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "sb", getTextureLocation(entity),
+                    matrixStack, bufferIn, packedLightIn);
+        } finally {
+            matrixStack.popPose();
+        }
+
+    }
+
+    private void renderTrail(T entity, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
+            int packedLightIn) {
+        List<Vec3> trail = entity.getTrailPositions();
+        if (trail == null || trail.size() < 2)
+            return;
+        ResourceLocation tex = getTextureLocation(entity);
+        VertexConsumer builder = bufferIn.getBuffer(RenderType.entityTranslucent(tex));
+        VertexConsumer coreBuilder = bufferIn.getBuffer(RenderType.eyes(tex));
+
+        Vec3 camPos = this.entityRenderDispatcher.camera.getPosition();
+        double lerpX = Mth.lerp(partialTicks, entity.xo, entity.getX());
+        double lerpY = Mth.lerp(partialTicks, entity.yo, entity.getY());
+        double lerpZ = Mth.lerp(partialTicks, entity.zo, entity.getZ());
+        Vec3 entityPos = new Vec3(lerpX, lerpY, lerpZ);
+
+        List<Vec3> points = new java.util.ArrayList<>();
+        points.add(entityPos);
+        if (trail.size() > 1) {
+            points.addAll(trail.subList(1, trail.size()));
+        }
+
+        int count = points.size();
+        float baseSize = 0.3f * entity.getScale(); // 基础宽度（full width）
+        double offsetDist = 1.2 * entity.getScale(); // 增加首尾距离
+
+        int hexColor = entity.getColor();
+        int colorR = (hexColor >> 16) & 0xFF;
+        int colorG = (hexColor >> 8) & 0xFF;
+        int colorB = hexColor & 0xFF;
+
+        final float sharpenStart = 0.75f; // 尾端从 75% 开始尖化
+
+        // 预计算每个点的旋转偏移
+        Vec3[] offsets1 = new Vec3[count];
+        Vec3[] offsets2 = new Vec3[count];
+        boolean hasHitEntity = entity.getHitEntity() != null;
+        float baseTime = entity.tickCount + partialTicks;
+        float startPitch = Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot());
+
+        for (int i = 0; i < count; i++) {
+            float time = baseTime - i;
+            PoseStack tempStack = new PoseStack();
+
+            if (hasHitEntity) {
+                tempStack.mulPose(Axis.YN.rotationDegrees(
+                        Mth.rotLerp(partialTicks, entity.getHitEntity().yRotO, entity.getHitEntity().getYRot()) - 90));
+                tempStack.mulPose(Axis.YN.rotationDegrees(entity.getOffsetYaw()));
+            } else {
+                tempStack.mulPose(
+                        Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
+            }
+
+            tempStack.mulPose(Axis.ZP.rotationDegrees(startPitch));
+            tempStack.mulPose(Axis.XP.rotationDegrees(entity.getRoll()));
+
+            if (!hasHitEntity) {
+                tempStack.mulPose(Axis.YN.rotationDegrees(time * 30.0F));
+            }
+
+            tempStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+
+            // 根据上面的矩阵，最后有个 YP 90度，如果是左右则说明剑身在局部Z轴
+            // 修改为使用局部Z轴作为首尾方向，并增加距离
+            org.joml.Vector4f v1 = new org.joml.Vector4f(0, 0, (float) offsetDist, 1.0f);
+            org.joml.Vector4f v2 = new org.joml.Vector4f(0, 0, -(float) offsetDist, 1.0f);
+            v1.mul(tempStack.last().pose());
+            v2.mul(tempStack.last().pose());
+            offsets1[i] = new Vec3(v1.x(), v1.y(), v1.z());
+            offsets2[i] = new Vec3(v2.x(), v2.y(), v2.z());
+        }
+
+        // 绘制每段：外层 + 内层高亮，共两条拖尾
+        for (int trailIdx = 0; trailIdx < 2; trailIdx++) {
+            Vec3[] currentOffsets = trailIdx == 0 ? offsets1 : offsets2;
+            for (int i = 0; i < count - 1; i++) {
+                Vec3 p0 = points.get(i).add(currentOffsets[i]);
+                Vec3 p1 = points.get(i + 1).add(currentOffsets[i + 1]);
+
+                Vec3 r0 = p0.subtract(entityPos);
+                Vec3 r1 = p1.subtract(entityPos);
+
+                Vec3 segTan = p1.subtract(p0);
+                if (segTan.lengthSqr() > 1e-6) {
+                    segTan = segTan.normalize();
+                } else {
+                    if (i < count - 2) {
+                        segTan = points.get(i + 2).subtract(p0).normalize();
+                    } else {
+                        segTan = new Vec3(0, 1, 0); // fallback
+                    }
+                }
+
+                // 计算右向量 = (cameraPos - point) x tangent
+                Vec3 viewDir = camPos.subtract(entityPos).subtract(r0);
+                Vec3 right = viewDir.cross(segTan);
+                if (right.length() <= 1e-6) {
+                    // fallback to camera orientation right vector
+                    Quaternionf camOrient = this.entityRenderDispatcher.cameraOrientation();
+                    org.joml.Vector3f tmp = new org.joml.Vector3f(1f, 0f, 0f);
+                    camOrient.transform(tmp);
+                    right = new Vec3(tmp.x(), tmp.y(), tmp.z());
+                }
+                right = right.normalize();
+
+                // t along trail (0 newest -> 1 oldest)
+                float t0 = (float) i / (float) Math.max(1, count - 1);
+                float t1 = (float) (i + 1) / (float) Math.max(1, count - 1);
+
+                // widths
+                float outerHalf0 = baseSize * (1.0f - t0 * 0.7f) * 0.5f;
+                float outerHalf1 = baseSize * (1.0f - t1 * 0.7f) * 0.5f;
+                float innerHalf0 = outerHalf0 * 0.4f; // highlight is narrower
+                float innerHalf1 = outerHalf1 * 0.4f;
+
+                // sharpening at tail
+                if (t1 >= sharpenStart) {
+                    float s = (t1 - sharpenStart) / (1f - sharpenStart);
+                    s = Mth.clamp(s, 0f, 1f);
+                    outerHalf1 *= (1f - s);
+                    innerHalf1 *= (1f - s);
+                }
+                if (t0 >= sharpenStart) {
+                    float s = (t0 - sharpenStart) / (1f - sharpenStart);
+                    s = Mth.clamp(s, 0f, 1f);
+                    outerHalf0 *= (1f - s);
+                    innerHalf0 *= (1f - s);
+                }
+
+                // compute vertex positions
+                Vec3 o0a = r0.add(right.scale(outerHalf0));
+                Vec3 o0b = r0.subtract(right.scale(outerHalf0));
+                Vec3 o1a = r1.add(right.scale(outerHalf1));
+                Vec3 o1b = r1.subtract(right.scale(outerHalf1));
+
+                Vec3 c0a = r0.add(right.scale(innerHalf0));
+                Vec3 c0b = r0.subtract(right.scale(innerHalf0));
+                Vec3 c1a = r1.add(right.scale(innerHalf1));
+                Vec3 c1b = r1.subtract(right.scale(innerHalf1));
+
+                Matrix4f mat = matrixStack.last().pose();
+                Matrix3f normal = matrixStack.last().normal();
+
+                // colors: outer fades toward white and alpha drops; inner is brighter (closer
+                // to white) and more opaque
+                float lerpOuter0 = t0 * 0.35f;
+                float lerpOuter1 = t1 * 0.35f;
+                float or0 = (colorR / 255f) * (1f - lerpOuter0) + lerpOuter0;
+                float og0 = (colorG / 255f) * (1f - lerpOuter0) + lerpOuter0;
+                float ob0 = (colorB / 255f) * (1f - lerpOuter0) + lerpOuter0;
+                float or1 = (colorR / 255f) * (1f - lerpOuter1) + lerpOuter1;
+                float og1 = (colorG / 255f) * (1f - lerpOuter1) + lerpOuter1;
+                float ob1 = (colorB / 255f) * (1f - lerpOuter1) + lerpOuter1;
+                float oAlpha0 = (1f - t0) * 0.85f;
+                float oAlpha1 = (1f - t1) * 0.65f;
+                oAlpha0 *= 1f;
+                oAlpha1 *= 1f;
+
+                float lerpInner0 = t0 * 0.15f; // inner less desaturated
+                float lerpInner1 = t1 * 0.15f;
+                float ir0 = (colorR / 255f) * (1f - lerpInner0) + lerpInner0;
+                float ig0 = (colorG / 255f) * (1f - lerpInner0) + lerpInner0;
+                float ib0 = (colorB / 255f) * (1f - lerpInner0) + lerpInner0;
+                float ir1 = (colorR / 255f) * (1f - lerpInner1) + lerpInner1;
+                float ig1 = (colorG / 255f) * (1f - lerpInner1) + lerpInner1;
+                float ib1 = (colorB / 255f) * (1f - lerpInner1) + lerpInner1;
+                float iAlpha0 = (1f - t0) * 0.95f;
+                float iAlpha1 = (1f - t1) * 0.75f;
+                // Boost inner color to make it glow (then clamp to [0,1])
+                final float glowBoost = 1.4f;
+                ir0 = Mth.clamp(ir0 * glowBoost, 0f, 1f);
+                ig0 = Mth.clamp(ig0 * glowBoost, 0f, 1f);
+                ib0 = Mth.clamp(ib0 * glowBoost, 0f, 1f);
+                ir1 = Mth.clamp(ir1 * glowBoost, 0f, 1f);
+                ig1 = Mth.clamp(ig1 * glowBoost, 0f, 1f);
+                ib1 = Mth.clamp(ib1 * glowBoost, 0f, 1f);
+                // Optionally increase alpha a bit for inner core
+                iAlpha0 = Mth.clamp(iAlpha0 * 1.1f, 0f, 1f);
+                iAlpha1 = Mth.clamp(iAlpha1 * 1.1f, 0f, 1f);
+
+                // draw outer quad (two triangles) v0a v0b v1b v1a
+                builder.vertex(mat, (float) o0a.x, (float) o0a.y, (float) o0a.z)
+                        .color((int) (or0 * 255), (int) (og0 * 255), (int) (ob0 * 255), (int) (oAlpha0 * 255))
+                        .uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+                builder.vertex(mat, (float) o0b.x, (float) o0b.y, (float) o0b.z)
+                        .color((int) (or0 * 255), (int) (og0 * 255), (int) (ob0 * 255), (int) (oAlpha0 * 255))
+                        .uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+                builder.vertex(mat, (float) o1b.x, (float) o1b.y, (float) o1b.z)
+                        .color((int) (or1 * 255), (int) (og1 * 255), (int) (ob1 * 255), (int) (oAlpha1 * 255))
+                        .uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+                builder.vertex(mat, (float) o1a.x, (float) o1a.y, (float) o1a.z)
+                        .color((int) (or1 * 255), (int) (og1 * 255), (int) (ob1 * 255), (int) (oAlpha1 * 255))
+                        .uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+
+                // draw inner highlight quad (narrower)
+                coreBuilder.vertex(mat, (float) c0a.x, (float) c0a.y, (float) c0a.z)
+                        .color((int) (ir0 * 255), (int) (ig0 * 255), (int) (ib0 * 255), (int) (iAlpha0 * 255))
+                        .uv(0f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+                coreBuilder.vertex(mat, (float) c0b.x, (float) c0b.y, (float) c0b.z)
+                        .color((int) (ir0 * 255), (int) (ig0 * 255), (int) (ib0 * 255), (int) (iAlpha0 * 255))
+                        .uv(0f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+                coreBuilder.vertex(mat, (float) c1b.x, (float) c1b.y, (float) c1b.z)
+                        .color((int) (ir1 * 255), (int) (ig1 * 255), (int) (ib1 * 255), (int) (iAlpha1 * 255))
+                        .uv(1f, 1f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+                coreBuilder.vertex(mat, (float) c1a.x, (float) c1a.y, (float) c1a.z)
+                        .color((int) (ir1 * 255), (int) (ig1 * 255), (int) (ib1 * 255), (int) (iAlpha1 * 255))
+                        .uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn)
+                        .normal(normal, 0f, 0f, 1f)
+                        .endVertex();
+            }
+        }
+    }
+}

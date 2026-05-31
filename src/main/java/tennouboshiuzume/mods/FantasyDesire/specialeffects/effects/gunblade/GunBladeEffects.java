@@ -82,7 +82,7 @@ public class GunBladeEffects {
                 event.setCanceled(true);
             return;
         }
-        fdState.setSpecialCharge(fdState.getSpecialCharge() - cost);
+        CapabilityUtils.tryConsumeSpecialCharge(fdState, cost, player, blade);
         Random random = new Random();
         if (!(player.level() instanceof ServerLevel))
             return;
@@ -93,6 +93,7 @@ public class GunBladeEffects {
         if (EnergyOn && !TripleOn) {
             shootEnergyBullet(player, blade, state,
                     ThunderOn, random);
+            player.getCooldowns().addCooldown(blade.getItem(), 10);
         }
         event.setCanceled(true);
     }
@@ -289,7 +290,7 @@ public class GunBladeEffects {
             return false;
         }
         player.getCooldowns().addCooldown(blade.getItem(), 60);
-        fdState.setSpecialCharge(fdState.getMaxSpecialCharge());
+        CapabilityUtils.setSpecialCharge(fdState, fdState.getMaxSpecialCharge());
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PISTON_CONTRACT,
                 SoundSource.PLAYERS, 0.5f, 2f);
         return true;

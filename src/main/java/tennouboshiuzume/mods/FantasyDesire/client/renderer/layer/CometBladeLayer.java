@@ -80,8 +80,10 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             }
         } else {
             if (hasCometElytra && hasShield) {
-                // 啊，，，我真的不会写基于Layer的拖尾，如果你在看这行代码并且知道怎么写，请PR我，谢谢
-                renderWingBlades(poseStack, buffer, packedLight, ageInTicks, player, partialTicks);
+                renderWingOrbitBlades(poseStack, buffer, packedLight, ageInTicks, player, partialTicks);
+            }
+            if (hasCometElytra && hasImmortal) {
+                renderWingOuterOrbitBlades(poseStack, buffer, packedLight, ageInTicks, player, partialTicks);
             }
         }
         poseStack.popPose();
@@ -96,6 +98,9 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         poseStack.pushPose();
 
         poseStack.translate(0.0D, 0.35D, 0.45D);
+        if (player.isFallFlying()) {
+            poseStack.translate(0.0D, 0.75D, -0.2D);
+        }
 
         poseStack.mulPose(Axis.XP.rotationDegrees(90f));
 
@@ -117,31 +122,38 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         BladeRenderState.setCol(color, false);
     }
 
-    private void renderWingBlades(PoseStack poseStack, MultiBufferSource buffer, int packedLight, float ageInTicks,
+    private void renderWingOrbitBlades(PoseStack poseStack, MultiBufferSource buffer, int packedLight, float ageInTicks,
             AbstractClientPlayer player, float partialTicks) {
         float speed = 2.0f;
-        // 使用 partialTicks 平滑插值，避免卡顿
         float time = (player.tickCount + partialTicks) * speed;
-
         for (int i = 0; i < 8; i++) {
             poseStack.pushPose();
-
-            // 1. Centered around the player's waist
             poseStack.translate(0.0D, 0.7D, 0.0D);
-
-            // 2. Rotate around Y axis (Yaw) for orbit
             float angle = time + (i * (360f / 8f));
             poseStack.mulPose(Axis.YP.rotationDegrees(angle));
-
-            // Push outward
             poseStack.translate(0.0D, 0.0D, 1.0D);
-
-            // 4. Tilt outwards to form a skirt/cone shape
             poseStack.mulPose(Axis.XP.rotationDegrees(-60f));
-
-            applyBladeScale(poseStack, 0.0075f * 0.6f);
+            applyBladeScale(poseStack, 0.0075f * 0.3f);
             applyBladeColor(0x00FFFF);
+            renderModel(poseStack, buffer, packedLight);
+            poseStack.popPose();
+        }
+    }
 
+    private void renderWingOuterOrbitBlades(PoseStack poseStack, MultiBufferSource buffer, int packedLight,
+            float ageInTicks,
+            AbstractClientPlayer player, float partialTicks) {
+        float speed = 2.0f;
+        float time = (player.tickCount + partialTicks) * speed;
+        for (int i = 0; i < 4; i++) {
+            poseStack.pushPose();
+            poseStack.translate(0.0D, -0.5D, 0.0D);
+            float angle = time + (i * (360f / 4f));
+            poseStack.mulPose(Axis.YP.rotationDegrees(-angle));
+            poseStack.translate(0.0D, 0.0D, -0.5D);
+            poseStack.mulPose(Axis.XP.rotationDegrees(70f));
+            applyBladeScale(poseStack, 0.0075f * 0.6f);
+            applyBladeColor(0xFFFF00);
             renderModel(poseStack, buffer, packedLight);
             poseStack.popPose();
         }

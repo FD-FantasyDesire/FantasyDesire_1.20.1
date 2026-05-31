@@ -28,7 +28,7 @@
   "name": "fantasydesire:pure_snow",
   "properties": {
     "attack_base": 2.8,
-    "max_damage": 50,
+    "max_damage": 777,
     "slash_art": "fantasydesire:rainbow_star",
     "special_effects": [
       "fantasydesire:rainbow_flux",

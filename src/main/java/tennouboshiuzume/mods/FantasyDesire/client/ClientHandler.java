@@ -92,7 +92,7 @@ public class ClientHandler {
         event.registerEntityRenderer(FDEntitys.FDEnergyBullet.get(), FDPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDBFG.get(), FDBFGRender::new);
         event.registerEntityRenderer(FDEntitys.RefinedMissile.get(), FDPhantomSwordRender::new);
-        event.registerEntityRenderer(FDEntitys.FDHuntSword.get(), FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDHuntSword.get(), FDHuntSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDSlashEffect.get(), FDSlashEffectRender::new);
         event.registerEntityRenderer(FDEntitys.EnderSlashEffect.get(), EnderSlashEffectRender::new);
     }

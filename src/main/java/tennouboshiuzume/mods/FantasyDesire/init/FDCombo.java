@@ -23,6 +23,7 @@ import tennouboshiuzume.mods.FantasyDesire.slasharts.FreezeZero;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.RainbowStar;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.TwinSlash;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.WingToTheFuture;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.CrimsonStrike;
 import tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.starlessnight.StarlessNightEffects;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
@@ -105,6 +106,17 @@ public class FDCombo extends ComboStateRegistry {
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .put(0, AttackManager::playQuickSheathSoundAction).build())
                                         .releaseAction(ComboState::releaseActionQuickCharge)::build);
+
+        public static final RegistryObject<ComboState> CRIMSON_STRIKE = FD_COMBO_STATES.register("crimson_strike",
+                        ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> CrimsonStrike.AntiNTR(entity)
+                                                        ? FantasyDesire.prefix("crimson_strike_0")
+                                                        : SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> CrimsonStrike.AntiNTR(entity)
+                                                        ? FantasyDesire.prefix("crimson_strike_0")
+                                                        : SlashBlade.prefix("none"))::build);
+
         // 虹光星雨
         public static final RegistryObject<ComboState> RAINBOW_STAR = FD_COMBO_STATES.register("rainbow_star",
                         ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
@@ -567,21 +579,19 @@ public class FDCombo extends ComboStateRegistry {
                                                         : SlashBlade.prefix("none"))::build);
 
         public static final RegistryObject<ComboState> FREEZE_ZERO_0 = FD_COMBO_STATES.register("freeze_zero_0",
-                        ComboState.Builder.newInstance().startAndEnd(1, 33).priority(50)
-                                        .motionLoc(DefaultResources.testLocation)
+                        ComboState.Builder.newInstance().startAndEnd(1923, 1928).priority(50)
                                         .next(ComboState.TimeoutNext.buildFromFrame(33,
                                                         entity -> FantasyDesire.prefix("freeze_zero_end")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("freeze_zero_end"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put((int) TimeValueHelper.getTicksFromFrames(30), entityIn -> {
+                                                        .put(1, entityIn -> {
                                                                 FreezeZero.FreezeZero(entityIn);
                                                                 entityIn.playSound(SoundEvents.EVOKER_CAST_SPELL, 1.0f,
                                                                                 1.2f);
                                                         }).build())::build);
 
         public static final RegistryObject<ComboState> FREEZE_ZERO_END = FD_COMBO_STATES.register("freeze_zero_end",
-                        ComboState.Builder.newInstance().startAndEnd(33, 48).priority(50)
-                                        .motionLoc(DefaultResources.ExMotionLocation)
+                        ComboState.Builder.newInstance().startAndEnd(1928, 1963).priority(50)
                                         .next(entity -> SlashBlade.prefix("none"))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()

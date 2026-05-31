@@ -38,6 +38,7 @@ public class FantasySlashBladeBuiltInRegistry {
 
         public static void registerAll(BootstapContext<FantasySlashBladeDefinition> bootstrap) {
                 System.out.println("==== 开始注册数据 ====");
+                // 奇克芙蕾雅
                 bootstrap.register(ChikeFlare,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("chikeflare"),
                                                 RenderDefinition.Builder.newInstance()
@@ -52,15 +53,19 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(0.2F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(40)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.CheatRumble.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TyrantStrike.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.SoulShield.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ImmortalSoul.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.CheatRumble
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TyrantStrike
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.SoulShield
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ImmortalSoul
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.WING_TO_THE_FUTURE
                                                                                 .getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
-                                                                .maxSpecialCharge(100)
+                                                                .maxSpecialCharge(1000)
                                                                 .specialChargeName("Soul")
                                                                 .specialLore(3)
                                                                 .specialAttackLore(6)
@@ -71,6 +76,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 getEnchantmentID(Enchantments.UNBREAKING), 10),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.BINDING_CURSE), 1))));
+                // 白色之神 智能手枪
                 bootstrap.register(SmartPistolA,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("smart_pistol"),
                                                 RenderDefinition.Builder.newInstance()
@@ -85,8 +91,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(3.0F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(256)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EnergyBullet.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TripleBullet.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EnergyBullet
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TripleBullet
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.CHARGE_SHOT.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
@@ -100,7 +108,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 Enchantments.FALL_PROTECTION), 5),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.UNBREAKING), 5))));
-
                 bootstrap.register(SmartPistolB,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("smart_pistol"),
                                                 RenderDefinition.Builder.newInstance()
@@ -115,8 +122,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(3.0F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(256)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EnergyBullet.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TripleBullet.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EnergyBullet
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TripleBullet
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.OVER_CHARGE.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
@@ -130,7 +139,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 Enchantments.FALL_PROTECTION), 5),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.UNBREAKING), 5))));
-
+                // DK 深红恶魔
                 bootstrap.register(CrimsonScythe,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("crimson_scythe"),
                                                 RenderDefinition.Builder.newInstance()
@@ -145,30 +154,27 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(4.5F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(150)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.BloodDrain.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.BloodDrain
+                                                                                .getId())
                                                                 .addSpecialEffect(
-                                                                                FDSpecialEffectsRegistry.CrimsonStrike.getId())
-                                                                .slashArtsType(FDSlashArtRegistry.CRIMSON_STRIKE.getId())
+                                                                                FDSpecialEffectsRegistry.CrimsonStrike
+                                                                                                .getId())
+                                                                .slashArtsType(FDSlashArtRegistry.CRIMSON_STRIKE
+                                                                                .getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
-                                                                .maxSpecialCharge(150)
+                                                                .maxSpecialCharge(12)
+                                                                .specialChargeName("BloodiedHook")
                                                                 .specialType("CrimsonScythe")
                                                                 .specialAttackEffect("absorb")
                                                                 .build(),
                                                 List.of(new EnchantmentDefinition(
-                                                                getEnchantmentID(Enchantments.SHARPNESS), 6),
-                                                                new EnchantmentDefinition(
-                                                                                getEnchantmentID(Enchantments.THORNS),
-                                                                                6),
+                                                                getEnchantmentID(Enchantments.SMITE), 6),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.MOB_LOOTING), 6),
                                                                 new EnchantmentDefinition(getEnchantmentID(
-                                                                                Enchantments.UNBREAKING), 6),
-                                                                new EnchantmentDefinition(getEnchantmentID(
-                                                                                Enchantments.FIRE_ASPECT), 6),
-                                                                new EnchantmentDefinition(getEnchantmentID(
-                                                                                Enchantments.FIRE_PROTECTION), 6))));
-
+                                                                                Enchantments.BANE_OF_ARTHROPODS), 6))));
+                // 双子圣灵
                 bootstrap.register(TwinBladeL,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("twin_blade"),
                                                 RenderDefinition.Builder.newInstance()
@@ -182,7 +188,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(2.5F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(1024)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TwinSet.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TwinSet
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.TWIN_SYSTEM_L.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
@@ -197,7 +204,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 Enchantments.FIRE_PROTECTION), 3),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.INFINITY_ARROWS), 1))));
-
                 bootstrap.register(TwinBladeR,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("twin_blade"),
                                                 RenderDefinition.Builder.newInstance()
@@ -211,7 +217,8 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(2.5F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(1024)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TwinSet.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.TwinSet
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.TWIN_SYSTEM_R.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
@@ -226,7 +233,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 Enchantments.FIRE_PROTECTION), 3),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.INFINITY_ARROWS), 1))));
-
+                // 永冻纪元
                 bootstrap.register(OverColdP0, new FantasySlashBladeDefinition(FantasyDesire.prefix("over_cold"),
                                 RenderDefinition.Builder.newInstance()
                                                 .effectColor(0x6699FF)
@@ -252,7 +259,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 getEnchantmentID(Enchantments.FIRE_PROTECTION), 3),
                                                 new EnchantmentDefinition(getEnchantmentID(Enchantments.UNBREAKING),
                                                                 3))));
-
                 bootstrap.register(OverColdP1,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("over_cold"),
                                                 RenderDefinition.Builder.newInstance()
@@ -267,8 +273,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(4.0F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(144)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EvolutionIce.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColdLeak.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EvolutionIce
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColdLeak
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.FREEZE_ZERO.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
@@ -296,8 +304,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(7.2F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(144)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EvolutionIce.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColdLeak.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EvolutionIce
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColdLeak
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.FREEZE_ZERO.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
@@ -311,7 +321,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 Enchantments.FIRE_PROTECTION), 3),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.UNBREAKING), 3))));
-
                 bootstrap.register(OverColdP3,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("over_cold"),
                                                 RenderDefinition.Builder.newInstance()
@@ -326,8 +335,10 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .baseAttackModifier(13.0F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .maxDamage(144)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EvolutionIce.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColdLeak.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.EvolutionIce
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColdLeak
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.FREEZE_ZERO.getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
@@ -341,7 +352,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 Enchantments.FIRE_PROTECTION), 3),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.UNBREAKING), 3))));
-
+                // 纯净虹光
                 bootstrap.register(PureSnow,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("pure_snow"),
                                                 RenderDefinition.Builder.newInstance()
@@ -354,10 +365,12 @@ public class FantasySlashBladeBuiltInRegistry {
                                                 PropertiesDefinition.Builder.newInstance()
                                                                 .baseAttackModifier(2.8F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.RainbowFlux.getId())
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColorFlux.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.RainbowFlux
+                                                                                .getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.ColorFlux
+                                                                                .getId())
                                                                 .slashArtsType(FDSlashArtRegistry.RAINBOW_STAR.getId())
-                                                                .maxDamage(50)
+                                                                .maxDamage(777)
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
                                                                 .specialType("PureSnow")
@@ -381,27 +394,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 new EnchantmentDefinition(
                                                                                 getEnchantmentID(Enchantments.IMPALING),
                                                                                 1))));
-
-                bootstrap.register(ArdorBlossomStar,
-                                new FantasySlashBladeDefinition(FantasyDesire.prefix("ardor_blossom_star"),
-                                                RenderDefinition.Builder.newInstance()
-                                                                .effectColor(0xFF9900)
-                                                                .textureName(FantasyDesire
-                                                                                .prefix("models/ardorblossomstar.png"))
-                                                                .modelName(FantasyDesire
-                                                                                .prefix("models/ardorblossomstar.obj"))
-                                                                .standbyRenderType(CarryType.KATANA)
-                                                                .build(),
-                                                PropertiesDefinition.Builder.newInstance()
-                                                                .baseAttackModifier(3.6F)
-                                                                .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                                                .maxDamage(58)
-                                                                .build(),
-                                                FantasyDefinition.Builder.newInstance()
-                                                                .specialType("EGO")
-                                                                .build(),
-                                                List.of()));
-
+                // 回荡虚空 无星之夜
                 bootstrap.register(StarlessNight,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("starless_night"),
                                                 RenderDefinition.Builder.newInstance()
@@ -415,9 +408,11 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
                                                                 .slashArtsType(FDSlashArtRegistry.ECHOING_VOID.getId())
                                                                 .maxDamage(1561)
-                                                                .addSpecialEffect(FDSpecialEffectsRegistry.VoidStrike.getId())
+                                                                .addSpecialEffect(FDSpecialEffectsRegistry.VoidStrike
+                                                                                .getId())
                                                                 .addSpecialEffect(
-                                                                                FDSpecialEffectsRegistry.EchoingStrike.getId())
+                                                                                FDSpecialEffectsRegistry.EchoingStrike
+                                                                                                .getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
                                                                 .specialLore(1)
@@ -435,7 +430,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 new EnchantmentDefinition(
                                                                                 getEnchantmentID(Enchantments.MENDING),
                                                                                 1))));
-
+                // 裁决剑
                 bootstrap.register(Crucible,
                                 new FantasySlashBladeDefinition(FantasyDesire.prefix("crucible"),
                                                 RenderDefinition.Builder.newInstance()
@@ -451,10 +446,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .maxDamage(1561)
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
-                                                                // .maxSpecialCharge(140)
-                                                                // .specialLore(4)
-                                                                // .specialEffectLore(6)
-                                                                // .specialAttackLore(5)
                                                                 .specialType("crucible")
                                                                 .specialAttackEffect("eternity")
                                                                 .build(),
@@ -465,7 +456,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 new EnchantmentDefinition(
                                                                                 getEnchantmentID(Enchantments.MENDING),
                                                                                 1))));
-
+                // 魔女仪礼剑 已暂时禁用,待新模型
                 // bootstrap.register(GireiKen,
                 // new FantasySlashBladeDefinition(FantasyDesire.prefix("gireiken"),
                 // RenderDefinition.Builder.newInstance()
@@ -478,14 +469,9 @@ public class FantasySlashBladeBuiltInRegistry {
                 // PropertiesDefinition.Builder.newInstance()
                 // .baseAttackModifier(14.0F)
                 // .defaultSwordType(List.of(SwordType.BEWITCHED))
-                // // .slashArtsType(SlashArtsRegistry.SAKURA_BLAST.getId())
                 // .maxDamage(1561)
                 // .build(),
                 // FantasyDefinition.Builder.newInstance()
-                // // .maxSpecialCharge(140)
-                // // .specialLore(4)
-                // // .specialEffectLore(6)
-                // // .specialAttackLore(5)
                 // .specialType("gireiken")
                 // .specialAttackEffect("eternity")
                 // .build(),
@@ -496,6 +482,26 @@ public class FantasySlashBladeBuiltInRegistry {
                 // new EnchantmentDefinition(
                 // getEnchantmentID(Enchantments.MENDING),
                 // 1))));
+                // 遗留物，红艳煞
+                // bootstrap.register(ArdorBlossomStar,
+                // new FantasySlashBladeDefinition(FantasyDesire.prefix("ardor_blossom_star"),
+                // RenderDefinition.Builder.newInstance()
+                // .effectColor(0xFF9900)
+                // .textureName(FantasyDesire
+                // .prefix("models/ardorblossomstar.png"))
+                // .modelName(FantasyDesire
+                // .prefix("models/ardorblossomstar.obj"))
+                // .standbyRenderType(CarryType.KATANA)
+                // .build(),
+                // PropertiesDefinition.Builder.newInstance()
+                // .baseAttackModifier(3.6F)
+                // .defaultSwordType(List.of(SwordType.BEWITCHED))
+                // .maxDamage(58)
+                // .build(),
+                // FantasyDefinition.Builder.newInstance()
+                // .specialType("EGO")
+                // .build(),
+                // List.of()));
 
                 System.out.println("==== 数据注册完成 ====");
         }

@@ -16,6 +16,7 @@ import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDHuntSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
+import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
@@ -38,7 +39,6 @@ public class CrimsonScytheEffects {
         // 获取主手Capability
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         int color = state.getColorCode();
-
         // 使用 SEConditionMatcher 检查 CrimsonStrike（狩魂 爪刃斩击）
         CapabilityUtils.BladeContext mainCtx = CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation(TRANSLATION_KEY)
@@ -59,27 +59,38 @@ public class CrimsonScytheEffects {
                     false, false, ratio, KnockBacks.cancel);
         }
 
-        // 使用 SEConditionMatcher 检查 BloodDrain（幻猎 幻影剑击中时拉近敌人）
+        // 使用 SEConditionMatcher 检查 BloodDrain（幻猎 发射抓钩幻影剑，击中时拉近敌人）
         CapabilityUtils.BladeContext offCtx = CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation(TRANSLATION_KEY)
                 .requireSE(FDSpecialEffectsRegistry.BloodDrain)
                 .match();
         if (offCtx != null) {
+            IFantasySlashBladeState fdState = offCtx.fantasyState;
             int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
             float lockDistance = 15 + sweepLevel * 10;
-            int volleyCount = 3 + sweepLevel;
+            int maxVolleyCount = 3 + sweepLevel;
             float angleDeg = 30 + sweepLevel * 10;
             List<LivingEntity> targets = FDTargetSelector.getTargetsInSight(entity, lockDistance, angleDeg, true, null);
             targets.sort((e1, e2) -> Double.compare(e2.distanceToSqr(entity), e1.distanceToSqr(entity)));
+
+            int validTargetCount = targets.size();
+            if (validTargetCount == 0 && state.getTargetEntity(entity.level()) != null) {
+                validTargetCount = 1;
+            }
+            int volleyCount = Math.min(validTargetCount, maxVolleyCount);
+
             Random random = new Random();
             for (int i = 0; i < volleyCount; i++) {
+                if (!CapabilityUtils.tryConsumeSpecialCharge(fdState, 1, entity, null)) {
+                    break;
+                }
                 EntityFDHuntSword ss = new EntityFDHuntSword(FDEntitys.FDHuntSword.get(), entity.level());
                 ss.setIsCritical(false);
                 ss.setOwner(entity);
                 ss.setColor(state.getColorCode());
                 ss.setRoll(random.nextInt(180));
                 ss.setDamage(0.001);
-                ss.setSpeed(1);
+                ss.setSpeed(1.0f);
                 ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
                 ss.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
                 ss.setDelay(120);
@@ -109,6 +120,18 @@ public class CrimsonScytheEffects {
                 ss.setOffset(new Vec3(0, 0, -0.75f));
                 entity.level().addFreshEntity(ss);
             }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onHit(SlashBladeEvent.HitEvent event) {
+        CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(event.getBlade(), event.getUser())
+                .requireTranslation(TRANSLATION_KEY)
+                .requireSE(FDSpecialEffectsRegistry.BloodDrain)
+                .match();
+        if (ctx != null) {
+            IFantasySlashBladeState fdState = ctx.fantasyState;
+            CapabilityUtils.addSpecialCharge(fdState, 1);
         }
     }
 }
