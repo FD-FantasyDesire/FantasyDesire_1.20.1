@@ -104,6 +104,29 @@ public class FantasySlashBladeIngredient extends Ingredient {
                             });
                             finalStack.getOrCreateTag().put("bladeState", state.serializeNBT());
                         }
+                        var fdState = finalStack.getCapability(
+                                tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade.FDBLADESTATE)
+                                .orElse(null);
+                        if (fdState != null) {
+                            if (this.request.fantasyDefinition().getSpecialCharge() > 0)
+                                fdState.setSpecialCharge(this.request.fantasyDefinition().getSpecialCharge());
+                            if (this.request.fantasyDefinition().getMaxSpecialCharge() > 0)
+                                fdState.setMaxSpecialCharge(this.request.fantasyDefinition().getMaxSpecialCharge());
+                            if (this.request.fantasyDefinition().getSpecialLore() > 0)
+                                fdState.setSpecialLore(this.request.fantasyDefinition().getSpecialLore());
+                            if (this.request.fantasyDefinition().getSpecialEffectLore() > 0)
+                                fdState.setSpecialEffectLore(this.request.fantasyDefinition().getSpecialEffectLore());
+                            if (this.request.fantasyDefinition().getSpecialAttackLore() > 0)
+                                fdState.setSpecialAttackLore(this.request.fantasyDefinition().getSpecialAttackLore());
+                            if (!"Null".equals(this.request.fantasyDefinition().getSpecialType()))
+                                fdState.setSpecialType(this.request.fantasyDefinition().getSpecialType());
+                            if (!"Null".equals(this.request.fantasyDefinition().getSpecialChargeName()))
+                                fdState.setSpecialChargeName(this.request.fantasyDefinition().getSpecialChargeName());
+                            if (!"Null".equals(this.request.fantasyDefinition().getSpecialAttackEffect()))
+                                fdState.setSpecialAttackEffect(
+                                        this.request.fantasyDefinition().getSpecialAttackEffect());
+                            finalStack.getOrCreateTag().put("fdBladeState", fdState.serializeNBT());
+                        }
                     } else {
                         // Fallback to standard init if definition is not found
                         this.request.initItemStack(stack);

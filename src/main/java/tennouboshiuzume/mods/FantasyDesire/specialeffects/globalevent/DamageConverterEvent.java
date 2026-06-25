@@ -3,9 +3,6 @@ package tennouboshiuzume.mods.FantasyDesire.specialeffects.globalevent;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.util.KnockBacks;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -16,19 +13,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityTeleportEvent;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.event.entity.living.LivingDamageEvent;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingHurtEvent;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.eventbus.api.Event.Result;
+import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -37,12 +29,7 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDAttackManager;
-import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
-import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -56,7 +43,9 @@ public class DamageConverterEvent {
             });
     public static UUID ETERNITY_HEALTH_MODIFIER = UUID.fromString("a5b1b2f0-2f3c-4e3b-8a71-123456789abc");
 
-    // 伤害替换事件，用改进后的FDAttackManager处理特殊类型伤害
+    // 伤害替换事件，用FDAttackManager介入硬编码的DoSlash借代处理特殊类型伤害
+    // 使原始伤害为0，因为SlashEffect不兼容自定义伤害类型并且硬编码在架势动作中（BURST FURINA）
+    // 然后以相同方法计算伤害并且附加自定义伤害类型
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void OnSlash(SlashBladeEvent.DoSlashEvent event) {
         if (event.getBlade().getItem() instanceof ItemFantasySlashBlade) {
@@ -181,6 +170,7 @@ public class DamageConverterEvent {
         float amount = event.getAmount();
         // 攻击者
         Entity attacker = source.getEntity();
+        System.out.println(source);
         if (!(attacker instanceof LivingEntity))
             return;
         LivingEntity attackerLiving = (LivingEntity) attacker;

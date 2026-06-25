@@ -1,9 +1,6 @@
 package tennouboshiuzume.mods.FantasyDesire.entity;
 
-import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
-import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
-import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSlashEffect;
 import mods.flammpfeil.slashblade.entity.Projectile;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;

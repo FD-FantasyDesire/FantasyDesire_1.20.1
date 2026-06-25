@@ -24,11 +24,11 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.FDSlashArts;
+import tennouboshiuzume.mods.FantasyDesire.specialeffects.FDSpecialEffectBase;
 import tennouboshiuzume.mods.FantasyDesire.textutils.TextNode;
 import tennouboshiuzume.mods.FantasyDesire.textutils.TextParser;
 import tennouboshiuzume.mods.FantasyDesire.textutils.TextRenderer;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.FDSlashArts;
-import tennouboshiuzume.mods.FantasyDesire.specialeffects.FDSpecialEffectBase;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 import javax.annotation.Nullable;

@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:blue_stained_glass"
+    },
+    "N": {
+      "item": "minecraft:nether_star"
+    },
+    "P": {
+      "item": "slashblade:proudsoul"
+    },
+    "T": {
+      "item": "minecraft:totem_of_undying"
+    },
+    "Y": {
+      "item": "minecraft:yellow_stained_glass"
+    }
+  },
+  "pattern": [
+    "PTP",
+    "YNB",
+    "PTP"
+  ],
+  "result": {
+    "item": "slashblade:proudsoul_sphere",
+    "nbt": "{SpecialAttackType:\"fantasydesire:wing_to_the_future\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.sa.wing_to_the_future\"}']}}"
+  },
+  "show_notification": true
+}

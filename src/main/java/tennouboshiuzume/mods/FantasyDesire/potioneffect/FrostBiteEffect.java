@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.potioneffect;
 
-import net.minecraft.client.particle.Particle;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -12,6 +11,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import java.util.UUID;
 
+// 寒霜咬噬
+// 降低移动速度，并且坠向地面
 public class FrostBiteEffect extends MobEffect {
     private static final UUID FROST_BITE_SPEED_UUID = UUID.fromString("b2c4d6e8-1a3f-4b5c-9d8e-2f4a6b8c0d2e");
 
@@ -22,7 +23,8 @@ public class FrostBiteEffect extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         entity.setDeltaMovement(0, -0.02 * amplifier, 0);
-        entity.level().addParticle(ParticleTypes.SNOWFLAKE, entity.getX(), entity.getY()+entity.getBbHeight()/2, entity.getZ(), 0, 0, 0);
+        entity.level().addParticle(ParticleTypes.SNOWFLAKE, entity.getX(), entity.getY() + entity.getBbHeight() / 2,
+                entity.getZ(), 0, 0, 0);
         entity.hurtMarked = true;
     }
 
@@ -34,13 +36,16 @@ public class FrostBiteEffect extends MobEffect {
             AttributeModifier speedMod = movementSpeed.getModifier(FROST_BITE_SPEED_UUID);
             if (speedMod == null) {
                 movementSpeed.addPermanentModifier(new AttributeModifier(FROST_BITE_SPEED_UUID,
-                        "Frost Bite Speed", Math.max(-0.2 * amplifier,-1.0), AttributeModifier.Operation.MULTIPLY_TOTAL));
+                        "Frost Bite Speed", Math.max(-0.2 * amplifier, -1.0),
+                        AttributeModifier.Operation.MULTIPLY_TOTAL));
             }
         }
         entity.setNoGravity(true);
     }
+
     @Override
-    public void removeAttributeModifiers(LivingEntity entity, net.minecraft.world.entity.ai.attributes.AttributeMap pAttributeMap, int pAmplifier) {
+    public void removeAttributeModifiers(LivingEntity entity,
+            net.minecraft.world.entity.ai.attributes.AttributeMap pAttributeMap, int pAmplifier) {
         super.removeAttributeModifiers(entity, pAttributeMap, pAmplifier);
         AttributeInstance movementSpeed = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         if (movementSpeed != null) {

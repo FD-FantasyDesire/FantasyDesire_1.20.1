@@ -25,10 +25,7 @@ public class SpecialTransformRecipeBuilder implements RecipeBuilder {
     private final ResourceLocation blade;
     private final List<Ingredient> ingredients = new ArrayList<>();
     private final Advancement.Builder advancement = Advancement.Builder.advancement();
-    private String baseTooltip = "";
-    private String add1Tooltip = "";
-    private String add2Tooltip = "";
-    private String resultTooltip = "";
+    private String tooltip = "";
 
     public SpecialTransformRecipeBuilder(ResourceLocation blade) {
         this.blade = blade;
@@ -45,23 +42,8 @@ public class SpecialTransformRecipeBuilder implements RecipeBuilder {
         return this;
     }
 
-    public SpecialTransformRecipeBuilder baseTooltip(String key) {
-        this.baseTooltip = key;
-        return this;
-    }
-
-    public SpecialTransformRecipeBuilder add1Tooltip(String key) {
-        this.add1Tooltip = key;
-        return this;
-    }
-
-    public SpecialTransformRecipeBuilder add2Tooltip(String key) {
-        this.add2Tooltip = key;
-        return this;
-    }
-
-    public SpecialTransformRecipeBuilder resultTooltip(String key) {
-        this.resultTooltip = key;
+    public SpecialTransformRecipeBuilder addTooltip(String key) {
+        this.tooltip = key;
         return this;
     }
 
@@ -88,8 +70,7 @@ public class SpecialTransformRecipeBuilder implements RecipeBuilder {
                 .rewards(AdvancementRewards.Builder.recipe(pRecipeId)).requirements(RequirementsStrategy.OR);
 
         pFinishedRecipeConsumer
-                .accept(new Result(pRecipeId, this.blade, this.ingredients, this.baseTooltip, this.add1Tooltip,
-                        this.add2Tooltip, this.resultTooltip, this.advancement,
+                .accept(new Result(pRecipeId, this.blade, this.ingredients, this.tooltip, this.advancement,
                         new ResourceLocation(pRecipeId.getNamespace(), "recipes/combat/" + pRecipeId.getPath())));
     }
 
@@ -97,24 +78,17 @@ public class SpecialTransformRecipeBuilder implements RecipeBuilder {
         private final ResourceLocation id;
         private final ResourceLocation bladeId;
         private final List<Ingredient> ingredients;
-        private final String baseTooltip;
-        private final String add1Tooltip;
-        private final String add2Tooltip;
-        private final String resultTooltip;
+        private final String tooltip;
         private final Advancement.Builder advancement;
         private final ResourceLocation advancementId;
 
         public Result(ResourceLocation id, ResourceLocation bladeId,
-                List<Ingredient> ingredients, String baseTooltip, String add1Tooltip, String add2Tooltip,
-                String resultTooltip,
+                List<Ingredient> ingredients, String tooltip,
                 Advancement.Builder advancement, ResourceLocation advancementId) {
             this.id = id;
             this.bladeId = bladeId;
             this.ingredients = ingredients;
-            this.baseTooltip = baseTooltip;
-            this.add1Tooltip = add1Tooltip;
-            this.add2Tooltip = add2Tooltip;
-            this.resultTooltip = resultTooltip;
+            this.tooltip = tooltip;
             this.advancement = advancement;
             this.advancementId = advancementId;
         }
@@ -135,17 +109,8 @@ public class SpecialTransformRecipeBuilder implements RecipeBuilder {
                 pJson.addProperty("blade", this.bladeId.toString());
             }
 
-            if (this.baseTooltip != null && !this.baseTooltip.isEmpty()) {
-                pJson.addProperty("baseTooltip", this.baseTooltip);
-            }
-            if (this.add1Tooltip != null && !this.add1Tooltip.isEmpty()) {
-                pJson.addProperty("add1Tooltip", this.add1Tooltip);
-            }
-            if (this.add2Tooltip != null && !this.add2Tooltip.isEmpty()) {
-                pJson.addProperty("add2Tooltip", this.add2Tooltip);
-            }
-            if (this.resultTooltip != null && !this.resultTooltip.isEmpty()) {
-                pJson.addProperty("resultTooltip", this.resultTooltip);
+            if (this.tooltip != null && !this.tooltip.isEmpty()) {
+                pJson.addProperty("tooltip", this.tooltip);
             }
         }
 

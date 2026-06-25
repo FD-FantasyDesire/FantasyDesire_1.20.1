@@ -1,6 +1,5 @@
 package tennouboshiuzume.mods.FantasyDesire.init;
 
-import mods.flammpfeil.slashblade.registry.SlashArtsRegistry;
 import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
@@ -25,7 +24,7 @@ public class FDSlashArtRegistry {
         public static final RegistryObject<SlashArts> OVER_CHARGE = FD_SLASH_ARTS.register("over_charge",
                         () -> new FDSlashArts((e) -> FDCombo.OVER_CHARGE.getId(), 2));
         public static final RegistryObject<SlashArts> ECHOING_VOID = FD_SLASH_ARTS.register("echoing_void",
-                        () -> new FDSlashArts((e) -> FDCombo.ECHOING_VOID.getId(), 3));
+                        () -> new FDSlashArts((e) -> FDCombo.ECHOING_VOID.getId(), 4));
         public static final RegistryObject<SlashArts> FREEZE_ZERO = FD_SLASH_ARTS.register("freeze_zero",
                         () -> new FDSlashArts((e) -> FDCombo.FREEZE_ZERO.getId(), 8)
                                         .setComboStateJust((e) -> FDCombo.FREEZE_ZERO_JUST.getId()));

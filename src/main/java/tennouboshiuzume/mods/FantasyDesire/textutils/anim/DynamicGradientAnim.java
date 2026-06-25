@@ -7,12 +7,13 @@ import tennouboshiuzume.mods.FantasyDesire.textutils.ComponentUtils;
 import tennouboshiuzume.mods.FantasyDesire.textutils.ITextAnim;
 
 public class DynamicGradientAnim implements ITextAnim {
-//    动态渐变
+    // 动态渐变
     @Override
     public MutableComponent apply(MutableComponent component, long worldTime, long speed, TextColor[] colors) {
         String text = component.getString();
         int length = text.length();
-        if (length == 0 || colors == null || colors.length == 0) return component;
+        if (length == 0 || colors == null || colors.length == 0)
+            return component;
 
         return ComponentUtils.forEachChar(component, (c, baseStyle, index) -> {
             // t 表示当前字符在文本中的位置（0~1）
@@ -23,12 +24,12 @@ public class DynamicGradientAnim implements ITextAnim {
             float pos = (t + shift) % 1.0f;
 
             // 根据 pos 找出当前位于哪两个颜色之间
-            float scaled = pos * (colors.length - 1);
-            int seg = (int) scaled;
-            float localT = scaled - seg;
+            float scaled = pos * colors.length;
+            int seg = (int) scaled % colors.length;
+            float localT = scaled - (int) scaled;
 
             TextColor c1 = colors[seg];
-            TextColor c2 = colors[Math.min(seg + 1, colors.length - 1)];
+            TextColor c2 = colors[(seg + 1) % colors.length];
 
             int blended = lerpColor(c1.getValue(), c2.getValue(), localT);
 

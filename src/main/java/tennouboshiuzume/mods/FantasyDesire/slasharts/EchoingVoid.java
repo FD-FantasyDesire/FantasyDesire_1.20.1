@@ -1,12 +1,10 @@
 package tennouboshiuzume.mods.FantasyDesire.slasharts;
 
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
+import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.VectorHelper;
-import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityEnderSlashEffect;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;

@@ -6,7 +6,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDHuntSword;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
@@ -57,8 +59,8 @@ public class CrimsonStrike {
             float pitch = (float) Math.toDegrees(Math.asin(-dir.y));
             sword.setStandbyYawPitch(yaw, pitch);
             // 设置待机和移动模式
-            sword.setStandbyMode(tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword.StandbyMode.PLAYER);
-            sword.setMovingMode(tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword.MovingMode.SEEK);
+            sword.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
+            sword.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
             sword.setDelay(100);
             sword.setDelayTicks(0);
             sword.setSeekDelay(10);
@@ -77,32 +79,28 @@ public class CrimsonStrike {
         player.playSound(SoundEvents.TRIDENT_THROW, 1.0f, 1.0f);
     }
 
-    public static void Stage2(LivingEntity player) {
-        if (player.level().isClientSide())
+    public static void doTripleAddonFDSlash(LivingEntity playerIn, float roll, float YRot, float XRot,
+            int colorCode, float rotationOffset, Vec3 centerOffset, boolean mute, boolean critical, double damage,
+            KnockBacks knockback, int lifetime) {
+        if (playerIn.level().isClientSide()) {
             return;
-        // 乱舞斩击
-        AddonSlashUtils.doAddonFDSlash(player, -90 + player.getRandom().nextFloat() * 180, player.getYRot(), 0,
-                0xFF0000, 0, Vec3.ZERO, false, false, 2.0f, KnockBacks.cancel, 2f, 10);
-        player.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0f, 1.5f);
-    }
-
-    public static void Stage3(LivingEntity player) {
-        if (player.level().isClientSide())
-            return;
-        ItemStack blade = player.getMainHandItem();
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        if (state == null)
-            return;
-
-        // 终结爆发
-        AddonSlashUtils.doAddonFDSlash(player, -90, player.getYRot(), 0, 0x8B0000, 0, Vec3.ZERO, true, true, 10.0f,
-                KnockBacks.toss, 2f, 20);
-        player.playSound(SoundEvents.GENERIC_EXPLODE, 1.0f, 1.0f);
-
-        List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(player, player.position(), 15.0, false,
-                null);
-        for (LivingEntity target : targets) {
-            target.hurt(player.damageSources().mobAttack(player), state.getDamage() * 5);
         }
+
+        AddonSlashUtils.doAddonFDSlash(playerIn, roll, YRot, XRot, colorCode, rotationOffset, centerOffset, mute,
+                critical, damage, knockback, 3.0f, lifetime, FDDamageSource.ABSORB.location().toString());
+
+        float distance = 1.5f;
+        float rad = (float) Math.toRadians(-roll + 90.0f);
+        float dy = (float) Math.sin(rad) * distance;
+        float dz = (float) Math.cos(rad) * distance;
+
+        Vec3 offset1 = centerOffset.add(0, dy, dz);
+        Vec3 offset2 = centerOffset.add(0, -dy, -dz);
+
+        AddonSlashUtils.doAddonFDSlash(playerIn, roll, YRot, XRot, colorCode, rotationOffset, offset1, mute, critical,
+                damage, knockback, 3.0f, lifetime, FDDamageSource.ABSORB.location().toString());
+        AddonSlashUtils.doAddonFDSlash(playerIn, roll, YRot, XRot, colorCode, rotationOffset, offset2, mute, critical,
+                damage, knockback, 3.0f, lifetime, FDDamageSource.ABSORB.location().toString());
     }
+
 }

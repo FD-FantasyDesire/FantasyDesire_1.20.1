@@ -1,4 +1,4 @@
-// 1.20.1	2026-05-30T04:40:49.3701971	Registries
+// 1.20.1	2026-06-09T11:10:27.919648	Registries
 5536aff8e3e63b9f39f7c8498f62996e36e97217 data/fantasydesire/damage_type/absorb.json
 bad0724753a97c65cec9a8a7530557ffb57fb756 data/fantasydesire/damage_type/dimension.json
 cf446d7e6bfe22c2ca6cf4c1b0e813265af69c90 data/fantasydesire/damage_type/echo.json
@@ -12,7 +12,7 @@ b30ece26ace5f20b54999043cbd794b9870af804 data/fantasydesire/damage_type/lust.jso
 df7dca3561d2c745287e4660cbbd13fe52c947c8 data/fantasydesire/damage_type/resolution.json
 b0f84309c003c08c0c90b43e63983d9a3387af7d data/fantasydesire/damage_type/sloth.json
 8d9cc34ca02971dc7677e97693e43e3e0ebc1fea data/fantasydesire/damage_type/wrath.json
-a981fd9003762df41745ccdd26d0ab1ddc39b92f data/fantasydesire/fantasydesire/fantasyslashblade/chikeflare.json
+c346cbfcac5340f01ef26c79b4dd76b3927a0a42 data/fantasydesire/fantasydesire/fantasyslashblade/chikeflare.json
 eea93a0536d51c43f5fc0c03e4afc5dd83459680 data/fantasydesire/fantasydesire/fantasyslashblade/crimson_scythe.json
 de10c17f5cf83a6794e3aef01c416976ec4543c2 data/fantasydesire/fantasydesire/fantasyslashblade/crucible.json
 3d30421ebcd947198d3f1f5283006589f57e3a63 data/fantasydesire/fantasydesire/fantasyslashblade/over_cold_0.json

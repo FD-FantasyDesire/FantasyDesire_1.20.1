@@ -29,8 +29,7 @@ public class FDEntitys {
         public static final RegistryObject<EntityType<EntityFDRainbowPhantomSword>> FDRainbowPhantomSword = ENTITY_TYPES
                         .register("fd_rainbow_phantom_sword",
                                         () -> EntityType.Builder
-                                                        .<EntityFDRainbowPhantomSword>of(
-                                                                        EntityFDRainbowPhantomSword::new,
+                                                        .<EntityFDRainbowPhantomSword>of(EntityFDRainbowPhantomSword::new,
                                                                         MobCategory.MISC)
                                                         .sized(0.5F, 0.5F)
                                                         .clientTrackingRange(8)
@@ -79,6 +78,27 @@ public class FDEntitys {
                                         .clientTrackingRange(4)
                                         .updateInterval(20)
                                         .build("ender_slash_effect"));
+
+        public static final RegistryObject<EntityType<EntityFDSoulPhantomSword>> FDSoulPhantomSword = ENTITY_TYPES
+                .register(
+                        "fd_soul_sword",
+                        () -> EntityType.Builder
+                                .<EntityFDSoulPhantomSword>of(EntityFDSoulPhantomSword::new,
+                                        MobCategory.MISC)
+                                .sized(0.5F, 0.5F)
+                                .clientTrackingRange(8)
+                                .updateInterval(1)
+                                .build("fd_soul_sword"));
+        public static final RegistryObject<EntityType<EntityFDSpearPhantomSword>> FDSpearPhantomSword = ENTITY_TYPES
+                        .register(
+                                        "fd_spear_phantom_sword",
+                                        () -> EntityType.Builder
+                                                        .<EntityFDSpearPhantomSword>of(EntityFDSpearPhantomSword::new,
+                                                                        MobCategory.MISC)
+                                                        .sized(0.5F, 0.5F)
+                                                        .clientTrackingRange(8)
+                                                        .updateInterval(1)
+                                                        .build("fd_spear_phantom_sword"));
 
         public static void register(IEventBus eventBus) {
                 ENTITY_TYPES.register(eventBus);

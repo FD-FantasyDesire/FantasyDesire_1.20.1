@@ -7,11 +7,16 @@ import mods.flammpfeil.slashblade.event.handler.FallHandler;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,6 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector4f;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDAttackManager;
 
 import java.lang.reflect.Field;
@@ -30,8 +36,13 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
     private static final EntityDataAccessor<Float> SCALE = SynchedEntityData.defineId(EntityFDSlashEffect.class,
             EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> LIFETIME = SynchedEntityData.defineId(EntityFDSlashEffect.class,
-            EntityDataSerializers.INT);private static final EntityDataAccessor<Boolean> DISABLE_S_LEVEL_CRIT_PARTICLES = SynchedEntityData.defineId(EntityFDSlashEffect.class,
+            EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> DISABLE_S_LEVEL_CRIT_PARTICLES = SynchedEntityData.defineId(
+            EntityFDSlashEffect.class,
             EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<String> CUSTOM_DAMAGE_TYPE = SynchedEntityData.defineId(
+            EntityFDSlashEffect.class,
+            EntityDataSerializers.STRING);
 
     public EntityFDSlashEffect(EntityType<? extends EntitySlashEffect> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
@@ -43,6 +54,7 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
         this.entityData.define(SCALE, 1.0F);
         this.entityData.define(LIFETIME, 10);
         this.entityData.define(DISABLE_S_LEVEL_CRIT_PARTICLES, false);
+        this.entityData.define(CUSTOM_DAMAGE_TYPE, "");
     }
 
     public void setScale(float scale) {
@@ -69,12 +81,21 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
         return this.entityData.get(DISABLE_S_LEVEL_CRIT_PARTICLES);
     }
 
+    public void setCustomDamageType(String type) {
+        this.entityData.set(CUSTOM_DAMAGE_TYPE, type);
+    }
+
+    public String getCustomDamageType() {
+        return this.entityData.get(CUSTOM_DAMAGE_TYPE);
+    }
+
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putFloat("Scale", this.getScale());
         tag.putInt("Lifetime", this.getLifetime());
         tag.putBoolean("DisableSLevelCritParticles", this.getDisableSLevelCritParticles());
+        tag.putString("CustomDamageType", this.getCustomDamageType());
     }
 
     @Override
@@ -88,6 +109,9 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
         }
         if (tag.contains("DisableSLevelCritParticles")) {
             this.setDisableSLevelCritParticles(tag.getBoolean("DisableSLevelCritParticles"));
+        }
+        if (tag.contains("CustomDamageType")) {
+            this.setCustomDamageType(tag.getString("CustomDamageType"));
         }
     }
 
@@ -177,10 +201,17 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
             List<Entity> hits;
             if (!getIndirect() && getShooter() instanceof LivingEntity shooter) {
                 float ratio = (float) getDamage() * (getIsCritical() ? 1.1f : 1.0f);
+                DamageSource customSource = null;
+                String typeStr = this.getCustomDamageType();
+                if (!typeStr.isEmpty()) {
+                    ResourceKey<DamageType> damageTypeKey = ResourceKey.create(Registries.DAMAGE_TYPE,
+                            new ResourceLocation(typeStr));
+                    customSource = FDDamageSource.getEntityDamageSource(this.level(), damageTypeKey, shooter);
+                }
                 hits = FDAttackManager.areaAttack(shooter, this.getAction().action, this.position(),
                         4.0 * this.getScale(), ratio,
                         forceHit, false, true,
-                        getAlreadyHits(), null);
+                        getAlreadyHits(), customSource);
             } else {
                 hits = AttackManager.areaAttack(this, this.getAction().action, 4.0 * this.getScale(), forceHit,
                         false,

@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:quartz_block"
+    },
+    "C": {
+      "item": "slashblade:proudsoul_crystal"
+    },
+    "P": {
+      "item": "slashblade:proudsoul"
+    },
+    "T": {
+      "item": "minecraft:copper_block"
+    }
+  },
+  "pattern": [
+    " TP",
+    "BCB",
+    "PT "
+  ],
+  "result": {
+    "item": "slashblade:proudsoul_crystal",
+    "nbt": "{SpecialEffectType:\"fantasydesire:thunder_bullet\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.thunder_bullet\"}']}}"
+  },
+  "show_notification": true
+}

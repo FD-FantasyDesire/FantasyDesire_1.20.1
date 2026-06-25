@@ -7,11 +7,12 @@
       "type": "slashblade:blade",
       "item": "slashblade:slashblade",
       "request": {
-        "kill": 1000
+        "kill": 1000,
+        "name": "slashblade:koseki"
       }
     },
     "D": {
-      "tag": "forge:dyes/blue"
+      "tag": "forge:dyes/light_blue"
     },
     "E": {
       "item": "minecraft:ender_pearl"
@@ -23,7 +24,7 @@
       "item": "minecraft:paper"
     },
     "S": {
-      "tag": "forge:string"
+      "item": "minecraft:repeater"
     }
   },
   "pattern": [

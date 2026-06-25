@@ -1,6 +1,5 @@
 {
   "type": "fantasydesire:special_transform",
-  "baseTooltip": "jei.fantasydesire.special_transform.overcold_0_to_1",
   "blade": "fantasydesire:over_cold_1",
   "ingredients": [
     {
@@ -8,7 +7,7 @@
       "item": "fantasydesire:fantasyslashblade",
       "request": {
         "fantasy": {
-          "special_charge": 250
+          "special_charge": 300
         },
         "name": "fantasydesire:over_cold_0"
       }
@@ -16,5 +15,6 @@
   ],
   "result": {
     "item": "fantasydesire:fantasyslashblade"
-  }
+  },
+  "tooltip": "jei.fantasydesire.special_transform.overcold_0_to_1"
 }

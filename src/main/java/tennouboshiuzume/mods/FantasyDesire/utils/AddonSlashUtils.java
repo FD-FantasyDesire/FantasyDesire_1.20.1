@@ -16,6 +16,8 @@ import net.minecraftforge.common.MinecraftForge;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSlashEffect;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 
+import javax.annotation.Nullable;
+
 public class AddonSlashUtils extends AttackManager {
     public static EntitySlashEffect doAddonSlash(LivingEntity playerIn, float roll, float YRot, float XRot,
             int colorCode, float rotationOffset, Vec3 centerOffset, boolean mute, boolean critical, double damage,
@@ -53,7 +55,7 @@ public class AddonSlashUtils extends AttackManager {
 
     public static EntitySlashEffect doAddonFDSlash(LivingEntity playerIn, float roll, float YRot, float XRot,
             int colorCode, float rotationOffset, Vec3 centerOffset, boolean mute, boolean critical, double damage,
-            KnockBacks knockback, float scale, int lifetime) {
+            KnockBacks knockback, float scale, int lifetime, @Nullable String damagetype) {
         if (playerIn.level().isClientSide()) {
             return null;
         } else {
@@ -77,6 +79,7 @@ public class AddonSlashUtils extends AttackManager {
             jc.setDamage(damage);
             jc.setKnockBack(knockback);
             jc.setScale(scale);
+            jc.setCustomDamageType(damagetype);
             if (playerIn != null) {
                 playerIn.getCapability(ConcentrationRankCapabilityProvider.RANK_POINT).ifPresent((rank) -> {
                     jc.setRank(rank.getRankLevel(playerIn.level().getGameTime()));

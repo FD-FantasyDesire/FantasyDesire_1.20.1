@@ -8,8 +8,8 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 
 import java.util.List;
 import java.util.Map;
@@ -159,11 +159,11 @@ public class EchoDamageHelper {
                 centerEntity.playSound(SoundEvents.TRIDENT_RETURN, 1f, 1.5f);
                 if (centerEntity.level() instanceof ServerLevel serverLevel) {
                     double yPos = centerEntity.getY() + centerEntity.getBbHeight() / 4;
-                    serverLevel.sendParticles(
+                    tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils.sendForceParticles(serverLevel,
                             new tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleOptions(
                                     0x5500AA, (float) radius, 0.5f, 5),
                             centerEntity.getX(), yPos, centerEntity.getZ(),
-                            1, 0, 0, 0, 0);
+                            1, 0, 0, 0, 0, 64.0);
 
                     for (int i = 0; i < 5; i++) {
                         double vx = (centerEntity.getRandom().nextDouble() - 0.5) * 0.5;

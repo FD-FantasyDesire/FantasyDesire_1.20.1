@@ -1,20 +1,9 @@
 package tennouboshiuzume.mods.FantasyDesire.potioneffect;
 
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
-import tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
-import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
-
-import java.util.Map;
-import java.util.UUID;
 
 public class EchoTimerEffect extends MobEffect {
     public EchoTimerEffect() {

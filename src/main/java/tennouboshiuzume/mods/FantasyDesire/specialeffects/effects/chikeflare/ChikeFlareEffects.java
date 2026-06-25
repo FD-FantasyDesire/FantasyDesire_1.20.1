@@ -5,7 +5,6 @@ import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -15,7 +14,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -25,18 +23,14 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
-import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSpearPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
-import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils.BladeContext;
-import tennouboshiuzume.mods.FantasyDesire.utils.MathUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
-import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
+import tennouboshiuzume.mods.FantasyDesire.utils.*;
+
 import java.util.List;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -108,29 +102,20 @@ public class ChikeFlareEffects {
                 .requireTranslation("item.fantasydesire.chikeflare")
                 .requireSE(FDSpecialEffectsRegistry.ImmortalSoul)
                 .match();
-
         if (ctx == null)
             return;
-
         ISlashBladeState state = ctx.state;
         IFantasySlashBladeState fdState = ctx.fantasyState;
-
         float baseattack = state.getBaseAttackModifier();
-
         if (!CapabilityUtils.tryConsumeProudSoul(state, 1000, player, null)) {
             return;
         }
-        // 永久提升基础面板
         state.setBaseAttackModifier(baseattack + 0.67f);
-        // 特殊充能 +5倍最大生命值
         CapabilityUtils.addSpecialCharge(fdState, (int) (player.getMaxHealth() * 5));
-        // 回复与抗性
         player.setHealth(player.getMaxHealth() / 2.0F);
         player.removeAllEffects();
         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 6, 4));
         player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20 * 6, 4));
-
-        // 阻止死亡事件
         event.setCanceled(true);
     }
 
@@ -139,13 +124,11 @@ public class ChikeFlareEffects {
     public static void OnHit(SlashBladeEvent.HitEvent event) {
         if (!(event.getUser() instanceof Player player))
             return;
-
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(player)
                 .allowBothHands()
                 .requireTranslation("item.fantasydesire.chikeflare")
                 .requireSE(FDSpecialEffectsRegistry.TyrantStrike)
                 .match();
-
         if (ctx != null) {
             ISlashBladeState state = ctx.state;
             LivingEntity target = event.getTarget();
@@ -154,7 +137,7 @@ public class ChikeFlareEffects {
         }
     }
 
-    // 彗星猛击
+    // SA联动 彗星猛击
     @SubscribeEvent
     public static void OnElytraClashBlock(LivingHurtEvent event) {
         if (!(event.getEntity() instanceof Player entity))
@@ -165,20 +148,16 @@ public class ChikeFlareEffects {
             return;
         if (entity.level().isClientSide())
             return;
-
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(entity)
                 .allowBothHands()
                 .requireTranslation("item.fantasydesire.chikeflare")
                 .match();
-
         float weaponDamage = 0;
         if (ctx != null) {
             weaponDamage = (ctx.state.getBaseAttackModifier() + ctx.state.getAttackAmplifier()) * 10f;
         }
-
         float explosionRadius = 15.0f;
         ServerLevel serverLevel = (ServerLevel) entity.level();
-        // 在半径15米(平面)内均匀生成大型爆炸烟雾粒子
         for (int i = 0; i < 30; i++) {
             double r = Math.sqrt(serverLevel.random.nextDouble()) * explosionRadius;
             double theta = serverLevel.random.nextDouble() * 2 * Math.PI;
@@ -186,20 +165,18 @@ public class ChikeFlareEffects {
             double pz = entity.getZ() + r * Math.sin(theta);
             serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, px, entity.getY() + 0.1, pz, 1, 0, 0, 0, 0);
         }
-
         // 使该范围内敌人受到体力值上限10%+ 本次撞击伤害 + weaponDamage的次元伤害
         List<LivingEntity> enemies = FDTargetSelector.getNearbyLivingEntities(entity, explosionRadius, false, null);
         for (LivingEntity target : enemies) {
             float damage = target.getMaxHealth() * 0.1f + event.getAmount() + weaponDamage;
             target.hurt(FDDamageSource.entityDamageSource(serverLevel, FDDamageSource.DIMENSION, entity), damage);
+            spawnTyrantStrikePhantomSword(entity, target, ctx.state, target.getRandom());
         }
-
         serverLevel.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 2, 1);
-        // 生成黄色平面环形粒子
         FlatSpreadingRingParticleOptions particleOptions = new FlatSpreadingRingParticleOptions(
                 0xFFFF00, explosionRadius, 1.5f, 20);
-        serverLevel.sendParticles(particleOptions, entity.getX(), entity.getY() + 0.1, entity.getZ(), 1, 0, 0, 0, 0);
-
+        ParticleUtils.sendForceParticles(serverLevel, particleOptions,
+                entity.getX(), entity.getY() + 0.1, entity.getZ(), 1, 0, 0, 0, 0, 64.0);
         entity.removeEffect(FDPotionEffects.COMET_ELYTRA.get());
     }
 
@@ -219,9 +196,11 @@ public class ChikeFlareEffects {
         float lookPitch = (float) (Math.asin(-lookVec.y) * (180f / Math.PI));
         FlatSpreadingRingParticleOptions particleOptions = new FlatSpreadingRingParticleOptions(
                 0xFFFF00, 3, 0.5f, 5);
-        ((ServerLevel) player.level()).sendParticles(particleOptions, spawnPos.x, spawnPos.y + 0.1, spawnPos.z, 1, 0, 0,
-                0, 0);
-        EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
+        ParticleUtils.sendForceParticles((ServerLevel) player.level(),
+                particleOptions, spawnPos.x, spawnPos.y + 0.1, spawnPos.z, 1, 0, 0,
+                0, 0, 64.0);
+        EntityFDSpearPhantomSword ss = new EntityFDSpearPhantomSword(
+                tennouboshiuzume.mods.FantasyDesire.init.FDEntitys.FDSpearPhantomSword.get(), player.level());
         ss.setIsCritical(false);
         ss.setOwner(player);
         ss.setColor(state.getColorCode());
@@ -229,7 +208,8 @@ public class ChikeFlareEffects {
         ss.setDamage(target.getMaxHealth() / 4);
         ss.setSpeed(5);
         ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
-        ss.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
+        ss.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
+        ss.setSeekAngle(36);
         ss.setDelay(100);
         ss.setDelayTicks(0);
         ss.setNoClip(true);

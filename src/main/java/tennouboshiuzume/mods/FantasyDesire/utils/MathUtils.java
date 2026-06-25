@@ -15,25 +15,4 @@ public class MathUtils {
         float roll = random.nextFloat() * 100.0f;
         return roll < chance;
     }
-
-    /**
-     * 将值限制在 [min, max] 范围内
-     */
-    public static int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
-    /**
-     * 将值限制在 [min, max] 范围内
-     */
-    public static float clamp(float value, float min, float max) {
-        return Math.max(min, Math.min(max, value));
-    }
-
-    /**
-     * 将值限制在 [min, max] 范围内
-     */
-    public static double clamp(double value, double min, double max) {
-        return Math.max(min, Math.min(max, value));
-    }
 }

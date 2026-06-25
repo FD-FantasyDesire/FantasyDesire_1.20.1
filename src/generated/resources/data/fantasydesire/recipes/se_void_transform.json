@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:light_blue_dye"
+    },
+    "C": {
+      "item": "slashblade:proudsoul_crystal"
+    },
+    "P": {
+      "item": "minecraft:pink_dye"
+    },
+    "T": {
+      "item": "minecraft:end_stone"
+    }
+  },
+  "pattern": [
+    " TP",
+    "TCT",
+    "BT "
+  ],
+  "result": {
+    "item": "slashblade:proudsoul_crystal",
+    "nbt": "{SpecialEffectType:\"fantasydesire:void_transform\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.void_transform\"}']}}"
+  },
+  "show_notification": true
+}

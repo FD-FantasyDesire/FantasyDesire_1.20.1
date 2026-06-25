@@ -13,7 +13,6 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
-import tennouboshiuzume.mods.FantasyDesire.specialeffects.FDSpecialEffectBase;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 @SuppressWarnings("removal")
@@ -25,7 +24,6 @@ public class OverColdEffects {
         ItemStack blade = event.getBlade();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade))
             return;
-        // 使用新的 SEConditionMatcher，只检查翻译键
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, null)
                 .requireTranslation("item.fantasydesire.over_cold")
                 .requireSE(FDSpecialEffectsRegistry.EvolutionIce)

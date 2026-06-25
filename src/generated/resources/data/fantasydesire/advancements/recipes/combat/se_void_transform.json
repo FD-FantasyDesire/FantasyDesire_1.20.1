@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "fantasydesire:twin_blade_l"
+        "recipe": "fantasydesire:se_void_transform"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "fantasydesire:twin_blade_l"
+      "fantasydesire:se_void_transform"
     ]
   },
   "sends_telemetry_event": false

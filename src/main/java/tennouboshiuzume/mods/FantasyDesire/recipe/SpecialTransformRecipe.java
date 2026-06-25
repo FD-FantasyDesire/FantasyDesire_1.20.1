@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mods.flammpfeil.slashblade.SlashBladeConfig;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
-import mods.flammpfeil.slashblade.recipe.SlashBladeIngredient;
 import mods.flammpfeil.slashblade.registry.slashblade.SlashBladeDefinition;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.RegistryAccess;
@@ -32,24 +31,17 @@ public class SpecialTransformRecipe implements Recipe<Container> {
     private final NonNullList<Ingredient> inputs;
     private final ItemStack result;
     private final ResourceLocation outputBlade;
-    private final String baseTooltip;
-    private final String add1Tooltip;
-    private final String add2Tooltip;
-    private final String resultTooltip;
+    private final String tooltip;
     private static final ResourceLocation FANTASY_SLASHBLADE = new ResourceLocation(FantasyDesire.MODID,
             "fantasyslashblade");
 
     public SpecialTransformRecipe(ResourceLocation id, NonNullList<Ingredient> inputs, ItemStack result,
-            ResourceLocation outputBlade, String baseTooltip, String add1Tooltip, String add2Tooltip,
-            String resultTooltip) {
+            ResourceLocation outputBlade, String tooltip) {
         this.id = id;
         this.inputs = inputs;
         this.result = result;
         this.outputBlade = outputBlade;
-        this.baseTooltip = baseTooltip != null ? baseTooltip : "";
-        this.add1Tooltip = add1Tooltip != null ? add1Tooltip : "";
-        this.add2Tooltip = add2Tooltip != null ? add2Tooltip : "";
-        this.resultTooltip = resultTooltip != null ? resultTooltip : "";
+        this.tooltip = tooltip != null ? tooltip : "";
     }
 
     @Override
@@ -112,8 +104,18 @@ public class SpecialTransformRecipe implements Recipe<Container> {
                         }
                         updateEnchantment(resultStack, stack);
                     }
+                    var fdIngredientState = stack.getCapability(
+                            tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade.FDBLADESTATE)
+                            .orElse(null);
+                    var fdResultState = resultStack.getCapability(
+                            tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade.FDBLADESTATE)
+                            .orElse(null);
+                    if (fdIngredientState != null && fdResultState != null) {
+                        fdResultState.setSpecialCharge(
+                                Math.max(fdResultState.getSpecialCharge(), fdIngredientState.getSpecialCharge()));
+                        resultStack.getOrCreateTag().put("fdBladeState", fdResultState.serializeNBT());
+                    }
                 }
-
                 resultState.setProudSoulCount(proudSoul);
                 resultState.setKillCount(killCount);
                 resultState.setRefine(refine);
@@ -187,20 +189,8 @@ public class SpecialTransformRecipe implements Recipe<Container> {
         return outputBlade;
     }
 
-    public String getBaseTooltip() {
-        return baseTooltip;
-    }
-
-    public String getAdd1Tooltip() {
-        return add1Tooltip;
-    }
-
-    public String getAdd2Tooltip() {
-        return add2Tooltip;
-    }
-
-    public String getResultTooltip() {
-        return resultTooltip;
+    public String getTooltip() {
+        return tooltip;
     }
 
     public static class Serializer implements RecipeSerializer<SpecialTransformRecipe> {
@@ -216,12 +206,8 @@ public class SpecialTransformRecipe implements Recipe<Container> {
             if (pSerializedRecipe.has("blade")) {
                 blade = new ResourceLocation(GsonHelper.getAsString(pSerializedRecipe, "blade"));
             }
-            String baseTooltip = GsonHelper.getAsString(pSerializedRecipe, "baseTooltip", "");
-            String add1Tooltip = GsonHelper.getAsString(pSerializedRecipe, "add1Tooltip", "");
-            String add2Tooltip = GsonHelper.getAsString(pSerializedRecipe, "add2Tooltip", "");
-            String resultTooltip = GsonHelper.getAsString(pSerializedRecipe, "resultTooltip", "");
-            return new SpecialTransformRecipe(pRecipeId, inputs, result, blade, baseTooltip, add1Tooltip, add2Tooltip,
-                    resultTooltip);
+            String tooltip = GsonHelper.getAsString(pSerializedRecipe, "tooltip", "");
+            return new SpecialTransformRecipe(pRecipeId, inputs, result, blade, tooltip);
         }
 
         @Override
@@ -235,12 +221,8 @@ public class SpecialTransformRecipe implements Recipe<Container> {
             if (pBuffer.readBoolean()) {
                 blade = pBuffer.readResourceLocation();
             }
-            String baseTooltip = pBuffer.readUtf();
-            String add1Tooltip = pBuffer.readUtf();
-            String add2Tooltip = pBuffer.readUtf();
-            String resultTooltip = pBuffer.readUtf();
-            return new SpecialTransformRecipe(pRecipeId, inputs, result, blade, baseTooltip, add1Tooltip, add2Tooltip,
-                    resultTooltip);
+            String tooltip = pBuffer.readUtf();
+            return new SpecialTransformRecipe(pRecipeId, inputs, result, blade, tooltip);
         }
 
         @Override
@@ -253,10 +235,7 @@ public class SpecialTransformRecipe implements Recipe<Container> {
             if (pRecipe.outputBlade != null) {
                 pBuffer.writeResourceLocation(pRecipe.outputBlade);
             }
-            pBuffer.writeUtf(pRecipe.baseTooltip);
-            pBuffer.writeUtf(pRecipe.add1Tooltip);
-            pBuffer.writeUtf(pRecipe.add2Tooltip);
-            pBuffer.writeUtf(pRecipe.resultTooltip);
+            pBuffer.writeUtf(pRecipe.tooltip);
         }
     }
 }

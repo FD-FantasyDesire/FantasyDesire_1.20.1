@@ -5,6 +5,7 @@ import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -86,22 +87,24 @@ public class GunBladeEffects {
         Random random = new Random();
         if (!(player.level() instanceof ServerLevel))
             return;
+        double ratio = event.getDamage();
         if (TripleOn && !EnergyOn) {
-            shootSmartBullets(player, blade, state, fdState,
+            shootSmartBullets(player, blade, state, fdState, ratio,
                     ExplosiveOn, random);
         }
         if (EnergyOn && !TripleOn) {
-            shootEnergyBullet(player, blade, state,
+            shootEnergyBullet(player, blade, state, ratio,
                     ThunderOn, random);
             player.getCooldowns().addCooldown(blade.getItem(), 10);
         }
         event.setCanceled(true);
     }
 
-    private static void shootSmartBullets(Player player,
+    public static void shootSmartBullets(Player player,
             ItemStack blade,
             ISlashBladeState state,
             IFantasySlashBladeState fdState,
+            double ratio,
             boolean explosive,
             Random random) {
 
@@ -117,16 +120,23 @@ public class GunBladeEffects {
 
         int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
         float lockDistance = (explosive ? 35 : 15) + sweepLevel * sweepRangeMult;
-
-        float damage = state.getBaseAttackModifier()
-                + state.getAttackAmplifier()
-                + blade.getEnchantmentLevel(Enchantments.POWER_ARROWS) * 3;
-
+        // 1. 获取基础数值
+        float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
+        // 前100次重铸能带来显著提升，之后每次重铸稳定增加 0.1 伤害。
+        int refine = state.getRefine();
+        // 线性保底增长 + 平方根前期收益增长
+        float refineBonus = (float) (refine * 0.1f + Math.sqrt(refine) * 1.5f);
+        // 1 + (附魔等级 * 0.1) -> 力量5提供额外50%的总基础伤害乘区
+        int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
+        float enchantMultiplier = 1.0f + (enchantLevel * 0.15f);
+        float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ratio);
         List<LivingEntity> targets = FDTargetSelector.getTargetsInSight(
                 player, lockDistance, 30, true, null);
 
         targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(player)));
-
+        int color = explosive ? 0xFF0000 : state.getColorCode();
+        float expRadius = explosive ? 2 + enchantLevel : 0;
+        finalDamage *= explosive ? 5 : 1;
         for (int i = 0; i < volleyCount; i++) {
 
             EntityFDPhantomSword ss = explosive
@@ -134,8 +144,8 @@ public class GunBladeEffects {
                     : new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
 
             setupSmartBullet(ss, player, state, random,
-                    explosive, damage, speed, delay, i,
-                    inaccuracy, seekAngle, tailNodes);
+                    expRadius, color, finalDamage, speed, delay, i,
+                    inaccuracy, seekAngle, tailNodes, !explosive);
 
             Entity target = selectTarget(player, state, targets, explosive, i);
 
@@ -153,26 +163,30 @@ public class GunBladeEffects {
     private static void shootEnergyBullet(Player player,
             ItemStack blade,
             ISlashBladeState state,
+            double ratio,
             boolean thunder,
             Random random) {
 
         if (!(player.level() instanceof ServerLevel))
             return;
-
-        float damage = state.getBaseAttackModifier()
-                + state.getAttackAmplifier()
-                + blade.getEnchantmentLevel(Enchantments.POWER_ARROWS) * 5;
-
-        int pelletCount = thunder ? 4 : 8;
-
+        // 1. 获取基础数值
+        float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
+        // 前100次重铸能带来显著提升，之后每次重铸稳定增加 0.2 伤害。
+        int refine = state.getRefine();
+        // 线性保底增长 + 平方根前期收益增长
+        float refineBonus = (float) (refine * 0.2f + Math.sqrt(refine) * 1.5f);
+        // 1 + (附魔等级 * 0.15) -> 力量5提供额外75%的总基础伤害乘区
+        int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
+        float enchantMultiplier = 1.0f + (enchantLevel * 0.15f);
+        float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ratio);
+        int pelletCount = 8;
         for (int i = 0; i < pelletCount; i++) {
             EntityFDEnergyBullet bullet = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
-
             bullet.setIsCritical(false);
             bullet.setOwner(player);
             bullet.setColor(thunder ? 0xFFFF00 : state.getColorCode());
             bullet.setRoll(random.nextInt(180));
-            bullet.setDamage(damage / (pelletCount / 2.0f)); // 分摊伤害，但略微提升总伤
+            bullet.setDamage(finalDamage); // 分摊伤害，但略微提升总伤
             // bullet.setNoClip(true);
             bullet.setSpeed(3f);
             bullet.setGroundLifespan(5);
@@ -186,7 +200,6 @@ public class GunBladeEffects {
             bullet.setFireSound(SoundEvents.SHULKER_SHOOT, 1, 2f);
             bullet.setHasTail(true);
             bullet.setScale(0.5f);
-
             float spread = 2.5f; // 15度散射角
             bullet.setStandbyYawPitch(
                     (float) random.nextGaussian() * spread,
@@ -210,18 +223,19 @@ public class GunBladeEffects {
             Player player,
             ISlashBladeState state,
             Random random,
-            boolean explosive,
+            float expRadius,
+            int color,
             float damage,
             float speed,
             int delay,
             int index,
             int inaccuracy,
             float seekAngle,
-            int tailNodes) {
+            int tailNodes, boolean noclip) {
 
         ss.setIsCritical(false);
         ss.setOwner(player);
-        ss.setColor(explosive ? 0xFF0000 : state.getColorCode());
+        ss.setColor(color);
         ss.setRoll(random.nextInt(180));
         ss.setDamage(damage);
         ss.setSpeed(speed);
@@ -231,9 +245,9 @@ public class GunBladeEffects {
         ss.setDelayTicks(index);
         ss.setSeekDelay(2 + index);
         ss.setSeekAngle(seekAngle);
-        ss.setNoClip(!explosive);
+        ss.setNoClip(noclip);
         ss.setMultipleHit(true);
-        ss.setExpRadius(explosive ? 2 : 0);
+        ss.setExpRadius(expRadius);
         ss.setStandbyYawPitch(
                 (float) random.nextGaussian() * inaccuracy,
                 (float) random.nextGaussian() * inaccuracy);

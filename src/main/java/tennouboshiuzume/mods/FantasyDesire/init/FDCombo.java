@@ -1,7 +1,10 @@
 package tennouboshiuzume.mods.FantasyDesire.init;
 
+import org.checkerframework.checker.units.qual.s;
+
 import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.ability.StunManager;
+import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.event.handler.FallHandler;
 import mods.flammpfeil.slashblade.init.DefaultResources;
 import mods.flammpfeil.slashblade.registry.ComboStateRegistry;
@@ -9,7 +12,6 @@ import mods.flammpfeil.slashblade.registry.combo.ComboState;
 import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import mods.flammpfeil.slashblade.util.TimeValueHelper;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -18,14 +20,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.EchoingVoid;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.FreezeZero;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.RainbowStar;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.TwinSlash;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.WingToTheFuture;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.CrimsonStrike;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
+import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
+import tennouboshiuzume.mods.FantasyDesire.slasharts.*;
 import tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.starlessnight.StarlessNightEffects;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
@@ -117,54 +117,67 @@ public class FDCombo extends ComboStateRegistry {
                                                         ? FantasyDesire.prefix("crimson_strike_0")
                                                         : SlashBlade.prefix("none"))::build);
 
-        // 血色深渊（起手聚怪）
         public static final RegistryObject<ComboState> CRIMSON_STRIKE_0 = FD_COMBO_STATES.register("crimson_strike_0",
-                        ComboState.Builder.newInstance().startAndEnd(400, 420).priority(50)
-                                        .motionLoc(DefaultResources.ExMotionLocation)
-                                        .next(ComboState.TimeoutNext.buildFromFrame(20,
+                        ComboState.Builder.newInstance().startAndEnd(2200, 2251).priority(50).speed(1.0F)
+                                        .next(ComboState.TimeoutNext.buildFromFrame(16,
                                                         entity -> FantasyDesire.prefix("crimson_strike_1")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("crimson_strike_1"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(1, entityIn -> CrimsonStrike.ShootHunterSword(entityIn))
+                                                        .put(16, entityIn -> CrimsonStrike.ShootHunterSword(entityIn))
                                                         .build())
                                         .addHitEffect(StunManager::setStun)::build);
 
         // 腥红风暴（乱舞斩击）
         public static final RegistryObject<ComboState> CRIMSON_STRIKE_1 = FD_COMBO_STATES.register("crimson_strike_1",
-                        ComboState.Builder.newInstance().startAndEnd(725, 743).priority(50)
+                        ComboState.Builder.newInstance().startAndEnd(1816, 1859).speed(6F).priority(50)
                                         .next(ComboState.TimeoutNext.buildFromFrame(18,
                                                         entity -> FantasyDesire.prefix("crimson_strike_2")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("crimson_strike_2"))
+                                        .clickAction((entityIn) -> CrimsonStrike.doTripleAddonFDSlash(
+                                                        entityIn,
+                                                        22.5F,
+                                                        entityIn.getYRot(), 0, 0xFF0000, 0,
+                                                        Vec3.ZERO,
+                                                        false, false, 4f, KnockBacks.cancel,
+                                                        20))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(2, entityIn -> CrimsonStrike.Stage2(entityIn))
-                                                        .put(6, entityIn -> CrimsonStrike.Stage2(entityIn))
-                                                        .put(10, entityIn -> CrimsonStrike.Stage2(entityIn))
-                                                        .put(14, entityIn -> CrimsonStrike.Stage2(entityIn))
                                                         .build())
                                         .addHitEffect(StunManager::setStun)::build);
 
         // 深红裁决（终结爆发）
         public static final RegistryObject<ComboState> CRIMSON_STRIKE_2 = FD_COMBO_STATES.register("crimson_strike_2",
-                        ComboState.Builder.newInstance().startAndEnd(500, 520).priority(50)
-                                        .motionLoc(DefaultResources.ExMotionLocation)
+                        ComboState.Builder.newInstance().startAndEnd(204, 218).speed(1.1F).priority(50)
                                         .next(ComboState.TimeoutNext.buildFromFrame(20,
                                                         entity -> FantasyDesire.prefix("crimson_strike_end")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("crimson_strike_end"))
+                                        .clickAction((entityIn) -> CrimsonStrike.doTripleAddonFDSlash(
+                                                        entityIn,
+                                                        180F - 22.5F,
+                                                        entityIn.getYRot(), 0, 0xFF0000, 0,
+                                                        Vec3.ZERO,
+                                                        false, false, 4f, KnockBacks.cancel,
+                                                        15))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
-                                                        .put(8, entityIn -> CrimsonStrike.Stage3(entityIn))
                                                         .build())
                                         .addHitEffect(StunManager::setStun)::build);
 
         public static final RegistryObject<ComboState> CRIMSON_STRIKE_END = FD_COMBO_STATES.register(
                         "crimson_strike_end",
-                        ComboState.Builder.newInstance().startAndEnd(459, 488).priority(50)
-                                        .motionLoc(DefaultResources.ExMotionLocation)
+                        ComboState.Builder.newInstance().startAndEnd(218, 281).priority(50).aerial()
+                                        .next(entity -> SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> SlashBlade.prefix("crimson_strike_end2"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(0, AttackManager::playQuickSheathSoundAction).build())
+                                        .releaseAction(ComboState::releaseActionQuickCharge)::build);
+
+        public static final RegistryObject<ComboState> CRIMSON_STRIKE_END2 = FD_COMBO_STATES.register(
+                        "crimson_strike_end2",
+                        ComboState.Builder.newInstance().startAndEnd(281, 314).priority(50).aerial()
                                         .next(entity -> SlashBlade.prefix("none"))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .put(0, AttackManager::playQuickSheathSoundAction).build())
                                         .releaseAction(ComboState::releaseActionQuickCharge)::build);
-
         // 虹光星雨
         public static final RegistryObject<ComboState> RAINBOW_STAR = FD_COMBO_STATES.register("rainbow_star",
                         ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)
@@ -546,7 +559,8 @@ public class FDCombo extends ComboStateRegistry {
                                                         entityIn -> AddonSlashUtils.doAddonFDSlash(entityIn,
                                                                         180 - 42,
                                                                         entityIn.getYRot(), 0, 0x8000FF, 0, Vec3.ZERO,
-                                                                        false, false, 0.1f, KnockBacks.cancel, 10f, 10))
+                                                                        false, false, 0.1f, KnockBacks.cancel, 10f, 10,
+                                                                        FDDamageSource.ECHO.location().toString()))
                                                         .build())
                                         .addHitEffect((target, attacker) -> {
                                                 StarlessNightEffects.stackVoidStrike(target, 10);
@@ -697,12 +711,16 @@ public class FDCombo extends ComboStateRegistry {
                                         .motionLoc(DefaultResources.ExMotionLocation)
                                         .next(entity -> SlashBlade.prefix("none"))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
-                                        .clickAction(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
-                                                        .TransformToB(tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
-                                                                        .getBladeState(entity.getMainHandItem()),
-                                                                        tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
-                                                                                        .getFantasyBladeState(entity
-                                                                                                        .getMainHandItem())))::build);
+                                        .clickAction(entity -> {
+                                                ISlashBladeState state = CapabilityUtils
+                                                                .getBladeState(entity.getMainHandItem());
+                                                IFantasySlashBladeState fdState = CapabilityUtils
+                                                                .getFantasyBladeState(entity.getMainHandItem());
+                                                SmartPistolMode.dumpAmmo(entity, state,
+                                                                fdState);
+                                                SmartPistolMode.TransformToB(state,
+                                                                fdState);
+                                        })::build);
 
         public static final RegistryObject<ComboState> SMART_PISTOL_B_TO_A = FD_COMBO_STATES.register(
                         "smart_pistol_b_to_a",
@@ -710,10 +728,14 @@ public class FDCombo extends ComboStateRegistry {
                                         .motionLoc(DefaultResources.ExMotionLocation)
                                         .next(entity -> SlashBlade.prefix("none"))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
-                                        .clickAction(entity -> tennouboshiuzume.mods.FantasyDesire.slasharts.SmartPistolMode
-                                                        .TransformToA(tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
-                                                                        .getBladeState(entity.getMainHandItem()),
-                                                                        tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils
-                                                                                        .getFantasyBladeState(entity
-                                                                                                        .getMainHandItem())))::build);
+                                        .clickAction(entity -> {
+                                                ISlashBladeState state = CapabilityUtils
+                                                                .getBladeState(entity.getMainHandItem());
+                                                IFantasySlashBladeState fdState = CapabilityUtils
+                                                                .getFantasyBladeState(entity.getMainHandItem());
+                                                SmartPistolMode.BFGShot(entity, state, fdState);
+                                                SmartPistolMode.TransformToA(state,
+                                                                fdState);
+
+                                        })::build);
 }

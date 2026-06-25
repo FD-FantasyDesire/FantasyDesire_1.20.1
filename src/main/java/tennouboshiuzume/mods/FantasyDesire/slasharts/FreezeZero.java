@@ -20,11 +20,10 @@ public class FreezeZero {
                 .match();
         if (ctx == null)
             return;
-
         String specialType = ctx.fantasyState.getSpecialType();
         MobEffectInstance current = entity.getEffect(FDPotionEffects.FROST_STORM.get());
         int evolutionTier = OverColdEffects.getEvolutionTier(specialType);
-        // 检查玩家是否已经处于风暴状态，至少一级进化之后，才能使用
+        // 检查玩家是否已经处于风暴状态，至少一级进化之后，才能使其叠加增长
         if (current == null) {
             StartStorm(entity, evolutionTier);
         } else {

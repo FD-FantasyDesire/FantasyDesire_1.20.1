@@ -114,7 +114,8 @@ public class FDAttackManager extends AttackManager {
             float baseAmount = (float) (attacker.getAttribute(Attributes.ATTACK_DAMAGE).getValue()
                     * (double) getSlashBladeDamageScale(attacker)
                     * (Double) SlashBladeConfig.SLASHBLADE_DAMAGE_MULTIPLIER.get());
-            doAttackWith(attacker.damageSources().mobAttack(attacker), baseAmount, target, forceHit, resetHit);
+            DamageSource source = type != null ? type : attacker.damageSources().mobAttack(attacker);
+            doAttackWith(source, baseAmount, target, forceHit, resetHit);
         }
 
         ArrowReflector.doReflect(target, attacker);

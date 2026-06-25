@@ -33,11 +33,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.logging.log4j.util.LoaderUtil;
 import org.jetbrains.annotations.Nullable;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleProvider;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleProvider;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleProvider;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.ColorShardParticle;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.EnderShardParticle;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.FrostCrownLayer;
@@ -95,6 +91,8 @@ public class ClientHandler {
         event.registerEntityRenderer(FDEntitys.FDHuntSword.get(), FDHuntSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDSlashEffect.get(), FDSlashEffectRender::new);
         event.registerEntityRenderer(FDEntitys.EnderSlashEffect.get(), EnderSlashEffectRender::new);
+        event.registerEntityRenderer(FDEntitys.FDSoulPhantomSword.get(), FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDSpearPhantomSword.get(), FDSpearPhantomSwordRender::new);
     }
 
     @SubscribeEvent

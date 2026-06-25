@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "slashblade:proudsoul_crystal"
+    },
+    "P": {
+      "item": "slashblade:proudsoul"
+    },
+    "T": {
+      "item": "minecraft:tnt"
+    }
+  },
+  "pattern": [
+    " TP",
+    "TCT",
+    "PT "
+  ],
+  "result": {
+    "item": "slashblade:proudsoul_crystal",
+    "nbt": "{SpecialEffectType:\"fantasydesire:explosive_bullet\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.thunder_bullet\"}']}}"
+  },
+  "show_notification": true
+}

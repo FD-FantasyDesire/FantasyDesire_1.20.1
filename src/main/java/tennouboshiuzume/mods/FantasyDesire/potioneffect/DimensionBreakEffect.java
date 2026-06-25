@@ -1,12 +1,13 @@
 package tennouboshiuzume.mods.FantasyDesire.potioneffect;
 
-import java.util.UUID;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+
+import java.util.UUID;
 
 public class DimensionBreakEffect extends MobEffect {
     private static final UUID DIMENSION_BREAK_MULTIPLY_UUID = UUID.fromString("9a1e3b5d-8f2c-4e7a-b1c4-6d9e0f3a5c2b");

@@ -1,7 +1,5 @@
 {
   "type": "fantasydesire:special_transform",
-  "add1Tooltip": "jei.fantasydesire.special_transform.chikeflare",
-  "baseTooltip": "jei.fantasydesire.special_transform.slashblade.any",
   "blade": "fantasydesire:chikeflare",
   "ingredients": [
     {
@@ -10,10 +8,14 @@
       "request": {}
     },
     {
-      "item": "slashblade:proudsoul_sphere"
+      "type": "forge:nbt",
+      "count": 1,
+      "item": "slashblade:proudsoul_sphere",
+      "nbt": "{SpecialAttackType:\"fantasydesire:wing_to_the_future\"}"
     }
   ],
   "result": {
     "item": "fantasydesire:fantasyslashblade"
-  }
+  },
+  "tooltip": "jei.fantasydesire.special_transform.chikeflare"
 }

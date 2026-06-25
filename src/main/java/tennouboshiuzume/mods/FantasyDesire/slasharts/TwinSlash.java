@@ -6,6 +6,7 @@ import mods.flammpfeil.slashblade.util.AttackManager;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.RandomSource;
@@ -14,8 +15,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.resources.ResourceLocation;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSlashArtRegistry;
@@ -23,9 +24,8 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlash
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySlashBlade;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
-import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
 import java.util.List;
 
@@ -46,17 +46,18 @@ public class TwinSlash {
         if (nearest == null)
             return;
         player.playSound(SoundEvents.GRASS_STEP, 1f, 0.7f);
-        // 粒子（只在服务器执行）
         Vec3 teleportPos = calculateTeleportPosition(player, nearest);
-        for (int i = 0; i < 8; i++) {
-            Vec3 offset = new Vec3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5));
-            Vec3 start = player.position().add(0, player.getBbHeight() / 2, 0).add(offset);
-            Vec3 end = teleportPos.add(0, player.getBbHeight() / 2, 0).add(offset);
-            ParticleUtils.LightBoltParticles(player.level(), start, end, i % 2 == 0 ? 0x00C8FF : 0xFF0089, 0.05f, 20,
-                    0.5f, true, 1, 12);
-        }
         if ((player.level() instanceof ServerLevel serverlevel)) {
+            for (int i = 0; i < 8; i++) {
+                Vec3 offset = new Vec3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5));
+                Vec3 start = player.position().add(0, player.getBbHeight() / 2, 0).add(offset);
+                Vec3 end = teleportPos.add(0, player.getBbHeight() / 2, 0).add(offset);
+                ParticleUtils.LightBoltParticles(player.level(), start, end, i % 2 == 0 ? 0x00C8FF : 0xFF0089, 0.05f,
+                        20,
+                        0.5f, true, 1, 12);
+            }
             if (isValidTeleportPosition(teleportPos)) {
+                // 我不知道拔刀剑原作者为什么要这么写瞬步，但是一定有他的道理
                 performTeleportation((Entity) player, serverlevel, teleportPos);
                 applyPostTeleportEffects(player);
             }
@@ -80,15 +81,16 @@ public class TwinSlash {
             return;
         player.playSound(SoundEvents.GRASS_STEP, 1f, 0.7f);
         Vec3 teleportPos = calculateTeleportPosition(player, target);
-        for (int i = 0; i < 8; i++) {
-            Vec3 offset = new Vec3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5));
-            Vec3 start = player.position().add(0, player.getBbHeight() / 2, 0).add(offset);
-            Vec3 end = teleportPos.add(0, player.getBbHeight() / 2, 0).add(offset);
-            ParticleUtils.LightBoltParticles(player.level(), start, end, i % 2 == 0 ? 0x00C8FF : 0xFF0089, 0.05f, 20,
-                    0.5f, true, 1, 12);
-        }
+
         if ((player.level() instanceof ServerLevel serverlevel)) {
-            // 粒子（只在服务器执行）
+            for (int i = 0; i < 8; i++) {
+                Vec3 offset = new Vec3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5));
+                Vec3 start = player.position().add(0, player.getBbHeight() / 2, 0).add(offset);
+                Vec3 end = teleportPos.add(0, player.getBbHeight() / 2, 0).add(offset);
+                ParticleUtils.LightBoltParticles(player.level(), start, end, i % 2 == 0 ? 0x00C8FF : 0xFF0089, 0.05f,
+                        20,
+                        0.5f, true, 1, 12);
+            }
             if (isValidTeleportPosition(teleportPos)) {
                 performTeleportation((Entity) player, serverlevel, teleportPos);
                 applyPostTeleportEffects(player);
@@ -166,7 +168,8 @@ public class TwinSlash {
             Vec3 midPoint = start.add(end).scale(0.5);
             GlowingLineParticleOptions opts = new GlowingLineParticleOptions(start, end,
                     Math.random() < 0.5 ? 0x00C8FF : 0xFF0089, 0.05f, 1, false, 20);
-            serverlevel.sendParticles(opts, midPoint.x, midPoint.y, midPoint.z, 1, 0, 0, 0, 0);
+            tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils.sendForceParticles(serverlevel, opts, midPoint.x,
+                    midPoint.y, midPoint.z, 1, 0, 0, 0, 0, 64.0);
         }
     }
 

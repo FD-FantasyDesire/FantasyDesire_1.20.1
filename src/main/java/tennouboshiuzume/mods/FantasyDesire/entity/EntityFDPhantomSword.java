@@ -41,6 +41,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.entity.PartEntity;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
+import net.minecraft.network.FriendlyByteBuf;
 import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
@@ -53,7 +55,7 @@ import java.util.Deque;
 import java.util.List;
 
 @SuppressWarnings("removal")
-public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
+public class EntityFDPhantomSword extends EntityAbstractSummonedSword implements IEntityAdditionalSpawnData {
     public enum StandbyMode {
         NONE, PLAYER, WORLD
     }
@@ -159,7 +161,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         this.entityData.define(MULTIPLE_HIT, false);
         this.entityData.define(SPEED, 3f);
         this.entityData.define(EXP_RADIUS, 0f);
-        this.entityData.define(DAMAGE_TYPE, "Null");
+        this.entityData.define(DAMAGE_TYPE, "");
         this.entityData.define(NO_EVENT, false);
         this.entityData.define(HAS_TAIL, false);
         this.entityData.define(FORCE_TAIL, false);
@@ -170,7 +172,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
     @Override
     public void tick() {
-        // 测试使用GunBladeEffects.java类测试
         // 检定：如果绑定于玩家，则根据玩家位置，适用视角对应的位置修正，类似BlisteringSwords
         // 如果绑定于世界，则适用默认方向修正 （STANDBY_YAW 、STANDBY_PITCH）
         // 如果待命期间有目标且跟踪延迟结束，以每5deg/tick转向，如果跟踪延迟未结束，保持当前方向并且继续适用以上修正
@@ -179,7 +180,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         // Example：
         // 有目标，发射延迟<追踪延迟：以初始方向发射后再追踪敌人
         // 绑定于世界，有目标，无追踪延迟，有发射延迟：以基础方向生成，并且立即开始转向目标，延迟结束时按朝向发射
-        if (getShooter() == null || !getShooter().isAlive()) {
+        if (!this.level().isClientSide() && (getShooter() == null || !getShooter().isAlive())) {
             if (tickCount > 20)
                 remove(RemovalReason.DISCARDED);
             return;
@@ -493,11 +494,11 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         Vec3 toTarget = targetPos.subtract(swordPos).normalize();
         Vec3 currentDir = this.getDeltaMovement();
         if (currentDir.lengthSqr() < 1e-7) {
-            currentDir = toTarget; // 初始指向目标
+            currentDir = toTarget; // 指向目标
         } else {
             currentDir = currentDir.normalize();
         }
-        double maxTurn = Math.max(Math.toRadians(36),
+        double maxTurn = Math.min(Math.toRadians(36),
                 Math.toRadians(this.getSeekAngle() * this.getDeltaMovement().length()));
         Vec3 finalDir = VecMathUtils.rotateTowards(currentDir, toTarget, (float) maxTurn);
         double baseSpeed = this.getSpeed();
@@ -515,11 +516,11 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         Vec3 toTarget = targetPos.subtract(swordPos).normalize();
         Vec3 currentDir = this.getDeltaMovement();
         if (currentDir.lengthSqr() < 1e-7) {
-            currentDir = toTarget; // 初始指向目标
+            currentDir = toTarget; // 指向目标
         } else {
             currentDir = currentDir.normalize();
         }
-        double maxTurn = Math.max(Math.toRadians(36),
+        double maxTurn = Math.min(Math.toRadians(36),
                 Math.toRadians(this.getSeekAngle() * this.getDeltaMovement().length()));
         Vec3 finalDir = VecMathUtils.rotateTowards(currentDir, toTarget, (float) maxTurn);
         double desiredSpeed = this.getSpeed();
@@ -558,18 +559,28 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
         Entity shooter = this.getShooter();
         DamageSource damagesource;
-        if (shooter == null) {
-            damagesource = this.damageSources().indirectMagic(this, this);
+        String typeStr = this.getDamageType();
+        if (!typeStr.isEmpty()) {
+            net.minecraft.resources.ResourceKey<net.minecraft.world.damagesource.DamageType> damageTypeKey = net.minecraft.resources.ResourceKey
+                    .create(net.minecraft.core.registries.Registries.DAMAGE_TYPE,
+                            new ResourceLocation(typeStr));
+            damagesource = tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource
+                    .getEntityDamageSource(this.level(), damageTypeKey, shooter != null ? shooter : this);
         } else {
-            damagesource = this.damageSources().indirectMagic(this, shooter);
-            if (shooter instanceof LivingEntity) {
-                Entity hits = targetEntity;
-                if (targetEntity instanceof PartEntity) {
-                    hits = ((PartEntity) targetEntity).getParent();
-                }
-
-                ((LivingEntity) shooter).setLastHurtMob(hits);
+            if (shooter == null) {
+                damagesource = this.damageSources().indirectMagic(this, this);
+            } else {
+                damagesource = this.damageSources().indirectMagic(this, shooter);
             }
+        }
+
+        if (shooter instanceof LivingEntity) {
+            Entity hits = targetEntity;
+            if (targetEntity instanceof PartEntity) {
+                hits = ((PartEntity) targetEntity).getParent();
+            }
+
+            ((LivingEntity) shooter).setLastHurtMob(hits);
         }
 
         int fireTime = targetEntity.getRemainingFireTicks();
@@ -585,50 +596,10 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
         }
 
         float damageValue = (float) i * scale;
-        if (targetEntity.hurt(damagesource, damageValue)) {
-            Entity hits = targetEntity;
-            if (targetEntity instanceof PartEntity) {
-                hits = ((PartEntity) targetEntity).getParent();
-            }
-
-            if (hits instanceof LivingEntity) {
-                LivingEntity targetLivingEntity = (LivingEntity) hits;
-                StunManager.setStun(targetLivingEntity);
-                if (!this.level().isClientSide() && this.getPierce() <= 0) {
-                    this.setHitEntity(hits);
-                }
-
-                if (!this.level().isClientSide() && shooter instanceof LivingEntity) {
-                    EnchantmentHelper.doPostHurtEffects(targetLivingEntity, shooter);
-                    EnchantmentHelper.doPostDamageEffects((LivingEntity) shooter, targetLivingEntity);
-                }
-
-                this.affectEntity(targetLivingEntity, this.getPotionEffects(), 1.0);
-                if (shooter != null && targetLivingEntity != shooter && targetLivingEntity instanceof Player
-                        && shooter instanceof ServerPlayer) {
-                    ((ServerPlayer) shooter).playNotifySound(this.getHitEntityPlayerSound(), SoundSource.PLAYERS, 0.18F,
-                            0.45F);
-                }
-            }
-
-            this.playSound(this.getHitEntitySound(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-            if (this.getPierce() <= 0 && (this.getHitEntity() == null || !this.getHitEntity().isAlive())) {
-                this.burst();
-            }
-        } else {
-            targetEntity.setRemainingFireTicks(fireTime);
-            setTicksInAir(0);
-            if (!this.level().isClientSide() && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
-                if (this.getPierce() <= 1) {
-                    this.burst();
-                } else {
-                    this.setPierce((byte) (this.getPierce() - 1));
-                }
-            }
-        }
+        applyDamage(targetEntity, damagesource, damageValue, shooter, fireTime);
         if (this.entityData.get(EXP_RADIUS) > 0) {
-            doExplosive();
             targetEntity.invulnerableTime = 0;
+            doExplosive();
             this.burst();
             targetEntity.invulnerableTime = 0;
         }
@@ -841,7 +812,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
     }
 
     public void tryInit() {
-        if (this.getStandbyMode() == StandbyMode.WORLD) {
+        if (this.getStandbyMode() == StandbyMode.WORLD || this.getFired()) {
             this.yRotO = -getStandbyYawPitch()[0];
             this.xRotO = -getStandbyYawPitch()[1];
             this.setYRot(this.yRotO);
@@ -1094,6 +1065,81 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword {
 
     public int getGroundLifespan() {
         return this.entityData.get(GROUND_LIFESPAN);
+    }
+
+    public void setDamageType(String type) {
+        this.entityData.set(DAMAGE_TYPE, type);
+    }
+
+    public String getDamageType() {
+        return this.entityData.get(DAMAGE_TYPE);
+    }
+
+    protected void applyDamage(Entity targetEntity, DamageSource damagesource, float damageValue, Entity shooter,
+            int fireTime) {
+        if (doHurt(targetEntity, damagesource, damageValue)) {
+            Entity hits = targetEntity;
+            if (targetEntity instanceof PartEntity) {
+                hits = ((PartEntity) targetEntity).getParent();
+            }
+
+            if (hits instanceof LivingEntity targetLivingEntity) {
+                StunManager.setStun(targetLivingEntity);
+                if (!this.level().isClientSide() && this.getPierce() <= 0) {
+                    this.setHitEntity(hits);
+                }
+
+                if (!this.level().isClientSide() && shooter instanceof LivingEntity) {
+                    EnchantmentHelper.doPostHurtEffects(targetLivingEntity, shooter);
+                    EnchantmentHelper.doPostDamageEffects((LivingEntity) shooter, targetLivingEntity);
+                }
+
+                this.affectEntity(targetLivingEntity, this.getPotionEffects(), 1.0);
+                if (shooter != null && targetLivingEntity != shooter && targetLivingEntity instanceof Player
+                        && shooter instanceof ServerPlayer serverPlayer) {
+                    serverPlayer.playNotifySound(this.getHitEntityPlayerSound(), SoundSource.PLAYERS, 0.18F,
+                            0.45F);
+                }
+            }
+
+            this.playSound(this.getHitEntitySound(), 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+            if (this.getPierce() <= 0 && (this.getHitEntity() == null || !this.getHitEntity().isAlive())) {
+                this.burst();
+            }
+        } else {
+            targetEntity.setRemainingFireTicks(fireTime);
+            setTicksInAir(0);
+            if (!this.level().isClientSide() && this.getDeltaMovement().lengthSqr() < 1.0E-7) {
+                if (this.getPierce() <= 1) {
+                    this.burst();
+                } else {
+                    this.setPierce((byte) (this.getPierce() - 1));
+                }
+            }
+        }
+    }
+
+    protected boolean doHurt(Entity target, DamageSource damagesource, float damageValue) {
+        return target.hurt(damagesource, damageValue);
+    }
+
+    @Override
+    public void writeSpawnData(FriendlyByteBuf buffer) {
+        Entity owner = this.getOwner();
+        buffer.writeInt(owner != null ? owner.getId() : -1);
+        buffer.writeInt(this.tickCount);
+    }
+
+    @Override
+    public void readSpawnData(FriendlyByteBuf additionalData) {
+        int ownerId = additionalData.readInt();
+        if (ownerId != -1) {
+            Entity owner = this.level().getEntity(ownerId);
+            if (owner != null) {
+                this.setOwner(owner);
+            }
+        }
+        this.tickCount = additionalData.readInt();
     }
 
     //////////////////////////

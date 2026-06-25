@@ -3,10 +3,10 @@ package tennouboshiuzume.mods.FantasyDesire.compat.jei;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.ingredients.subtypes.UidContext;
-import mezz.jei.api.registration.ISubtypeRegistration;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import mezz.jei.api.registration.ISubtypeRegistration;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.SlashBladeItems;
@@ -23,7 +23,6 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySl
 import tennouboshiuzume.mods.FantasyDesire.recipe.SpecialTransformRecipe;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @JeiPlugin
 public class FDJEICompat implements IModPlugin {

@@ -373,6 +373,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .maxDamage(777)
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
+                                                                .maxSpecialCharge(7)
                                                                 .specialType("PureSnow")
                                                                 .build(),
                                                 List.of(new EnchantmentDefinition(
@@ -482,7 +483,7 @@ public class FantasySlashBladeBuiltInRegistry {
                 // new EnchantmentDefinition(
                 // getEnchantmentID(Enchantments.MENDING),
                 // 1))));
-                // 遗留物，红艳煞
+                // 遗留测试物，红艳煞
                 // bootstrap.register(ArdorBlossomStar,
                 // new FantasySlashBladeDefinition(FantasyDesire.prefix("ardor_blossom_star"),
                 // RenderDefinition.Builder.newInstance()

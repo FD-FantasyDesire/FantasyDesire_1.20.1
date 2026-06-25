@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "fantasydesire:twin_blade_r"
+        "recipe": "fantasydesire:smart_pistol_b"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "fantasydesire:twin_blade_r"
+      "fantasydesire:smart_pistol_b"
     ]
   },
   "sends_telemetry_event": false

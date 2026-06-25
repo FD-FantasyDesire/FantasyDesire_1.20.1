@@ -5,11 +5,16 @@ import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.registry.SlashBladeItems;
 import mods.flammpfeil.slashblade.registry.specialeffects.SpecialEffect;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import mods.flammpfeil.slashblade.slasharts.SlashArts;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 
@@ -21,6 +26,36 @@ public class ItemUtils {
     public static ItemStack CustomEffectShard(ItemStack stack, SpecialEffect effect) {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putString("SpecialEffectType", effect.toString());
+        return stack;
+    }
+
+    public static ItemStack CustomSlashArtSphere(ItemStack stack, SlashArts slashArt) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putString("SpecialAttackType", slashArt.toString());
+        return stack;
+    }
+
+    public static ItemStack CustomEffectShardWithLore(ItemStack stack, SpecialEffect effect, String loreKey) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putString("SpecialEffectType", effect.toString());
+
+        CompoundTag display = stack.getOrCreateTagElement("display");
+        ListTag lore = display.getList("Lore", Tag.TAG_STRING);
+        lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.translatable(loreKey))));
+        display.put("Lore", lore);
+
+        return stack;
+    }
+
+    public static ItemStack CustomSlashArtSphereWithLore(ItemStack stack, SlashArts slashArt, String loreKey) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putString("SpecialAttackType", slashArt.toString());
+
+        CompoundTag display = stack.getOrCreateTagElement("display");
+        ListTag lore = display.getList("Lore", Tag.TAG_STRING);
+        lore.add(StringTag.valueOf(Component.Serializer.toJson(Component.translatable(loreKey))));
+        display.put("Lore", lore);
+
         return stack;
     }
 
@@ -54,6 +89,7 @@ public class ItemUtils {
         return blade1;
     }
 
+    // 替换拔刀剑模型
     public static void ConvertModel(ItemStack blade, String model) {
         if (blade.getItem() instanceof ItemSlashBlade) {
             ISlashBladeState state = CapabilityUtils.getBladeState(blade);

@@ -8,6 +8,7 @@
       "item": "slashblade:slashblade",
       "request": {
         "kill": 300,
+        "name": "slashblade:ruby",
         "sword_type": [
           "broken"
         ]

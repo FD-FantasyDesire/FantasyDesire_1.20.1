@@ -9,13 +9,12 @@ import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
-import net.minecraft.util.Mth;
 
 @OnlyIn(Dist.CLIENT)
 public class SpreadingRingParticle extends Particle {
@@ -26,6 +25,8 @@ public class SpreadingRingParticle extends Particle {
     public static final ParticleRenderType SPREADING_RING = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthMask(false);
             RenderSystem.disableCull();
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
@@ -38,6 +39,7 @@ public class SpreadingRingParticle extends Particle {
             tesselator.end();
             RenderSystem.disableBlend();
             RenderSystem.enableCull();
+            RenderSystem.depthMask(true);
         }
 
         @Override

@@ -12,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDHuntSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
@@ -21,7 +22,6 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySl
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
-import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 import java.util.List;
 import java.util.Random;
@@ -36,7 +36,6 @@ public class CrimsonScytheEffects {
         LivingEntity entity = event.getUser();
         if (!(blade.getItem() instanceof ItemFantasySlashBlade))
             return;
-        // 获取主手Capability
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         int color = state.getColorCode();
         // 使用 SEConditionMatcher 检查 CrimsonStrike（狩魂 爪刃斩击）
@@ -45,21 +44,25 @@ public class CrimsonScytheEffects {
                 .requireSE(FDSpecialEffectsRegistry.CrimsonStrike)
                 .match();
         if (mainCtx != null) {
-            Vec3 forward = Vec3.directionFromRotation(0, entity.getYRot());
-            Vec3 baseForwardUp = Vec3.directionFromRotation(-25, entity.getYRot());
-            Vec3 baseForwardDown = Vec3.directionFromRotation(+25, entity.getYRot());
-            Vec3 rotatedUp = VecMathUtils.rotateAroundAxis(baseForwardUp, forward, -event.getRoll());
-            Vec3 rotatedDown = VecMathUtils.rotateAroundAxis(baseForwardDown, forward, -event.getRoll());
-            float[] upYawPitch = VecMathUtils.getYawPitchFromVec(rotatedUp);
-            float[] downYawPitch = VecMathUtils.getYawPitchFromVec(rotatedDown);
             double ratio = event.getDamage();
-            AddonSlashUtils.doAddonSlash(entity, event.getRoll(), upYawPitch[0], upYawPitch[1], color, 0, Vec3.ZERO,
-                    false, false, ratio, KnockBacks.cancel);
-            AddonSlashUtils.doAddonSlash(entity, event.getRoll(), downYawPitch[0], downYawPitch[1], color, 0, Vec3.ZERO,
-                    false, false, ratio, KnockBacks.cancel);
+            float roll = event.getRoll();
+            float distance = 0.5f;
+            float rad = (float) Math.toRadians(-roll + 90.0f);
+            float dy = (float) Math.sin(rad) * distance;
+            float dz = (float) Math.cos(rad) * distance;
+            Vec3 offset1 = new Vec3(0, dy, dz);
+            Vec3 offset2 = new Vec3(0, -dy, -dz);
+            AddonSlashUtils.doAddonFDSlash(entity, roll, entity.getYRot(), 0.0f, color, 0, offset1,
+                    true,
+                    false,
+                    ratio, KnockBacks.cancel, 1.0f, 10, FDDamageSource.ABSORB.location().toString());
+            AddonSlashUtils.doAddonFDSlash(entity, roll, entity.getYRot(), 0.0f, color, 0, offset2,
+                    true,
+                    false,
+                    ratio, KnockBacks.cancel, 1.0f, 10, FDDamageSource.ABSORB.location().toString());
         }
 
-        // 使用 SEConditionMatcher 检查 BloodDrain（幻猎 发射抓钩幻影剑，击中时拉近敌人）
+        // BloodDrain（幻猎 发射抓钩幻影剑，击中时拉近敌人）
         CapabilityUtils.BladeContext offCtx = CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation(TRANSLATION_KEY)
                 .requireSE(FDSpecialEffectsRegistry.BloodDrain)

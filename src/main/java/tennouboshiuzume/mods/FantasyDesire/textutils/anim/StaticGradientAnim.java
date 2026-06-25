@@ -7,22 +7,24 @@ import tennouboshiuzume.mods.FantasyDesire.textutils.ComponentUtils;
 import tennouboshiuzume.mods.FantasyDesire.textutils.ITextAnim;
 
 public class StaticGradientAnim implements ITextAnim {
-//    静态渐变
+    // 静态渐变
     @Override
     public MutableComponent apply(MutableComponent component, long worldTime, long speed, TextColor[] colors) {
         String text = component.getString();
         int length = text.length();
-        if (length == 0 || colors == null || colors.length == 0) return component;
+        if (length == 0 || colors == null || colors.length == 0)
+            return component;
 
         return ComponentUtils.forEachChar(component, (c, baseStyle, index) -> {
             float t = (float) index / (float) Math.max(1, length - 1);
 
             // 计算在哪两个颜色之间插值
-            int seg = (int) (t * (colors.length - 1));
-            float localT = (t * (colors.length - 1)) - seg;
+            float scaled = t * colors.length;
+            int seg = (int) scaled % colors.length;
+            float localT = scaled - (int) scaled;
 
             TextColor c1 = colors[seg];
-            TextColor c2 = colors[Math.min(seg + 1, colors.length - 1)];
+            TextColor c2 = colors[(seg + 1) % colors.length];
 
             int blended = lerpColor(c1.getValue(), c2.getValue(), localT);
 

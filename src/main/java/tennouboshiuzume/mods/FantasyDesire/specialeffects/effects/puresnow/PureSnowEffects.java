@@ -1,11 +1,7 @@
 package tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.puresnow;
 
-import mods.flammpfeil.slashblade.SlashBlade;
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
-import mods.flammpfeil.slashblade.entity.EntitySlashEffect;
-import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSlashEffect;
-import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.world.damagesource.DamageSource;
@@ -17,6 +13,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSlashEffect;
+import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
@@ -40,8 +38,6 @@ public class PureSnowEffects {
             return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-
-        // 使用 SEConditionMatcher 检查 RainbowFlux
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, player)
                 .requireTranslation(TRANSLATION_KEY)
                 .requireSE(FDSpecialEffectsRegistry.RainbowFlux)
@@ -117,6 +113,5 @@ public class PureSnowEffects {
         event.setCanceled(true);
     }
 
-    // 棱光通量
     public static String[] damageTypes = { "wrath", "lust", "sloth", "gluttony", "gloom", "pride", "envy" };
 }
