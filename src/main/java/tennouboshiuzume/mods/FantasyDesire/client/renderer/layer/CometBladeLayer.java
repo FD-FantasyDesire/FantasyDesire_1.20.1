@@ -67,7 +67,7 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         // Main：暴君一击
         // Obrit：灵魂护盾
         // Outer：不屈之魂
-        // 使用鞘翅飞行时，转化为剑翼
+        // 使用鞘翅飞行时，转化为彗星剑翼
         if (hasTyrant) {
             renderMainBlade(poseStack, buffer, packedLight, player, ageInTicks);
         }
@@ -159,42 +159,32 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         }
     }
 
+    // 十字
     private void renderOrbitBlades(PoseStack poseStack,
             MultiBufferSource buffer,
             int packedLight,
             AbstractClientPlayer player,
             float ageInTicks) {
-
         float radius = 1f;
         float speed = 2.0f;
         float time = ageInTicks * speed;
-
         for (int i = 0; i < 8; i++) {
             poseStack.pushPose();
             poseStack.translate(0.0D, 0.35D, 0.65D);
             float baseAngle = i * 45f;
             float angle = baseAngle + time;
-            // Calculate cross-star shape instead of circular orbit
             float radians = (float) Math.toRadians(angle);
             float sin = Mth.sin(radians);
             float cos = Mth.cos(radians);
             float currentRadius = radius * (float) (1.0 - Math.pow(Math.sin(2 * radians), 2) * 0.5);
-
             float offsetX = cos * currentRadius;
             float offsetY = -sin * currentRadius;
-
             poseStack.translate(offsetX, offsetY, 0);
-
             poseStack.mulPose(Axis.XP.rotationDegrees(90f));
-
             poseStack.mulPose(Axis.YN.rotationDegrees(angle - 90f));
-
             applyBladeScale(poseStack, 0.0075f * 0.3f);
-
             applyBladeColor(0x00FFFF);
-
             renderModel(poseStack, buffer, packedLight);
-
             poseStack.popPose();
         }
     }

@@ -117,6 +117,54 @@ public class FDCombo extends ComboStateRegistry {
                                                         ? FantasyDesire.prefix("crimson_strike_0")
                                                         : SlashBlade.prefix("none"))::build);
 
+        // 血色深渊（起手聚怪）
+        public static final RegistryObject<ComboState> CRIMSON_STRIKE_0 = FD_COMBO_STATES.register("crimson_strike_0",
+                        ComboState.Builder.newInstance().startAndEnd(400, 420).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(ComboState.TimeoutNext.buildFromFrame(20,
+                                                        entity -> FantasyDesire.prefix("crimson_strike_1")))
+                                        .nextOfTimeout(entity -> FantasyDesire.prefix("crimson_strike_1"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(1, entityIn -> CrimsonStrike.ShootHunterSword(entityIn))
+                                                        .build())
+                                        .addHitEffect(StunManager::setStun)::build);
+
+        // 腥红风暴（乱舞斩击）
+        public static final RegistryObject<ComboState> CRIMSON_STRIKE_1 = FD_COMBO_STATES.register("crimson_strike_1",
+                        ComboState.Builder.newInstance().startAndEnd(725, 743).priority(50)
+                                        .next(ComboState.TimeoutNext.buildFromFrame(18,
+                                                        entity -> FantasyDesire.prefix("crimson_strike_2")))
+                                        .nextOfTimeout(entity -> FantasyDesire.prefix("crimson_strike_2"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(2, entityIn -> CrimsonStrike.Stage2(entityIn))
+                                                        .put(6, entityIn -> CrimsonStrike.Stage2(entityIn))
+                                                        .put(10, entityIn -> CrimsonStrike.Stage2(entityIn))
+                                                        .put(14, entityIn -> CrimsonStrike.Stage2(entityIn))
+                                                        .build())
+                                        .addHitEffect(StunManager::setStun)::build);
+
+        // 深红裁决（终结爆发）
+        public static final RegistryObject<ComboState> CRIMSON_STRIKE_2 = FD_COMBO_STATES.register("crimson_strike_2",
+                        ComboState.Builder.newInstance().startAndEnd(500, 520).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(ComboState.TimeoutNext.buildFromFrame(20,
+                                                        entity -> FantasyDesire.prefix("crimson_strike_end")))
+                                        .nextOfTimeout(entity -> FantasyDesire.prefix("crimson_strike_end"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(8, entityIn -> CrimsonStrike.Stage3(entityIn))
+                                                        .build())
+                                        .addHitEffect(StunManager::setStun)::build);
+
+        public static final RegistryObject<ComboState> CRIMSON_STRIKE_END = FD_COMBO_STATES.register(
+                        "crimson_strike_end",
+                        ComboState.Builder.newInstance().startAndEnd(459, 488).priority(50)
+                                        .motionLoc(DefaultResources.ExMotionLocation)
+                                        .next(entity -> SlashBlade.prefix("none"))
+                                        .nextOfTimeout(entity -> SlashBlade.prefix("none"))
+                                        .addTickAction(ComboState.TimeLineTickAction.getBuilder()
+                                                        .put(0, AttackManager::playQuickSheathSoundAction).build())
+                                        .releaseAction(ComboState::releaseActionQuickCharge)::build);
+
         // 虹光星雨
         public static final RegistryObject<ComboState> RAINBOW_STAR = FD_COMBO_STATES.register("rainbow_star",
                         ComboState.Builder.newInstance().startAndEnd(0, 1).priority(50)

@@ -15,7 +15,7 @@ public class FDSlashArtRegistry {
         public static final RegistryObject<SlashArts> RAINBOW_STAR = FD_SLASH_ARTS.register("rainbow_star",
                         () -> new FDSlashArts((e) -> FDCombo.RAINBOW_STAR.getId(), 1, true));
         public static final RegistryObject<SlashArts> CRIMSON_STRIKE = FD_SLASH_ARTS.register("crimson_strike",
-                        () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), 1));
+                        () -> new FDSlashArts((e) -> FDCombo.CRIMSON_STRIKE.getId(), 1));
         public static final RegistryObject<SlashArts> TWIN_SYSTEM_L = FD_SLASH_ARTS.register("twin_system_l",
                         () -> new FDSlashArts((e) -> FDCombo.MOOD_SLASH.getId(), 4));
         public static final RegistryObject<SlashArts> TWIN_SYSTEM_R = FD_SLASH_ARTS.register("twin_system_r",

@@ -5,7 +5,9 @@ import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -30,8 +32,12 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils.BladeContext;
 import tennouboshiuzume.mods.FantasyDesire.utils.MathUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
+import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
+import java.util.List;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ChikeFlareEffects {
@@ -144,64 +150,95 @@ public class ChikeFlareEffects {
             ISlashBladeState state = ctx.state;
             LivingEntity target = event.getTarget();
             RandomSource random = target.getRandom();
-            float yaw = (float) random.nextInt(360);
-            float pitch = 90f + (float) (random.nextGaussian() * 5f);
-            float roll = (float) (random.nextInt(360) - 180);
-            Vec3 basePos = new Vec3(0, 0, 1);
-            Vec3 spawnPos = target.position().add(0, target.getBbHeight() / 2, 0)
-                    .add(basePos
-                            .xRot((float) Math.toRadians(pitch))
-                            .yRot((float) Math.toRadians(yaw))
-                            .scale(30f));
-            Vec3 lookVec = target.position().add(0, target.getBbHeight() / 2, 0).subtract(spawnPos).normalize();
-            float lookYaw = (float) (Math.atan2(-lookVec.x, lookVec.z) * (180f / Math.PI));
-            float lookPitch = (float) (Math.asin(-lookVec.y) * (180f / Math.PI));
-            EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
-            ss.setIsCritical(false);
-            ss.setOwner(player);
-            ss.setColor(state.getColorCode());
-            ss.setRoll(roll);
-            ss.setDamage(target.getMaxHealth() / 4);
-            ss.setSpeed(5);
-            ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
-            ss.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
-            ss.setDelay(200);
-            ss.setParticleType(ParticleTypes.EXPLOSION);
-            ss.setDelayTicks(40);
-            ss.setNoClip(true);
-            ss.setHasTail(true);
-            ss.setFireSound(SoundEvents.WITHER_SHOOT, 1, 1.5f);
-            ss.setScale(target.getBbHeight());
-            ss.setTargetId(target.getId());
-            ss.setStandbyYawPitch(lookYaw, lookPitch);
-            ss.setPos(spawnPos);
-            ss.tryInit();
-            player.level().addFreshEntity(ss);
+            spawnTyrantStrikePhantomSword(player, target, state, random);
         }
     }
 
     // 彗星猛击
     @SubscribeEvent
     public static void OnElytraClashBlock(LivingHurtEvent event) {
-        LivingEntity entity = event.getEntity();
-        System.out.println(event.getSource().type());
-        if ((event.getSource().is(DamageTypes.FLY_INTO_WALL) || event.getSource().is(DamageTypes.FALL))
-                && entity.hasEffect(FDPotionEffects.COMET_ELYTRA.get())) {
-            // 鞘翅滑翔并且拥有该效果时发生撞击
-            System.out.println("Comet Clash Active！");
-            if (!entity.level().isClientSide()) {
-                float explosionRadius = 15.0f;
-                // 生成爆炸
-                entity.level().explode(entity, entity.getX(), entity.getY(), entity.getZ(), explosionRadius,
-                        Level.ExplosionInteraction.NONE);
-                // 生成黄色平面环形粒子
-                ServerLevel serverLevel = (ServerLevel) entity
-                        .level();
-                FlatSpreadingRingParticleOptions particleOptions = new FlatSpreadingRingParticleOptions(
-                        0xFFFF00, explosionRadius, 1.0f, 20);
-                serverLevel.sendParticles(particleOptions, entity.getX(), entity.getY() + 0.1, entity.getZ(), 1, 0, 0,
-                        0, 0);
-            }
+        if (!(event.getEntity() instanceof Player entity))
+            return;
+        if (!event.getSource().is(DamageTypes.FLY_INTO_WALL) && !event.getSource().is(DamageTypes.FALL))
+            return;
+        if (!entity.hasEffect(FDPotionEffects.COMET_ELYTRA.get()))
+            return;
+        if (entity.level().isClientSide())
+            return;
+
+        CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(entity)
+                .allowBothHands()
+                .requireTranslation("item.fantasydesire.chikeflare")
+                .match();
+
+        float weaponDamage = 0;
+        if (ctx != null) {
+            weaponDamage = (ctx.state.getBaseAttackModifier() + ctx.state.getAttackAmplifier()) * 10f;
         }
+
+        float explosionRadius = 15.0f;
+        ServerLevel serverLevel = (ServerLevel) entity.level();
+        // 在半径15米(平面)内均匀生成大型爆炸烟雾粒子
+        for (int i = 0; i < 30; i++) {
+            double r = Math.sqrt(serverLevel.random.nextDouble()) * explosionRadius;
+            double theta = serverLevel.random.nextDouble() * 2 * Math.PI;
+            double px = entity.getX() + r * Math.cos(theta);
+            double pz = entity.getZ() + r * Math.sin(theta);
+            serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, px, entity.getY() + 0.1, pz, 1, 0, 0, 0, 0);
+        }
+
+        // 使该范围内敌人受到体力值上限10%+ 本次撞击伤害 + weaponDamage的次元伤害
+        List<LivingEntity> enemies = FDTargetSelector.getNearbyLivingEntities(entity, explosionRadius, false, null);
+        for (LivingEntity target : enemies) {
+            float damage = target.getMaxHealth() * 0.1f + event.getAmount() + weaponDamage;
+            target.hurt(FDDamageSource.entityDamageSource(serverLevel, FDDamageSource.DIMENSION, entity), damage);
+        }
+
+        serverLevel.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 2, 1);
+        // 生成黄色平面环形粒子
+        FlatSpreadingRingParticleOptions particleOptions = new FlatSpreadingRingParticleOptions(
+                0xFFFF00, explosionRadius, 1.5f, 20);
+        serverLevel.sendParticles(particleOptions, entity.getX(), entity.getY() + 0.1, entity.getZ(), 1, 0, 0, 0, 0);
+
+        entity.removeEffect(FDPotionEffects.COMET_ELYTRA.get());
+    }
+
+    public static void spawnTyrantStrikePhantomSword(Player player, LivingEntity target, ISlashBladeState state,
+            RandomSource random) {
+        float yaw = (float) random.nextInt(360);
+        float pitch = 90f + (float) (random.nextGaussian() * 5f);
+        float roll = (float) (random.nextInt(360) - 180);
+        Vec3 basePos = new Vec3(0, 0, 1);
+        Vec3 spawnPos = target.position().add(0, target.getBbHeight() / 2, 0)
+                .add(basePos
+                        .xRot((float) Math.toRadians(pitch))
+                        .yRot((float) Math.toRadians(yaw))
+                        .scale(30f));
+        Vec3 lookVec = target.position().add(0, target.getBbHeight() / 2, 0).subtract(spawnPos).normalize();
+        float lookYaw = (float) (Math.atan2(-lookVec.x, lookVec.z) * (180f / Math.PI));
+        float lookPitch = (float) (Math.asin(-lookVec.y) * (180f / Math.PI));
+        FlatSpreadingRingParticleOptions particleOptions = new FlatSpreadingRingParticleOptions(
+                0xFFFF00, 3, 0.5f, 5);
+        ((ServerLevel) player.level()).sendParticles(particleOptions, spawnPos.x, spawnPos.y + 0.1, spawnPos.z, 1, 0, 0,
+                0, 0);
+        EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), player.level());
+        ss.setIsCritical(false);
+        ss.setOwner(player);
+        ss.setColor(state.getColorCode());
+        ss.setRoll(roll);
+        ss.setDamage(target.getMaxHealth() / 4);
+        ss.setSpeed(5);
+        ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
+        ss.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
+        ss.setDelay(100);
+        ss.setDelayTicks(0);
+        ss.setNoClip(true);
+        ss.setHasTail(true);
+        ss.setScale(target.getBbHeight());
+        ss.setTargetId(target.getId());
+        ss.setStandbyYawPitch(lookYaw, lookPitch);
+        ss.setPos(spawnPos);
+        ss.tryInit();
+        player.level().addFreshEntity(ss);
     }
 }
