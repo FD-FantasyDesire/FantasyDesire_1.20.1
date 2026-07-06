@@ -7,18 +7,12 @@ public class ColorUtils {
         if (step >= totalSteps) {
             step = step % totalSteps;
         }
-
         float hue = (step / totalSteps) * 360.0f;
-
-        // HSV 参数
-        float saturation = 1.0f; // 饱和度固定100%
-        float value = 1.0f; // 亮度固定100%
-
-        // 转换 HSV -> RGB
+        float saturation = 1.0f;
+        float value = 1.0f;
         int rgb = java.awt.Color.HSBtoRGB(hue / 360f, saturation, value);
 
         if (isHex) {
-            // 去掉 alpha 通道，返回纯 RGB (0xRRGGBB)
             return rgb & 0xFFFFFF;
         } else {
             return rgb;

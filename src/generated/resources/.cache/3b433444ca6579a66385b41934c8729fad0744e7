@@ -1,5 +1,6 @@
-// 1.20.1	2026-05-30T04:40:49.3681742	Tags for minecraft:damage_type mod id fantasydesire
+// 1.20.1	2026-06-30T23:44:02.5434441	Tags for minecraft:damage_type mod id fantasydesire
 348b63bbd9dc80986bf265d66e77eb4f15b3194f data/minecraft/tags/damage_type/bypasses_armor.json
+0fc0cba8630c7a6903f8b22a067bcd14b3a06a10 data/minecraft/tags/damage_type/bypasses_enchantments.json
 add121f8f32588e172cef4f5493d645a114c4ed8 data/minecraft/tags/damage_type/bypasses_invulnerability.json
 6019287bc2631dc2d8d2c5863610b6edc650003e data/minecraft/tags/damage_type/bypasses_resistance.json
 5e81f9f2d9d3e68e9de1af6853eef9c77baf29fc data/minecraft/tags/damage_type/bypasses_shield.json

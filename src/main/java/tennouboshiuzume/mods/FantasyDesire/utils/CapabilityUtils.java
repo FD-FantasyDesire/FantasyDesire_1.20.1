@@ -95,7 +95,8 @@ public class CapabilityUtils {
      * @param blade   对应的 ItemStack（用于特殊充能不足时消耗耐久降级），可为 null
      * @return 如果操作成功（扣除特殊充能 / 创造模式 / 消耗耐久）返回 true；否则返回 false
      */
-    public static boolean tryConsumeSpecialCharge(IFantasySlashBladeState fdState, int cost, @Nullable LivingEntity entity,
+    public static boolean tryConsumeSpecialCharge(IFantasySlashBladeState fdState, int cost,
+            @Nullable LivingEntity entity,
             @Nullable ItemStack blade) {
         if (fdState == null || cost < 0) {
             return false;
@@ -375,7 +376,8 @@ public class CapabilityUtils {
             IFantasySlashBladeState fdState = getFantasyBladeState(stack);
             if (state == null)
                 return null;
-
+            if (state.isBroken())
+                return null;
             if (requireTranslationKey != null && !state.getTranslationKey().equals(requireTranslationKey))
                 return null;
             if (requireModel != null && !state.getModel().equals(requireModel))

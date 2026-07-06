@@ -10,9 +10,9 @@ public class ComponentUtils {
     }
 
     public static MutableComponent forEachChar(Component component, CharVisitor visitor) {
-        MutableComponent result = Component.literal("");// 展开的纯文本
+        MutableComponent result = Component.literal("");
         int index = 0;
-        for (Component child : component.toFlatList()) { // Forge 的 helper，可以展平 siblings
+        for (Component child : component.toFlatList()) {
             String part = child.getString();
             Style style = child.getStyle();
             for (int i = 0; i < part.length(); i++) {
@@ -24,4 +24,3 @@ public class ComponentUtils {
         return result;
     }
 }
-

@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "fantasydesire:starless_night"
+        "recipe": "fantasydesire:twin_blade_r"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "fantasydesire:starless_night"
+      "fantasydesire:twin_blade_r"
     ]
   },
   "sends_telemetry_event": false

@@ -14,6 +14,7 @@ import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 @SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class TwinBladeEffects {
+    // 我觉得双刀的设计还是相对非常朴素，如果未来有想法再补充吧，目前将这两把刀定位在前中期也许更合适
     // 双持共击
     @SubscribeEvent
     public static void onTwinSlash(SlashBladeEvent.DoSlashEvent event) {

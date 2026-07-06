@@ -177,7 +177,6 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword implements
         // 如果待命期间有目标且跟踪延迟结束，以每5deg/tick转向，如果跟踪延迟未结束，保持当前方向并且继续适用以上修正
         // 发射延迟结束时，向指向方向发射
         // 发射后，当跟踪延迟结束时，以15deg*(目标当前速度/自身基础速度)/tick向目标转向，并使飞行速度基于基础速度加上目标的移动速度
-        // Example：
         // 有目标，发射延迟<追踪延迟：以初始方向发射后再追踪敌人
         // 绑定于世界，有目标，无追踪延迟，有发射延迟：以基础方向生成，并且立即开始转向目标，延迟结束时按朝向发射
         if (!this.level().isClientSide() && (getShooter() == null || !getShooter().isAlive())) {
@@ -392,7 +391,8 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword implements
                     if (entityraytraceresult != null) {
                         raytraceresult = entityraytraceresult;
                     }
-
+                    if (raytraceresult == null)
+                        break;
                     if (raytraceresult != null && raytraceresult.getType() == HitResult.Type.ENTITY) {
                         Entity entity = null;
                         if (raytraceresult instanceof EntityHitResult) {
@@ -779,7 +779,7 @@ public class EntityFDPhantomSword extends EntityAbstractSummonedSword implements
 
     private void updateStandbyOrientation() {
         Entity target = getTargetEntity(); // 通过目标ID获取实体
-        if (target != null && target.isAlive()) {
+        if (target != null && target.isAlive() && tickCount > getSeekDelay()) {
             // 计算朝向目标的 yaw/pitch
             Vec3 toTarget = target.position().add(0, target.getBbHeight() * 0.5, 0)
                     .subtract(this.position());

@@ -49,12 +49,15 @@ public class TextParser {
             addNode(stack, roots, new TextLeaf(parseLegacyFormatting(text)));
         }
 
-        while (!stack.isEmpty()) roots.add(stack.pop());
+        while (!stack.isEmpty())
+            roots.add(stack.pop());
         return roots;
     }
+
     public static MutableComponent parseLegacyFormatting(String s) {
         MutableComponent result = Component.literal("");
-        if (s == null || s.isEmpty()) return result;
+        if (s == null || s.isEmpty())
+            return result;
 
         Style current = Style.EMPTY;
         StringBuilder buf = new StringBuilder();
@@ -69,29 +72,72 @@ public class TextParser {
                 Style newStyle = current;
 
                 switch (Character.toLowerCase(ch)) {
-                    case 'k': newStyle = newStyle.withObfuscated(true); break;
-                    case 'l': newStyle = newStyle.withBold(true); break;
-                    case 'm': newStyle = newStyle.withStrikethrough(true); break;
-                    case 'n': newStyle = newStyle.withUnderlined(true); break;
-                    case 'o': newStyle = newStyle.withItalic(true); break;
-                    case 'r': newStyle = Style.EMPTY; break;
-
-                    case '0': newStyle = Style.EMPTY.withColor(0x000000); break;
-                    case '1': newStyle = Style.EMPTY.withColor(0x0000AA); break;
-                    case '2': newStyle = Style.EMPTY.withColor(0x00AA00); break;
-                    case '3': newStyle = Style.EMPTY.withColor(0x00AAAA); break;
-                    case '4': newStyle = Style.EMPTY.withColor(0xAA0000); break;
-                    case '5': newStyle = Style.EMPTY.withColor(0xAA00AA); break;
-                    case '6': newStyle = Style.EMPTY.withColor(0xFFAA00); break;
-                    case '7': newStyle = Style.EMPTY.withColor(0xAAAAAA); break;
-                    case '8': newStyle = Style.EMPTY.withColor(0x555555); break;
-                    case '9': newStyle = Style.EMPTY.withColor(0x5555FF); break;
-                    case 'a': newStyle = Style.EMPTY.withColor(0x55FF55); break;
-                    case 'b': newStyle = Style.EMPTY.withColor(0x55FFFF); break;
-                    case 'c': newStyle = Style.EMPTY.withColor(0xFF5555); break;
-                    case 'd': newStyle = Style.EMPTY.withColor(0xFF55FF); break;
-                    case 'e': newStyle = Style.EMPTY.withColor(0xFFFF55); break;
-                    case 'f': newStyle = Style.EMPTY.withColor(0xFFFFFF); break;
+                    case 'k':
+                        newStyle = newStyle.withObfuscated(true);
+                        break;
+                    case 'l':
+                        newStyle = newStyle.withBold(true);
+                        break;
+                    case 'm':
+                        newStyle = newStyle.withStrikethrough(true);
+                        break;
+                    case 'n':
+                        newStyle = newStyle.withUnderlined(true);
+                        break;
+                    case 'o':
+                        newStyle = newStyle.withItalic(true);
+                        break;
+                    case 'r':
+                        newStyle = Style.EMPTY;
+                        break;
+                    case '0':
+                        newStyle = Style.EMPTY.withColor(0x000000);
+                        break;
+                    case '1':
+                        newStyle = Style.EMPTY.withColor(0x0000AA);
+                        break;
+                    case '2':
+                        newStyle = Style.EMPTY.withColor(0x00AA00);
+                        break;
+                    case '3':
+                        newStyle = Style.EMPTY.withColor(0x00AAAA);
+                        break;
+                    case '4':
+                        newStyle = Style.EMPTY.withColor(0xAA0000);
+                        break;
+                    case '5':
+                        newStyle = Style.EMPTY.withColor(0xAA00AA);
+                        break;
+                    case '6':
+                        newStyle = Style.EMPTY.withColor(0xFFAA00);
+                        break;
+                    case '7':
+                        newStyle = Style.EMPTY.withColor(0xAAAAAA);
+                        break;
+                    case '8':
+                        newStyle = Style.EMPTY.withColor(0x555555);
+                        break;
+                    case '9':
+                        newStyle = Style.EMPTY.withColor(0x5555FF);
+                        break;
+                    case 'a':
+                        newStyle = Style.EMPTY.withColor(0x55FF55);
+                        break;
+                    case 'b':
+                        newStyle = Style.EMPTY.withColor(0x55FFFF);
+                        break;
+                    case 'c':
+                        newStyle = Style.EMPTY.withColor(0xFF5555);
+                        break;
+                    case 'd':
+                        newStyle = Style.EMPTY.withColor(0xFF55FF);
+                        break;
+                    case 'e':
+                        newStyle = Style.EMPTY.withColor(0xFFFF55);
+                        break;
+                    case 'f':
+                        newStyle = Style.EMPTY.withColor(0xFFFFFF);
+                        break;
 
                     default:
                         // 不是合法格式 → 原样输出 "§x"
@@ -131,35 +177,42 @@ public class TextParser {
         return result;
     }
 
-
     private void addNode(Deque<TextNode> stack, List<TextNode> roots, TextNode node) {
-        if (!stack.isEmpty()) stack.peek().children.add(node);
-        else roots.add(node);
+        if (!stack.isEmpty())
+            stack.peek().children.add(node);
+        else
+            roots.add(node);
     }
 
     private TextNode createNode(String tag, String param) {
-        if (!"style".equals(tag)) return new TextLeaf(Component.literal("")); // 未知标签当作空
+        if (!"style".equals(tag))
+            return new TextLeaf(Component.literal("")); // 未知标签当作空
 
         String type = "None";
         long speed = 5;
-        TextColor[] colors = new TextColor[]{TextColor.fromRgb(0xFFFFFF)};
+        TextColor[] colors = new TextColor[] { TextColor.fromRgb(0xFFFFFF) };
 
         if (param != null) {
             Matcher typeMatcher = Pattern.compile("Type\\s*=\\s*\"(\\w+)\"").matcher(param);
-            if (typeMatcher.find()) type = typeMatcher.group(1);
+            if (typeMatcher.find())
+                type = typeMatcher.group(1);
 
             Matcher speedMatcher = Pattern.compile("Speed\\s*=\\s*\"?(\\d+)\"?").matcher(param);
-            if (speedMatcher.find()) speed = Long.parseLong(speedMatcher.group(1));
+            if (speedMatcher.find())
+                speed = Long.parseLong(speedMatcher.group(1));
 
             Matcher colorMatcher = Pattern.compile("Color\\s*=\\s*(\"[^\"]+\"(,\"[^\"]+\")*)").matcher(param);
             if (colorMatcher.find()) {
-                String[] cs = colorMatcher.group(1).replace("\"","").split(",");
+                String[] cs = colorMatcher.group(1).replace("\"", "").split(",");
                 List<TextColor> list = new ArrayList<>();
                 for (String c : cs) {
-                    try { list.add(TextColor.fromRgb(Integer.parseInt(c.replace("#",""),16))); }
-                    catch(Exception ignored) {}
+                    try {
+                        list.add(TextColor.fromRgb(Integer.parseInt(c.replace("#", ""), 16)));
+                    } catch (Exception ignored) {
+                    }
                 }
-                if (!list.isEmpty()) colors = list.toArray(new TextColor[0]);
+                if (!list.isEmpty())
+                    colors = list.toArray(new TextColor[0]);
             }
         }
 

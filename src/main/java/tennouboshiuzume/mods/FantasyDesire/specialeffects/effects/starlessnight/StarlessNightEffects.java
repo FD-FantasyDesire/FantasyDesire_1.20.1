@@ -23,6 +23,7 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySl
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -185,23 +186,9 @@ public class StarlessNightEffects {
             if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                 int lineColor = 0x8000ff;
                 int baseLifetime = 20;
-                tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions lineOpts = new tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions(
-                        prevTargetPos, nextTargetPos, lineColor, 0.05f, 1.0f, true, baseLifetime);
-                tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils.sendForceParticles(serverLevel, lineOpts,
-                        prevTargetPos.x, prevTargetPos.y, prevTargetPos.z, 1, 0, 0, 0, 0, 64.0);
                 double distance = prevTargetPos.distanceTo(nextTargetPos);
-                int numRings = (int) (distance / 2.0);
-                if (numRings > 0) {
-                    net.minecraft.world.phys.Vec3 direction = nextTargetPos.subtract(prevTargetPos).normalize();
-                    for (int i = 1; i <= numRings; i++) {
-                        net.minecraft.world.phys.Vec3 ringPos = prevTargetPos.add(direction.scale(i * 2.0));
-                        int ringLifetime = baseLifetime + i * 5;
-                        tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions ringOpts = new tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions(
-                                lineColor, 0.2f, 0.05f, ringLifetime);
-                        tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils.sendForceParticles(serverLevel,
-                                ringOpts, ringPos.x, ringPos.y, ringPos.z, 1, 0, 0, 0, 0, 64.0);
-                    }
-                }
+                ParticleUtils.AstraLightningParticles(player.level(), prevTargetPos, nextTargetPos, lineColor, 0.05f,
+                        baseLifetime, 1.0f, true, 0.7d, (int) distance, -0.2f);
             }
             stackVoidStrike(nextTarget);
             currentTarget = nextTarget;

@@ -1,0 +1,39 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:twin_blade_l",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_block"
+    },
+    "D": {
+      "tag": "forge:dyes/light_blue"
+    },
+    "E": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "enchantments": [
+          {
+            "id": "minecraft:unbreaking",
+            "lvl": 3
+          }
+        ],
+        "kill": 906,
+        "name": "slashblade:rodai_iron"
+      }
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "pattern": [
+    " AO",
+    "OEA",
+    "DO "
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

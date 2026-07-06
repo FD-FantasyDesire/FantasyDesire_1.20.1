@@ -23,6 +23,7 @@
     }
   ],
   "fantasy": {
+    "max_special_charge": 7,
     "special_type": "PureSnow"
   },
   "name": "fantasydesire:pure_snow",

@@ -43,6 +43,7 @@ public class DamageConverterEvent {
             });
     public static UUID ETERNITY_HEALTH_MODIFIER = UUID.fromString("a5b1b2f0-2f3c-4e3b-8a71-123456789abc");
 
+    // 原版SlashEffect兼容层
     // 伤害替换事件，用FDAttackManager介入硬编码的DoSlash借代处理特殊类型伤害
     // 使原始伤害为0，因为SlashEffect不兼容自定义伤害类型并且硬编码在架势动作中（BURST FURINA）
     // 然后以相同方法计算伤害并且附加自定义伤害类型
@@ -55,7 +56,6 @@ public class DamageConverterEvent {
             Optional<IFantasySlashBladeState> fdStateOpt = blade.getCapability(FDBLADESTATE).resolve();
             if (stateOpt.isEmpty() || fdStateOpt.isEmpty())
                 return;
-            ISlashBladeState state = stateOpt.get();
             IFantasySlashBladeState fdState = fdStateOpt.get();
             String fdDamageType = fdState.getSpecialAttackEffect();
             if (fdDamageType != null && !fdDamageType.equals("Null")) {

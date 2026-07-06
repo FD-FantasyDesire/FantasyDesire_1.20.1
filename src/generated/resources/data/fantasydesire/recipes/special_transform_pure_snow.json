@@ -1,0 +1,21 @@
+{
+  "type": "fantasydesire:special_transform",
+  "blade": "fantasydesire:pure_snow",
+  "ingredients": [
+    {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {}
+    },
+    {
+      "type": "forge:nbt",
+      "count": 1,
+      "item": "slashblade:proudsoul_crystal",
+      "nbt": "{SpecialEffectType:\"fantasydesire:rainbow_flux\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.rainbow_flux\"}']}}"
+    }
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "tooltip": "jei.fantasydesire.special_transform.starless_night"
+}

@@ -52,7 +52,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                 PropertiesDefinition.Builder.newInstance()
                                                                 .baseAttackModifier(0.2F)
                                                                 .defaultSwordType(List.of(SwordType.BEWITCHED))
-                                                                .maxDamage(40)
+                                                                .maxDamage(27)
                                                                 .addSpecialEffect(FDSpecialEffectsRegistry.CheatRumble
                                                                                 .getId())
                                                                 .addSpecialEffect(FDSpecialEffectsRegistry.TyrantStrike
@@ -65,7 +65,7 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                 .getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
-                                                                .maxSpecialCharge(1000)
+                                                                .maxSpecialCharge(360)
                                                                 .specialChargeName("Soul")
                                                                 .specialLore(3)
                                                                 .specialAttackLore(6)

@@ -1,18 +1,24 @@
 package tennouboshiuzume.mods.FantasyDesire.client.renderer.entity;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import mods.flammpfeil.slashblade.client.renderer.model.BladeModelManager;
 import mods.flammpfeil.slashblade.client.renderer.model.obj.WavefrontObject;
 import mods.flammpfeil.slashblade.client.renderer.util.BladeRenderState;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.Mth;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -21,12 +27,43 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSpearPhantomSword;
 
 import java.util.List;
 
 @OnlyIn(Dist.CLIENT)
 public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> extends EntityRenderer<T> {
+
+    private static boolean missingCrossFlashShaderLogged = false;
+
+    private static final RenderType CROSS_FLASH_RENDER_TYPE = RenderType.create(
+            "fd_spear_cross_flash",
+            DefaultVertexFormat.POSITION_COLOR_TEX,
+            VertexFormat.Mode.QUADS,
+            256,
+            false,
+            true,
+            RenderType.CompositeState.builder()
+                    .setShaderState(new RenderStateShard.ShaderStateShard(() -> FDShaderHandler.getCrossFlashShader()))
+                    .setTextureState(new RenderStateShard.TextureStateShard(TextureManager.INTENTIONAL_MISSING_TEXTURE,
+                            false, false))
+                    .setTransparencyState(new RenderStateShard.TransparencyStateShard(
+                            "fd_additive_transparency",
+                            () -> {
+                                RenderSystem.enableBlend();
+                                RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA,
+                                        GlStateManager.DestFactor.ONE);
+                            },
+                            () -> {
+                                RenderSystem.disableBlend();
+                                RenderSystem.defaultBlendFunc();
+                            }))
+                    .setCullState(new RenderStateShard.CullStateShard(false))
+                    .setLightmapState(new RenderStateShard.LightmapStateShard(false))
+                    .setOverlayState(new RenderStateShard.OverlayStateShard(false))
+                    .setWriteMaskState(new RenderStateShard.WriteMaskStateShard(true, false))
+                    .createCompositeState(false));
 
     @Override
     public ResourceLocation getTextureLocation(T entity) {
@@ -40,6 +77,13 @@ public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> exte
     @Override
     public void render(T entity, float entityYaw, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
             int packedLightIn) {
+
+        // ===== 十字星型闪光特效（客户端） =====
+        if (entity.getFlashTicks() > 0) {
+            matrixStack.pushPose();
+            renderCrossFlash(entity, partialTicks, matrixStack, bufferIn, packedLightIn);
+            matrixStack.popPose();
+        }
 
         if ((entity.getFired() || entity.getForceTail()) && entity.getHasTail()) {
             matrixStack.pushPose();
@@ -283,5 +327,60 @@ public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> exte
                     .uv(1f, 0f).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(packedLightIn).normal(normal, 0f, 0f, 1f)
                     .endVertex();
         }
+    }
+
+    private void renderCrossFlash(T entity, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
+            int packedLightIn) {
+        int flashTicks = entity.getFlashTicks();
+        if (flashTicks <= 0)
+            return;
+
+        if (!FDShaderHandler.isCrossFlashShaderLoaded()) {
+            if (!missingCrossFlashShaderLogged) {
+                System.err.println(
+                        "[FantasyDesire] Cross flash shader is not loaded; skipping spear flash render.");
+                missingCrossFlashShaderLogged = true;
+            }
+            return;
+        }
+
+        float progress = Mth.clamp(1.0f - (flashTicks - partialTicks) / 15.0f, 0.0f, 1.0f);
+        float fadeIn = Mth.clamp(progress / 0.12f, 0.0f, 1.0f);
+        float fadeOut = 1.0f - Mth.clamp((progress - 0.38f) / 0.62f, 0.0f, 1.0f);
+        float alpha = fadeIn * fadeOut;
+        if (alpha <= 0.01f)
+            return;
+
+        float burst = 1.0f + 0.55f * (float) Math.sin(Math.PI * Mth.clamp(progress / 0.28f, 0.0f, 1.0f));
+        float settle = Mth.lerp(progress, 1.0f, 0.68f);
+        float finalScale = 3.25f * entity.getScale() * burst * settle;
+
+        int hexColor = entity.getColor();
+        float r = Math.max(((hexColor >> 16) & 0xFF) / 255.0f, 0.18f);
+        float g = Math.max(((hexColor >> 8) & 0xFF) / 255.0f, 0.18f);
+        float b = Math.max((hexColor & 0xFF) / 255.0f, 0.18f);
+
+        matrixStack.pushPose();
+        matrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+        matrixStack.scale(finalScale, finalScale, finalScale);
+
+        emitCrossFlashQuad(bufferIn.getBuffer(CROSS_FLASH_RENDER_TYPE), matrixStack.last().pose(), r, g, b, alpha);
+
+        matrixStack.popPose();
+    }
+
+    private void emitCrossFlashQuad(VertexConsumer builder, Matrix4f mat, float r, float g, float b, float alpha) {
+        writeCrossFlashVertex(builder, mat, -0.5f, -0.5f, r, g, b, alpha, 0.0f, 0.0f);
+        writeCrossFlashVertex(builder, mat, -0.5f, 0.5f, r, g, b, alpha, 0.0f, 1.0f);
+        writeCrossFlashVertex(builder, mat, 0.5f, 0.5f, r, g, b, alpha, 1.0f, 1.0f);
+        writeCrossFlashVertex(builder, mat, 0.5f, -0.5f, r, g, b, alpha, 1.0f, 0.0f);
+    }
+
+    private void writeCrossFlashVertex(VertexConsumer builder, Matrix4f mat,
+            float x, float y, float r, float g, float b, float alpha, float u, float v) {
+        builder.vertex(mat, x, y, 0.0f)
+                .color(r, g, b, alpha)
+                .uv(u, v)
+                .endVertex();
     }
 }

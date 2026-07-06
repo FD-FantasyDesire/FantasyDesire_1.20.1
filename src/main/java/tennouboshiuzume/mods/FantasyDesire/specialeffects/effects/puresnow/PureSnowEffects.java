@@ -1,18 +1,46 @@
 package tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.puresnow;
 
+import java.util.List;
+import java.util.Random;
+import java.util.logging.Level;
+
+import org.apache.commons.lang3.RandomUtils;
+
 import mods.flammpfeil.slashblade.capability.concentrationrank.ConcentrationRankCapabilityProvider;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
+import mods.flammpfeil.slashblade.entity.BladeStandEntity;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
+import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.KnockBacks;
+import net.mehvahdjukaar.moonlight.api.events.forge.LightningStruckBlockEvent;
+import net.minecraft.advancements.critereon.LightningStrikeTrigger;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.LightningBolt;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.BeaconBlock;
+import net.minecraft.world.level.block.entity.BeaconBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
+import tennouboshiuzume.mods.FantasyDesire.data.builtin.FantasySlashBladeBuiltInRegistry;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
+import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDRainbowPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSlashEffect;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
@@ -22,6 +50,8 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.ItemFantasySl
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ColorUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDAttackManager;
+import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -32,30 +62,40 @@ public class PureSnowEffects {
     @SubscribeEvent
     public static void updateEvent(SlashBladeEvent.UpdateEvent event) {
         ItemStack blade = event.getBlade();
-        if (!(blade.getItem() instanceof ItemFantasySlashBlade))
+        if (!(blade.getItem() instanceof ItemSlashBlade))
             return;
         if (!(event.getEntity() instanceof Player player))
             return;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-        IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
+        if (player.level().isClientSide())
+            return;
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, player)
+                .requireSE(FDSpecialEffectsRegistry.RainbowFlux)
+                .match();
+        if (ctx == null)
+            return;
+        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
+        int eachColorZone = 15;
+        int totalSteps = eachColorZone * 7;
+        long tickCount = player.tickCount;
+        int timeStep = (int) (tickCount % totalSteps);
+        int color = ColorUtils.getSmoothTransitionColor(timeStep, totalSteps, true);
+        state.setColorCode(color);
+        if (!(blade.getItem() instanceof ItemFantasySlashBlade))
+            return;
+        // 设置特殊攻击效果为当前颜色对应的伤害类型，专属效果
+        CapabilityUtils.BladeContext seCtx = CapabilityUtils.SEConditionMatcher.of(blade, player)
                 .requireTranslation(TRANSLATION_KEY)
                 .requireSE(FDSpecialEffectsRegistry.RainbowFlux)
                 .match();
-        if (ctx != null && !player.level().isClientSide()) {
-            int eachColorZone = 15;
-            int totalSteps = eachColorZone * 7;
-            long tickCount = player.tickCount;
-            int timeStep = (int) (tickCount % totalSteps);
-            int color = ColorUtils.getSmoothTransitionColor(timeStep, totalSteps, true);
-            state.setColorCode(color);
+        if (seCtx != null) {
+            IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
             int stepsPerType = totalSteps / 7;
             int damageTypeIndex = ((timeStep + stepsPerType / 2) * 7 / totalSteps) % 7;
             fdState.setSpecialAttackEffect(damageTypes[damageTypeIndex]);
         }
     }
 
-    // 虹羽七刃剑
+    // 虹羽七刃剑 SA或者棱光通量获得 配合虹光通量二效
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onSlash(SlashBladeEvent.DoSlashEvent event) {
         ItemStack blade = event.getBlade();
@@ -65,10 +105,7 @@ public class PureSnowEffects {
             return;
         if (!event.getUser().hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get()))
             return;
-        ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         IFantasySlashBladeState fdState = CapabilityUtils.getFantasyBladeState(blade);
-
-        // 使用 SEConditionMatcher 检查 RainbowFlux
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(blade, player)
                 .requireTranslation(TRANSLATION_KEY)
                 .requireSE(FDSpecialEffectsRegistry.RainbowFlux)
@@ -113,5 +150,117 @@ public class PureSnowEffects {
         event.setCanceled(true);
     }
 
-    public static String[] damageTypes = { "wrath", "lust", "sloth", "gluttony", "gloom", "pride", "envy" };
+    // 棱光通量
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onHit(SlashBladeEvent.HitEvent event) {
+        if (!(event.getUser() instanceof Player player))
+            return;
+        CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(event.getBlade(), player)
+                .requireTranslation(TRANSLATION_KEY)
+                .requireSE(FDSpecialEffectsRegistry.ColorFlux)
+                .match();
+        if (ctx == null)
+            return;
+        IFantasySlashBladeState fdState = ctx.fantasyState;
+        ISlashBladeState state = ctx.state;
+        CapabilityUtils.addSpecialCharge(fdState, 1);
+        if (fdState.getSpecialCharge() >= fdState.getMaxSpecialCharge()) {
+            CapabilityUtils.tryConsumeSpecialCharge(fdState, fdState.getMaxSpecialCharge());
+            LivingEntity target = event.getTarget();
+            if (target == null)
+                return;
+            float baseModif = state.getDamage();
+            float magicDamage = 1.0f + (baseModif / 2.0f);
+            float directionAngel = RandomUtils.nextBoolean() ? 120f : -120f;
+            for (int i = 0; i < 7; i++) {
+                Vec3 direction = new Vec3(0, 0, 1)
+                        .yRot((float) Math.toRadians(360 / 7 * i + RandomUtils.nextInt(0, 15))).scale(1.5);
+                Vec3 spawnPos = target.position().add(0, target.getBbHeight() / 2, 0).add(direction);
+                Vec3 lookVec = target.position().add(0, target.getBbHeight() / 2, 0).subtract(spawnPos);
+                float[] yawPitch = VecMathUtils.getYawPitchFromVec(lookVec);
+                float yaw = yawPitch[0] + directionAngel;
+                float pitch = yawPitch[1];
+                EntityFDPhantomSword ss = new EntityFDPhantomSword(
+                        FDEntitys.FDPhantomSword.get(), player.level());
+                ss.setDelay(200);
+                ss.setPos(spawnPos.x, spawnPos.y, spawnPos.z);
+                ss.setDelayTicks(0);
+                ss.setSeekDelay(2);
+                ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
+                ss.setStandbyYawPitch(yaw, pitch);
+                ss.setColor(state.getColorCode());
+                ss.setDamage(magicDamage);
+                ss.setRoll(45f);
+                ss.setSeekAngle(36);
+                ss.setDamageType(FDDamageSource.fromString(damageTypes[i]).location().toString());
+                ss.setScale(0.75f);
+                ss.setSpeed(1f);
+                ss.setHasTail(true);
+                ss.setNoClip(true);
+                ss.setOwner(player);
+                ss.setTargetId(target.getId());
+                ss.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
+                ss.tryInit();
+                player.level().addFreshEntity(ss);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void summonedSwordHit(SlashBladeEvent.SummonedSwordOnHitEntityEvent event) {
+        if (event.getSummonedSword().getOwner() instanceof LivingEntity attacker) {
+            CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher
+                    .of(attacker.getMainHandItem(), attacker)
+                    .requireTranslation(TRANSLATION_KEY)
+                    .requireSE(FDSpecialEffectsRegistry.PrismFlux)
+                    .match();
+            if (ctx != null) {
+                attacker.addEffect(new MobEffectInstance(FDPotionEffects.RAINBOW_SEVEN_EDGE.get(), 20 * 3, 0, false,
+                        false));
+            }
+        }
+    }
+
+    // 雷击合成
+    // 为什么闪电攻击不选择ItemFrame及其扩展类，，，
+    @SubscribeEvent
+    public static void bladeStandThunderStrike(LightningStruckBlockEvent event) {
+        AABB area = event.getEntity().getBoundingBox().inflate(1.0);
+        List<BladeStandEntity> stands = event.getLevel().getEntitiesOfClass(BladeStandEntity.class, area);
+        if (stands.isEmpty())
+            return;
+        for (BladeStandEntity stand : stands) {
+            ItemStack blade = stand.getItem();
+            ISlashBladeState state = CapabilityUtils.getBladeState(blade);
+            if (!state.hasSpecialEffect(FDSpecialEffectsRegistry.RainbowFlux.getId()))
+                return;
+            BlockPos beaconPos = stand.blockPosition().below();
+            BlockState blockState = stand.level().getBlockState(beaconPos);
+            if (!(blockState.getBlock() instanceof BeaconBlock))
+                return;
+            ItemStack targetBlade = FantasyDesire.getBladeAsRegistry(
+                    stand.level(),
+                    FantasySlashBladeBuiltInRegistry.PureSnow);
+            ISlashBladeState targetState = CapabilityUtils.getBladeState(targetBlade);
+            if (state.getTranslationKey().equals(targetState.getTranslationKey()))
+                return;
+            stand.setItem(ItemUtils.dataBakeBlade(blade, targetBlade));
+            for (int i = 0; i < 27; i++) {
+                Vec3 base = new Vec3(0, 0, 8);
+                Vec3 start = stand.position().add(0, stand.getBbHeight() / 2, 0);
+                Vec3 end = base.yRot((float) Math.toRadians(RandomUtils.nextInt(0, 360)))
+                        .xRot((float) Math.toRadians(RandomUtils.nextInt(0, 360))).add(start);
+                ParticleUtils.LightBoltParticles(stand.level(), start, end,
+                        ColorUtils.getSmoothTransitionColor(i, 27, false),
+                        0.1f, 60, 1f, true, 0.8, 8);
+            }
+            if ((stand.level() instanceof ServerLevel serverLevel)) {
+                serverLevel.setWeatherParameters(
+                        6000, 0,
+                        false, false);
+            }
+        }
+    }
+
+    private static String[] damageTypes = { "wrath", "lust", "sloth", "gluttony", "gloom", "pride", "envy" };
 }

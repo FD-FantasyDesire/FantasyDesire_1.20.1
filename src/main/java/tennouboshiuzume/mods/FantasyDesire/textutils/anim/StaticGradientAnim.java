@@ -18,7 +18,7 @@ public class StaticGradientAnim implements ITextAnim {
         return ComponentUtils.forEachChar(component, (c, baseStyle, index) -> {
             float t = (float) index / (float) Math.max(1, length - 1);
 
-            // 计算在哪两个颜色之间插值
+            // 计算颜色插值
             float scaled = t * colors.length;
             int seg = (int) scaled % colors.length;
             float localT = scaled - (int) scaled;

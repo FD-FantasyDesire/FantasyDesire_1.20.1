@@ -1,0 +1,26 @@
+{
+  "type": "fantasydesire:special_transform",
+  "blade": "fantasydesire:starless_night",
+  "ingredients": [
+    {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "kill": 2000,
+        "name": "slashblade:rodai_netherite",
+        "proud_soul": 5000,
+        "refine": 5
+      }
+    },
+    {
+      "type": "forge:nbt",
+      "count": 1,
+      "item": "slashblade:proudsoul_crystal",
+      "nbt": "{SpecialEffectType:\"fantasydesire:void_transform\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.void_transform\"}']}}"
+    }
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "tooltip": "jei.fantasydesire.special_transform.starless_night"
+}

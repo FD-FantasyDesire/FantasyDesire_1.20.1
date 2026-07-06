@@ -84,51 +84,101 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                                 .save(consumer, FantasyDesire.prefix("smart_pistol_b"));
 
                 FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.CrimsonScythe.location())
-                                .pattern("  L").pattern(" L ").pattern("BG ")
+                                .pattern("LLL")
+                                .pattern(" OG")
+                                .pattern("BG ")
                                 .define('B', SlashBladeIngredient.of(
                                                 RequestDefinition.Builder
                                                                 .newInstance()
                                                                 .name(SlashBladeBuiltInRegistry.RUBY
                                                                                 .location())
-                                                                .killCount(300)
-                                                                .addSwordType(SwordType.BROKEN).build()))
+                                                                .killCount(1000)
+                                                                .build()))
+                                .define('L', Ingredient.of(Items.REDSTONE_BLOCK))
+                                .define('G', Ingredient.of(Tags.Items.INGOTS_GOLD))
+                                .define('O', Ingredient.of(Tags.Items.OBSIDIAN))
+                                .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
+                                                has(SlashBladeItems.SLASHBLADE.get()))
+                                .save(consumer, FantasyDesire.prefix("crimson_scythe"));
+
+                FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.CrimsonScythe.location())
+                                .pattern("  L").pattern(" L ").pattern("BG ")
+                                .define('B', SlashBladeIngredient.of(
+                                                RequestDefinition.Builder
+                                                                .newInstance()
+                                                                .name(SlashBladeBuiltInRegistry.RODAI_STONE
+                                                                                .location())
+                                                                .build()))
                                 .define('L', Ingredient.of(Items.REDSTONE_BLOCK))
                                 .define('G', Ingredient.of(Tags.Items.INGOTS_GOLD))
                                 .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
                                                 has(SlashBladeItems.SLASHBLADE.get()))
                                 .save(consumer, FantasyDesire.prefix("crimson_scythe"));
 
-                // FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.ArdorBlossomStar.location())
-                // .pattern(" L").pattern(" L ").pattern("BG ")
-                // .define('B', FantasySlashBladeIngredient.of(
-                // FantasySlashBladeBuiltInRegistry.ArdorBlossomStar.location(),
-                // FDRequestDefinition.Builder.newInstance().killCount(200).addSwordType(SwordType.BROKEN).build()))
-                // .define('L', Ingredient.of(Items.FIRE_CHARGE))
-                // .define('G', Ingredient.of(Tags.Items.INGOTS_GOLD))
+                // 无星之夜 已换成虚无转变制作
+                // FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.StarlessNight.location())
+                // .pattern(" AO")
+                // .pattern("AEA")
+                // .pattern("BA ")
+                // .define('B', SlashBladeIngredient.of(
+                // RequestDefinition.Builder.newInstance()
+                // .name(SlashBladeBuiltInRegistry.RODAI_DIAMOND
+                // .location())
+                // .killCount(500)
+                // .addEnchantment(new EnchantmentDefinition(
+                // getEnchantmentID(
+                // Enchantments.UNBREAKING),
+                // 3))
+                // .build()))
+                // .define('O', Ingredient.of(Items.OBSIDIAN))
+                // .define('E', Ingredient.of(Items.ENDER_EYE))
+                // .define('A', Ingredient.of(Items.AMETHYST_BLOCK))
                 // .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
                 // has(SlashBladeItems.SLASHBLADE.get()))
-                // .save(consumer, FantasyDesire.prefix("ardor_blossom_star"));
-                // 无星之夜
-                FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.StarlessNight.location())
+                // .save(consumer, FantasyDesire.prefix("starless_night"));
+
+                FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.TwinBladeL.location())
                                 .pattern(" AO")
-                                .pattern("AEA")
-                                .pattern("BA ")
-                                .define('B', SlashBladeIngredient.of(
+                                .pattern("OEA")
+                                .pattern("DO ")
+                                .define('E', SlashBladeIngredient.of(
                                                 RequestDefinition.Builder.newInstance()
-                                                                .name(SlashBladeBuiltInRegistry.RODAI_DIAMOND
+                                                                .name(SlashBladeBuiltInRegistry.RODAI_IRON
                                                                                 .location())
-                                                                .killCount(500)
+                                                                .killCount(906)
                                                                 .addEnchantment(new EnchantmentDefinition(
                                                                                 getEnchantmentID(
                                                                                                 Enchantments.UNBREAKING),
                                                                                 3))
                                                                 .build()))
+                                .define('D', Ingredient.of(Tags.Items.DYES_LIGHT_BLUE))
                                 .define('O', Ingredient.of(Items.OBSIDIAN))
-                                .define('E', Ingredient.of(Items.ENDER_EYE))
                                 .define('A', Ingredient.of(Items.AMETHYST_BLOCK))
                                 .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
                                                 has(SlashBladeItems.SLASHBLADE.get()))
-                                .save(consumer, FantasyDesire.prefix("starless_night"));
+                                .save(consumer, FantasyDesire.prefix("twin_blade_l"));
+
+                FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.TwinBladeR.location())
+                                .pattern(" AO")
+                                .pattern("OEA")
+                                .pattern("DO ")
+                                .define('E', SlashBladeIngredient.of(
+                                                RequestDefinition.Builder.newInstance()
+                                                                .name(SlashBladeBuiltInRegistry.RODAI_IRON
+                                                                                .location())
+                                                                .killCount(906)
+                                                                .addEnchantment(new EnchantmentDefinition(
+                                                                                getEnchantmentID(
+                                                                                                Enchantments.UNBREAKING),
+                                                                                3))
+                                                                .build()))
+                                .define('D', Ingredient.of(Tags.Items.DYES_MAGENTA))
+                                .define('O', Ingredient.of(Items.OBSIDIAN))
+                                .define('A', Ingredient.of(Items.AMETHYST_BLOCK))
+                                .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
+                                                has(SlashBladeItems.SLASHBLADE.get()))
+                                .save(consumer, FantasyDesire.prefix("twin_blade_r"));
+
                 // 裁决剑
                 FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.Crucible.location())
                                 .pattern(" ML")
@@ -146,17 +196,6 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                                 .define('L', Ingredient.of(Tags.Items.INGOTS_GOLD))
                                 .unlockedBy(getHasName(Items.NETHERITE_INGOT), has(Tags.Items.INGOTS_NETHERITE))
                                 .save(consumer, FantasyDesire.prefix("crucible"));
-                // 魔女仪礼剑
-                // FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.GireiKen.location())
-                // .pattern(" L").pattern(" L ").pattern("BG ")
-                // .define('B', FantasySlashBladeIngredient.of(
-                // FantasySlashBladeBuiltInRegistry.GireiKen.location(),
-                // FDRequestDefinition.Builder.newInstance().killCount(500).addSwordType(SwordType.BROKEN).build()))
-                // .define('L', Ingredient.of(Items.NETHER_STAR))
-                // .define('G', Ingredient.of(Tags.Items.INGOTS_GOLD))
-                // .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
-                // has(SlashBladeItems.SLASHBLADE.get()))
-                // .save(consumer, FantasyDesire.prefix("gireiken"));
                 // OverColdP0 -> OverColdP1 特殊转换配方
                 SpecialTransformRecipeBuilder.transform(FantasySlashBladeBuiltInRegistry.OverColdP1.location())
                                 .addIngredient(FantasySlashBladeIngredient.of(
@@ -199,6 +238,37 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                                 .addTooltip("jei.fantasydesire.special_transform.chikeflare")
                                 .save(consumer, FantasyDesire.prefix("special_transform_chikeflare"));
 
+                SpecialTransformRecipeBuilder.transform(FantasySlashBladeBuiltInRegistry.StarlessNight.location())
+                                .addIngredient(SlashBladeIngredient.of(
+                                                RequestDefinition.Builder
+                                                                .newInstance()
+                                                                .name(SlashBladeBuiltInRegistry.RODAI_NETHERITE
+                                                                                .location())
+                                                                .proudSoul(5000)
+                                                                .killCount(2000)
+                                                                .refineCount(5)
+                                                                .build()))
+                                .addIngredient(StrictNBTIngredient.of(
+                                                ItemUtils.CustomEffectShardWithLore(
+                                                                new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get()),
+                                                                FDSpecialEffectsRegistry.VoidTransform.get(),
+                                                                "jei.fantasydesire.crafting.se.void_transform")))
+                                .addTooltip("jei.fantasydesire.special_transform.starless_night")
+                                .save(consumer, FantasyDesire.prefix("special_transform_starless_night"));
+
+                SpecialTransformRecipeBuilder.transform(FantasySlashBladeBuiltInRegistry.PureSnow.location())
+                                .addIngredient(SlashBladeIngredient.of(
+                                                RequestDefinition.Builder
+                                                                .newInstance()
+                                                                .build()))
+                                .addIngredient(StrictNBTIngredient.of(
+                                                ItemUtils.CustomEffectShardWithLore(
+                                                                new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get()),
+                                                                FDSpecialEffectsRegistry.RainbowFlux.get(),
+                                                                "jei.fantasydesire.crafting.se.rainbow_flux")))
+                                .addTooltip("jei.fantasydesire.special_transform.pure_snow")
+                                .save(consumer, FantasyDesire.prefix("special_transform_pure_snow"));
+
                 NbtShapedRecipeBuilder.nbtShaped(RecipeCategory.COMBAT, ItemUtils.CustomSlashArtSphereWithLore(
                                 new ItemStack(SlashBladeItems.PROUDSOUL_SPHERE.get()),
                                 FDSlashArtRegistry.WING_TO_THE_FUTURE.get(),
@@ -209,7 +279,7 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                                 .define('T', Items.TOTEM_OF_UNDYING)
                                 .define('N', Items.NETHER_STAR)
                                 .define('P', SlashBladeItems.PROUDSOUL.get())
-                                .define('B', Items.BLUE_STAINED_GLASS)
+                                .define('B', Items.LIGHT_BLUE_STAINED_GLASS)
                                 .define('Y', Items.YELLOW_STAINED_GLASS)
                                 .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
                                                 has(SlashBladeItems.SLASHBLADE.get()))
