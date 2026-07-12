@@ -110,15 +110,15 @@ void main() {
             * step(0.62, noise(vec2(floor(angle * 9.0 + 19.0), floor(Time * 24.0))));
     float arcs = clamp(ringArc * (1.10 + EruptionIntensity * 0.85) + bandSpark * 0.45, 0.0, 1.8);
 
-    vec3 plasmaGreen = max(FlameColor.rgb, vec3(0.05, 0.95, 0.18));
-    plasmaGreen = mix(plasmaGreen, vec3(0.0, 1.0, 0.86), smoothstep(0.52, 1.02, radial));
-    vec3 cyanCorona = vec3(0.05, 1.0, 0.82);
-    vec3 arcColor = vec3(0.70, 1.0, 0.96);
-    vec3 coreTint = mix(vec3(0.78, 1.0, 0.84), CoreColor.rgb, 0.22);
+    vec3 flameTint = max(FlameColor.rgb, vec3(0.02));
+    vec3 plasmaColor = mix(flameTint, vec3(1.0), 0.10);
+    vec3 coronaColor = mix(flameTint, vec3(1.0), 0.24);
+    vec3 arcColor = mix(flameTint, vec3(1.0), 0.48);
+    vec3 coreTint = mix(CoreColor.rgb, flameTint, 0.16);
     vec3 whiteHot = mix(coreTint, vec3(1.0), clamp(core * 0.72 + hotCore * 0.18 + whiteCenter * 0.20, 0.0, 1.0));
     float outerPresence = smoothstep(1.00, 0.52, dist) * circularBoundaryFade;
-    vec3 color = (plasmaGreen * plasma * 0.94
-            + cyanCorona * halo
+    vec3 color = (plasmaColor * plasma * 0.94
+            + coronaColor * halo
             + arcColor * arcs * (1.65 + 0.30 * shock) * outerPresence
             + whiteHot * (core * 1.55 + hotCore + whiteCenter) * (0.74 + 0.26 * sphericalShade))
             * vertexColor.a * quadBoundaryFade;

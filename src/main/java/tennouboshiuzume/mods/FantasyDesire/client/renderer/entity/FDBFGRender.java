@@ -366,9 +366,19 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                 setUniform(shader, "FlowSpeed", 0.18f);
                 setUniform(shader, "LumpScale", 4.8f + (float) Math.min(dist * 0.18, 3.2));
                 setUniform(shader, "FilamentIntensity", 0.86f);
-                setUniform(shader, "CoreColor", 1.0f, 1.0f, 0.96f, 1.0f);
-                setUniform(shader, "FlowColor", 0.08f, 1.0f, 0.24f, 1.0f);
-                setUniform(shader, "EdgeColor", 0.0f, 1.0f, 0.84f, 1.0f);
+                float[] effectColor = getBfgEffectColor(entity);
+                float coreR = mixColor(effectColor[0], 1.0f, 0.72f);
+                float coreG = mixColor(effectColor[1], 1.0f, 0.72f);
+                float coreB = mixColor(effectColor[2], 0.96f, 0.72f);
+                float edgeR = mixColor(effectColor[0], 1.0f, 0.30f);
+                float edgeG = mixColor(effectColor[1], 1.0f, 0.30f);
+                float edgeB = mixColor(effectColor[2], 1.0f, 0.30f);
+                int edgeRi = toColorChannel(edgeR);
+                int edgeGi = toColorChannel(edgeG);
+                int edgeBi = toColorChannel(edgeB);
+                setUniform(shader, "CoreColor", coreR, coreG, coreB, 1.0f);
+                setUniform(shader, "FlowColor", effectColor[0], effectColor[1], effectColor[2], 1.0f);
+                setUniform(shader, "EdgeColor", edgeR, edgeG, edgeB, 1.0f);
 
                 VertexConsumer bridgeBuilder = bufferIn.getBuffer(BFG_BRIDGE_RENDER_TYPE);
                 Matrix4f mat = matrixStack.last().pose();
@@ -448,7 +458,8 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                                         t0, t1, 0.0f, 1.0f);
                         emitBridgeRibbonQuad(bridgeBuilder, mat, entityPos, p0, p1, axisA, axisA,
                                         widths[i] * 0.58f, widths[i + 1] * 0.58f,
-                                        172, 255, 218, alphas[i] / 2, alphas[i + 1] / 2, t0, t1, 0.16f, 0.84f);
+                                        edgeRi, edgeGi, edgeBi, alphas[i] / 2, alphas[i + 1] / 2, t0, t1, 0.16f,
+                                        0.84f);
                 }
 
                 if (bufferIn instanceof MultiBufferSource.BufferSource bufferSource) {
@@ -457,9 +468,9 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                         setUniform(shader, "FlowSpeed", 0.18f);
                         setUniform(shader, "LumpScale", 4.8f + (float) Math.min(dist * 0.18, 3.2));
                         setUniform(shader, "FilamentIntensity", 0.86f);
-                        setUniform(shader, "CoreColor", 1.0f, 1.0f, 0.96f, 1.0f);
-                        setUniform(shader, "FlowColor", 0.08f, 1.0f, 0.24f, 1.0f);
-                        setUniform(shader, "EdgeColor", 0.0f, 1.0f, 0.84f, 1.0f);
+                        setUniform(shader, "CoreColor", coreR, coreG, coreB, 1.0f);
+                        setUniform(shader, "FlowColor", effectColor[0], effectColor[1], effectColor[2], 1.0f);
+                        setUniform(shader, "EdgeColor", edgeR, edgeG, edgeB, 1.0f);
                         bufferSource.endBatch(BFG_BRIDGE_RENDER_TYPE);
                 }
         }
@@ -636,6 +647,30 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                 return Mth.frac(Mth.sin(seed) * 43758.5453f);
         }
 
+        private float[] getBfgEffectColor(T entity) {
+                int hexColor = entity.getColor() & 0xFFFFFF;
+                float r = ((hexColor >> 16) & 0xFF) / 255.0f;
+                float g = ((hexColor >> 8) & 0xFF) / 255.0f;
+                float b = (hexColor & 0xFF) / 255.0f;
+                float max = Math.max(r, Math.max(g, b));
+                if (max < 0.08f) {
+                        return new float[] { 0.18f, 1.0f, 0.18f };
+                }
+                r /= max;
+                g /= max;
+                b /= max;
+                return new float[] { Mth.clamp(r, 0.0f, 1.0f), Mth.clamp(g, 0.0f, 1.0f),
+                                Mth.clamp(b, 0.0f, 1.0f) };
+        }
+
+        private static float mixColor(float from, float to, float amount) {
+                return Mth.lerp(amount, from, to);
+        }
+
+        private static int toColorChannel(float value) {
+                return Mth.clamp((int) (Mth.clamp(value, 0.0f, 1.0f) * 255.0f), 0, 255);
+        }
+
         private void renderCoronaPlasmaCore(T entity, float partialTicks, PoseStack matrixStack,
                         MultiBufferSource bufferIn, int packedLightIn) {
                 float time = entity.tickCount + partialTicks;
@@ -649,15 +684,13 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                         return;
                 }
 
-                int hexColor = entity.getColor() & 0xFFFFFF;
-                int baseR = (hexColor >> 16) & 0xFF;
-                int baseG = (hexColor >> 8) & 0xFF;
-                int baseB = hexColor & 0xFF;
-                if (baseR + baseG + baseB <= 0) {
-                        baseR = 50;
-                        baseG = 255;
-                        baseB = 50;
-                }
+                float[] effectColor = getBfgEffectColor(entity);
+                int baseR = toColorChannel(effectColor[0]);
+                int baseG = toColorChannel(effectColor[1]);
+                int baseB = toColorChannel(effectColor[2]);
+                float coreR = mixColor(effectColor[0], 1.0f, 0.78f);
+                float coreG = mixColor(effectColor[1], 1.0f, 0.78f);
+                float coreB = mixColor(effectColor[2], 1.0f, 0.78f);
 
                 float coreScale = entity.getScale() * 0.62f;
                 float pulseFrequency = 0.055f;
@@ -667,8 +700,8 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
 
                 ShaderInstance shader = FDShaderHandler.getBfgCoronaShader();
                 setUniform(shader, "Time", time);
-                setUniform(shader, "CoreColor", 1.0f, 1.0f, 1.0f, 1.0f);
-                setUniform(shader, "FlameColor", 0.05f, Math.max(baseG / 255.0f, 0.95f), 0.24f, 1.0f);
+                setUniform(shader, "CoreColor", coreR, coreG, coreB, 1.0f);
+                setUniform(shader, "FlameColor", effectColor[0], effectColor[1], effectColor[2], 1.0f);
                 setUniform(shader, "EruptionIntensity", eruptionIntensity);
                 setUniform(shader, "NoiseSpeed", noiseSpeed);
                 setUniform(shader, "PulseFrequency", pulseFrequency);
@@ -677,16 +710,18 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
 
                 VertexConsumer builder = bufferIn.getBuffer(BFG_CORONA_RENDER_TYPE);
                 int alpha = (int) (255 * opacity);
-                renderCoronaLayer(matrixStack, builder, coreScale * 1.78f, (int) (alpha * 0.15f), true, 0, 255, 178);
+                renderCoronaLayer(matrixStack, builder, coreScale * 1.78f, (int) (alpha * 0.15f), true, baseR, baseG,
+                                baseB);
                 renderCoronaLayer(matrixStack, builder, coreScale * 1.08f, (int) (alpha * 0.82f), true, baseR, baseG,
                                 baseB);
-                renderCoronaLayer(matrixStack, builder, coreScale * 0.82f, (int) (alpha * 0.66f), false, 36, 255, 170);
+                renderCoronaLayer(matrixStack, builder, coreScale * 0.82f, (int) (alpha * 0.66f), false, baseR, baseG,
+                                baseB);
                 renderCoronaLayer(matrixStack, builder, coreScale * 0.18f, 255, true, 255, 255, 255);
 
                 if (bufferIn instanceof MultiBufferSource.BufferSource bufferSource) {
                         setUniform(shader, "Time", time);
-                        setUniform(shader, "CoreColor", 1.0f, 1.0f, 1.0f, 1.0f);
-                        setUniform(shader, "FlameColor", 0.05f, Math.max(baseG / 255.0f, 0.95f), 0.24f, 1.0f);
+                        setUniform(shader, "CoreColor", coreR, coreG, coreB, 1.0f);
+                        setUniform(shader, "FlameColor", effectColor[0], effectColor[1], effectColor[2], 1.0f);
                         setUniform(shader, "EruptionIntensity", eruptionIntensity);
                         setUniform(shader, "NoiseSpeed", noiseSpeed);
                         setUniform(shader, "PulseFrequency", pulseFrequency);

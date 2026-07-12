@@ -83,7 +83,7 @@ public class EntityFDSpearPhantomSword extends EntityFDPhantomSword {
             float finalYaw = (float) Math.toDegrees(Math.atan2(-newForward.x, newForward.z));
             float finalPitch = (float) Math.toDegrees(Math.asin(-newForward.y));
             EntityFDSoulPhantomSword sword = new EntityFDSoulPhantomSword(
-                    FDEntitys.FDPhantomSword.get(), level);
+                    FDEntitys.FDSoulPhantomSword.get(), level);
             sword.setOwner(this.getOwner());
             sword.setDamage(this.getDamage() / this.getDelay());
             sword.setSpeed(2f);

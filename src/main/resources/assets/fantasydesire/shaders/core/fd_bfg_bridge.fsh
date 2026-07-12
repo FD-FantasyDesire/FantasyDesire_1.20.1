@@ -65,18 +65,18 @@ void main() {
     float targetGrip = 0.86 + smoothstep(0.78, 1.0, u) * 0.18;
     float endIntensity = coreEnd * targetGrip;
 
-    vec3 whiteHot = CoreColor.rgb;
-    vec3 yellowGreen = vec3(0.78, 1.0, 0.28);
-    vec3 brightGreen = max(FlowColor.rgb, vec3(0.05, 1.0, 0.22));
-    vec3 emerald = vec3(0.0, 0.95, 0.45);
-    vec3 cyan = max(EdgeColor.rgb, vec3(0.0, 0.95, 0.86));
+    vec3 whiteHot = mix(CoreColor.rgb, vec3(1.0), 0.28);
+    vec3 hotFlow = mix(FlowColor.rgb, vec3(1.0), 0.20);
+    vec3 brightFlow = max(FlowColor.rgb, vec3(0.02));
+    vec3 edgeTint = max(EdgeColor.rgb, vec3(0.04));
+    vec3 filamentTint = mix(FlowColor.rgb, vec3(1.0), 0.42);
 
-    vec3 bodyColor = mix(emerald, brightGreen, clamp(lump * 0.85 + inner * 0.35, 0.0, 1.0));
-    bodyColor = mix(bodyColor, yellowGreen, filaments * 0.55);
-    bodyColor = mix(bodyColor, cyan, rim * (0.28 + low2 * 0.28));
+    vec3 bodyColor = mix(brightFlow, hotFlow, clamp(lump * 0.85 + inner * 0.35, 0.0, 1.0));
+    bodyColor = mix(bodyColor, filamentTint, filaments * 0.55);
+    bodyColor = mix(bodyColor, edgeTint, rim * (0.28 + low2 * 0.28));
     vec3 color = bodyColor * (0.72 + bead * 0.72 + rim * 0.24);
     color += whiteHot * filaments * FilamentIntensity * 2.15;
-    color += yellowGreen * inner * bead * 0.42;
+    color += hotFlow * inner * bead * 0.42;
     color *= vertexColor.rgb * endIntensity;
 
     float alpha = (feather * (0.42 + bead * 0.42) + filaments * 0.38 + rim * 0.18) * vertexColor.a * Opacity;

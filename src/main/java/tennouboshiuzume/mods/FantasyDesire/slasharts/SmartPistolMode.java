@@ -110,7 +110,7 @@ public class SmartPistolMode {
                         player, lockDistance, 30, true, null);
         targets.sort(java.util.Comparator.comparingDouble(e -> e.distanceToSqr(player)));
 
-        int color = explosiveOn ? 0xFF0000 : state.getColorCode();
+        int color = state.getColorCode();
         float expRadius = explosiveOn ? 2 + enchantLevel : 0;
         finalDamage *= explosiveOn ? 5 : 1;
 

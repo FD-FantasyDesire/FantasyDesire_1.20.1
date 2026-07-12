@@ -134,7 +134,7 @@ public class GunBladeEffects {
                 player, lockDistance, 30, true, null);
 
         targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(player)));
-        int color = explosive ? 0xFF0000 : state.getColorCode();
+        int color = state.getColorCode();
         float expRadius = explosive ? 2 + enchantLevel : 0;
         finalDamage *= explosive ? 5 : 1;
         for (int i = 0; i < volleyCount; i++) {
@@ -184,7 +184,7 @@ public class GunBladeEffects {
             EntityFDEnergyBullet bullet = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
             bullet.setIsCritical(false);
             bullet.setOwner(player);
-            bullet.setColor(thunder ? 0xFFFF00 : state.getColorCode());
+            bullet.setColor(state.getColorCode());
             bullet.setRoll(random.nextInt(180));
             bullet.setDamage(finalDamage); // 分摊伤害，但略微提升总伤
             // bullet.setNoClip(true);
