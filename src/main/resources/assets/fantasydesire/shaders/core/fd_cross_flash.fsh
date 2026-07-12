@@ -24,27 +24,27 @@ void main() {
 
     float dist = length(p);
     float time = GameTime * 24000.0;
-    float pulse = 0.92 + 0.08 * sin(time * 0.11) + 0.035 * sin(time * 0.37);
-    float shimmer = 0.96 + 0.04 * sin((abs(p.x) + abs(p.y)) * 20.0 - time * 0.23);
+    float pulse = 1.0 + 0.012 * sin(time * 0.17) + 0.004 * sin(time * 0.53);
+    float shimmer = 0.995 + 0.005 * sin((abs(p.x) + abs(p.y)) * 20.0 - time * 0.29);
 
     float edgeFade = smoothstep(1.18, 0.92, max(abs(p.x), abs(p.y)));
     float radialFade = smoothstep(1.34, 0.42, dist);
     float centerMask = smoothstep(0.72, 0.02, dist);
 
     float crispCross = axisCross(p, 1.10, 0.026, 1.72) * 0.92 * radialFade;
-    float softCross = axisCross(p, 0.96, 0.082, 1.86) * 0.33 * radialFade;
-    float bloomCross = axisCross(p, 0.72, 0.155, 2.05) * 0.17 * centerMask;
+    float softCross = axisCross(p, 0.96, 0.082, 1.86) * 0.40 * radialFade;
+    float bloomCross = axisCross(p, 0.72, 0.155, 2.05) * 0.22 * centerMask;
 
     float coreDist = dot(p, p);
-    float coreGlow = exp(-coreDist * 18.0) * 0.82;
-    float coreHot = exp(-coreDist * 82.0) * 2.20;
-    float coreWhite = exp(-coreDist * 210.0) * 1.55;
+    float coreGlow = exp(-coreDist * 104.0) * 0.92;
+    float coreHot = exp(-coreDist * 416.0) * 2.20;
+    float coreWhite = exp(-coreDist * 1000.0) * 1.55;
 
     float intensity = (crispCross + softCross + bloomCross + coreGlow + coreHot + coreWhite)
             * edgeFade * pulse * shimmer;
-    intensity = clamp(intensity, 0.0, 3.15);
+    intensity = clamp(intensity, 0.0, 3.30);
 
-    float alpha = clamp(intensity * vertexColor.a, 0.0, 1.0);
+    float alpha = clamp(intensity * vertexColor.a * 1.08, 0.0, 1.0);
     if (alpha < 0.002 || edgeFade < 0.004) {
         discard;
     }

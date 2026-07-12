@@ -27,6 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSpearPhantomSword;
 
@@ -36,6 +37,7 @@ import java.util.List;
 public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> extends EntityRenderer<T> {
 
     private static boolean missingCrossFlashShaderLogged = false;
+    private static final float CROSS_FLASH_SIZE_SCALE = 0.5f;
 
     private static final RenderType CROSS_FLASH_RENDER_TYPE = RenderType.create(
             "fd_spear_cross_flash",
@@ -79,11 +81,9 @@ public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> exte
             int packedLightIn) {
 
         // ===== 十字星型闪光特效（客户端） =====
-        if (entity.getFlashTicks() > 0) {
-            matrixStack.pushPose();
-            renderCrossFlash(entity, partialTicks, matrixStack, bufferIn, packedLightIn);
-            matrixStack.popPose();
-        }
+        matrixStack.pushPose();
+        renderCrossFlash(entity, partialTicks, matrixStack, bufferIn, packedLightIn);
+        matrixStack.popPose();
 
         if ((entity.getFired() || entity.getForceTail()) && entity.getHasTail()) {
             matrixStack.pushPose();
@@ -332,8 +332,6 @@ public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> exte
     private void renderCrossFlash(T entity, float partialTicks, PoseStack matrixStack, MultiBufferSource bufferIn,
             int packedLightIn) {
         int flashTicks = entity.getFlashTicks();
-        if (flashTicks <= 0)
-            return;
 
         if (!FDShaderHandler.isCrossFlashShaderLoaded()) {
             if (!missingCrossFlashShaderLogged) {
@@ -344,29 +342,61 @@ public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> exte
             return;
         }
 
-        float progress = Mth.clamp(1.0f - (flashTicks - partialTicks) / 15.0f, 0.0f, 1.0f);
-        float fadeIn = Mth.clamp(progress / 0.12f, 0.0f, 1.0f);
-        float fadeOut = 1.0f - Mth.clamp((progress - 0.38f) / 0.62f, 0.0f, 1.0f);
-        float alpha = fadeIn * fadeOut;
-        if (alpha <= 0.01f)
-            return;
-
-        float burst = 1.0f + 0.55f * (float) Math.sin(Math.PI * Mth.clamp(progress / 0.28f, 0.0f, 1.0f));
-        float settle = Mth.lerp(progress, 1.0f, 0.68f);
-        float finalScale = 3.25f * entity.getScale() * burst * settle;
+        final float baseFlashScale = 4.20f * CROSS_FLASH_SIZE_SCALE;
+        final float baseAlpha = 0.84f;
+        final float pulseScaleAmplitude = 0.34f;
+        final float pulseAlpha = 0.36f;
+        float pulseDuration = flashTicks > 15 ? 20.0f : 15.0f;
+        float progress = Mth.clamp(1.0f - (flashTicks - partialTicks) / pulseDuration, 0.0f, 1.0f);
+        float pulsePhase = (float) Math.sin(Math.PI * progress);
+        float pulseScale = baseFlashScale * entity.getScale() * (1.0f + pulseScaleAmplitude * pulsePhase);
+        float baseScale = baseFlashScale * entity.getScale();
 
         int hexColor = entity.getColor();
         float r = Math.max(((hexColor >> 16) & 0xFF) / 255.0f, 0.18f);
         float g = Math.max(((hexColor >> 8) & 0xFF) / 255.0f, 0.18f);
         float b = Math.max((hexColor & 0xFF) / 255.0f, 0.18f);
 
-        matrixStack.pushPose();
-        matrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
-        matrixStack.scale(finalScale, finalScale, finalScale);
+        VertexConsumer crossFlashBuilder = bufferIn.getBuffer(CROSS_FLASH_RENDER_TYPE);
 
-        emitCrossFlashQuad(bufferIn.getBuffer(CROSS_FLASH_RENDER_TYPE), matrixStack.last().pose(), r, g, b, alpha);
+        matrixStack.pushPose();
+        Vec3 flashOffset = getCrossFlashOffset(entity, partialTicks);
+        matrixStack.translate(flashOffset.x, flashOffset.y, flashOffset.z);
+        matrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation());
+
+        matrixStack.pushPose();
+        matrixStack.scale(baseScale, baseScale, baseScale);
+        emitCrossFlashQuad(crossFlashBuilder, matrixStack.last().pose(), r, g, b, baseAlpha);
+        matrixStack.popPose();
+
+        if (flashTicks > 0 && pulsePhase > 0.001f) {
+            matrixStack.scale(pulseScale, pulseScale, pulseScale);
+            emitCrossFlashQuad(crossFlashBuilder, matrixStack.last().pose(), r, g, b, pulseAlpha * pulsePhase);
+        }
 
         matrixStack.popPose();
+    }
+
+    private Vec3 getCrossFlashOffset(T entity, float partialTicks) {
+        Entity hits = entity.getHitEntity();
+        if (hits == null) {
+            return Vec3.ZERO;
+        }
+
+        PoseStack tipStack = new PoseStack();
+        tipStack.mulPose(Axis.YN.rotationDegrees(Mth.rotLerp(partialTicks, hits.yRotO, hits.getYRot()) - 90));
+        tipStack.mulPose(Axis.YN.rotationDegrees(entity.getOffsetYaw()));
+        tipStack.mulPose(Axis.ZP.rotationDegrees(Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot())));
+        tipStack.mulPose(Axis.XP.rotationDegrees(entity.getRoll()));
+
+        float modelScale = 0.0075f * entity.getScale();
+        tipStack.scale(modelScale, modelScale, modelScale);
+        tipStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+        tipStack.translate(0, 0, -100);
+
+        Matrix4f tipMatrix = tipStack.last().pose();
+        Vector3f tipOffset = tipMatrix.getTranslation(new Vector3f());
+        return new Vec3(tipOffset.x(), tipOffset.y(), tipOffset.z());
     }
 
     private void emitCrossFlashQuad(VertexConsumer builder, Matrix4f mat, float r, float g, float b, float alpha) {

@@ -91,7 +91,7 @@ public class ClientHandler {
         event.registerEntityRenderer(FDEntitys.FDHuntSword.get(), FDHuntSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDSlashEffect.get(), FDSlashEffectRender::new);
         event.registerEntityRenderer(FDEntitys.EnderSlashEffect.get(), EnderSlashEffectRender::new);
-        event.registerEntityRenderer(FDEntitys.FDSoulPhantomSword.get(), FDPhantomSwordRender::new);
+        event.registerEntityRenderer(FDEntitys.FDSoulPhantomSword.get(), FDSoulPhantomSwordRender::new);
         event.registerEntityRenderer(FDEntitys.FDSpearPhantomSword.get(), FDSpearPhantomSwordRender::new);
     }
 

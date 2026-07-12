@@ -47,8 +47,8 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
         List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), 25, false,
                 excludeList);
         for (LivingEntity target : targets) {
-            Vec3 start = this.position();
-            Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);
+            // Vec3 start = this.position();
+            // Vec3 end = target.position().add(0, target.getBbHeight() / 2, 0);
             DamageSource damagesource;
             Entity shooter = this.getShooter();
             if (shooter == null) {
@@ -59,7 +59,8 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
             target.invulnerableTime = 0; // 确保可以被高频攻击
             target.hurt(damagesource, (float) this.getDamage() * 0.2f); // 每次闪电造成20%伤害
             if (this.level() instanceof ServerLevel serverLevel) {
-                ParticleUtils.LightBoltParticles(serverLevel, start, end, 0x00FF00, 0.1f, 2, 0.75f, false, 2, 8);
+                // ParticleUtils.LightBoltParticles(serverLevel, start, end, 0x00FF00, 0.1f, 2,
+                // 0.75f, false, 2, 8);
                 serverLevel.sendParticles(ParticleTypes.TOTEM_OF_UNDYING, target.position().x,
                         target.position().y + target.getBbHeight() / 2, target.position().z, 5, 0, 0, 0, 0.5);
             }

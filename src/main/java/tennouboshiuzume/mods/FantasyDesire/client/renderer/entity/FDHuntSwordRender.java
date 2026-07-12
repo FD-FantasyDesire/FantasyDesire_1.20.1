@@ -86,8 +86,6 @@ public class FDHuntSwordRender<T extends EntityFDHuntSword> extends EntityRender
 
             matrixStack.mulPose(Axis.XP.rotationDegrees(entity.getRoll()));
 
-            // 回旋镖一样旋转：在确定了Yaw, Pitch, Roll之后，绕着局部Y轴旋转
-
             if (!hasHitEntity) {
                 float time = entity.tickCount + partialTicks;
                 matrixStack.mulPose(Axis.YN.rotationDegrees(time * 30.0F));
@@ -98,6 +96,7 @@ public class FDHuntSwordRender<T extends EntityFDHuntSword> extends EntityRender
             matrixStack.mulPose(Axis.YP.rotationDegrees(90.0F));
 
             // 使用 ss.obj 模型中的 sb 分件
+            // 所以为什么本体没做幻影飞刀？
             WavefrontObject model = BladeModelManager.getInstance().getModel(entity.getModelLoc());
             BladeRenderState.setCol(entity.getColor(), false);
             BladeRenderState.renderOverridedLuminous(ItemStack.EMPTY, model, "sb", getTextureLocation(entity),

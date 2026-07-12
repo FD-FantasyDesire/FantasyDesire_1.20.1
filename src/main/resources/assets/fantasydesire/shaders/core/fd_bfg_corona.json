@@ -1,0 +1,135 @@
+{
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "one",
+        "srcalpha": "one",
+        "dstalpha": "one"
+    },
+    "vertex": "fantasydesire:fd_bfg_corona",
+    "fragment": "fantasydesire:fd_bfg_corona",
+    "attributes": [
+        "Position",
+        "Color",
+        "UV0"
+    ],
+    "samplers": [],
+    "uniforms": [
+        {
+            "name": "ModelViewMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        },
+        {
+            "name": "ProjMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        },
+        {
+            "name": "Time",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.0
+            ]
+        },
+        {
+            "name": "CoreColor",
+            "type": "float",
+            "count": 4,
+            "values": [
+                1.0,
+                1.0,
+                1.0,
+                1.0
+            ]
+        },
+        {
+            "name": "FlameColor",
+            "type": "float",
+            "count": 4,
+            "values": [
+                0.2,
+                1.0,
+                0.22,
+                1.0
+            ]
+        },
+        {
+            "name": "EruptionIntensity",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.28
+            ]
+        },
+        {
+            "name": "NoiseSpeed",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.24
+            ]
+        },
+        {
+            "name": "PulseFrequency",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.08
+            ]
+        },
+        {
+            "name": "Opacity",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.92
+            ]
+        },
+        {
+            "name": "RadiusScale",
+            "type": "float",
+            "count": 1,
+            "values": [
+                1.0
+            ]
+        }
+    ]
+}

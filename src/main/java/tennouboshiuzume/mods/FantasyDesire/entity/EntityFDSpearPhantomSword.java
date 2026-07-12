@@ -60,8 +60,6 @@ public class EntityFDSpearPhantomSword extends EntityFDPhantomSword {
             }
             return;
         }
-
-        // ===== 服务端逻辑：刺入目标生成灵魂剑 =====
         if (this.getHitEntity() != null && this.getOwner() != null
                 && getHitEntity() instanceof LivingEntity tarEntity) {
             Level level = this.level();

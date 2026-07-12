@@ -298,4 +298,5 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
                     .endVertex();
         }
     }
+
 }

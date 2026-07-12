@@ -6,8 +6,8 @@
         "srcalpha": "one",
         "dstalpha": "one"
     },
-    "vertex": "fd_cross_flash",
-    "fragment": "fd_cross_flash",
+    "vertex": "fantasydesire:fd_cross_flash",
+    "fragment": "fantasydesire:fd_cross_flash",
     "attributes": [
         "Position",
         "Color",
