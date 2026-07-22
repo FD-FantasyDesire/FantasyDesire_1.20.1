@@ -28,6 +28,7 @@ import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
 import java.util.List;
+import java.util.Random;
 
 import static mods.flammpfeil.slashblade.ability.SlayerStyleArts.*;
 
@@ -159,18 +160,17 @@ public class TwinSlash {
                 AttackManager.genRushOffset(player), false, false, ratio, KnockBacks.cancel);
     }
 
-    public static void HitEffect(Entity entity, int ratio) {
-        if ((entity.level() instanceof ServerLevel serverlevel)) {
-            Vec3 offsetS = new Vec3((Math.random() - 0.5) * ratio, (Math.random() - 0.5) * ratio,
-                    (Math.random() - 0.5) * ratio);
-            Vec3 start = entity.position().add(offsetS).add(0, entity.getBbHeight() / 2, 0);
-            Vec3 end = entity.position().add(0, entity.getBbHeight() / 2, 0);
-            Vec3 midPoint = start.add(end).scale(0.5);
-            GlowingLineParticleOptions opts = new GlowingLineParticleOptions(start, end,
-                    Math.random() < 0.5 ? 0x00C8FF : 0xFF0089, 0.05f, 1, false, 20);
-            tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils.sendForceParticles(serverlevel, opts, midPoint.x,
-                    midPoint.y, midPoint.z, 1, 0, 0, 0, 0, 64.0);
-        }
+    public static void HitEffect(Entity entity, float radiusMult) {
+        Random rd = new Random();
+        float halfLength = (entity.getBbHeight() + entity.getBbWidth()) / 3 * radiusMult;
+        Vec3 base = new Vec3(0, 0, halfLength)
+                .yRot((float) Math.toRadians(rd.nextInt(360))).xRot((float) Math.toRadians(rd.nextInt(360)));
+        Vec3 start = entity.position().add(base).add(0, entity.getBbHeight() / 2, 0);
+        Vec3 end = entity.position().add(base.scale(-1)).add(0, entity.getBbHeight() / 2, 0);
+        Boolean tColor = Math.random() < 0.5;
+        ParticleUtils.spwanBladeRiftParticles(entity.level(), start, end, 20, 0.9f, 0.03f,
+                tColor ? 0x00C8FF : 0xFF0089,
+                tColor ? 0xFF0089 : 0x00C8FF);
     }
 
     public static Vec3 calculateTeleportPosition(Entity entityIn, LivingEntity target) {

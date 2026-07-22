@@ -101,20 +101,6 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                                                 has(SlashBladeItems.SLASHBLADE.get()))
                                 .save(consumer, FantasyDesire.prefix("crimson_scythe"));
 
-                FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.CrimsonScythe.location())
-                                .pattern("  L").pattern(" L ").pattern("BG ")
-                                .define('B', SlashBladeIngredient.of(
-                                                RequestDefinition.Builder
-                                                                .newInstance()
-                                                                .name(SlashBladeBuiltInRegistry.RODAI_STONE
-                                                                                .location())
-                                                                .build()))
-                                .define('L', Ingredient.of(Items.REDSTONE_BLOCK))
-                                .define('G', Ingredient.of(Tags.Items.INGOTS_GOLD))
-                                .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
-                                                has(SlashBladeItems.SLASHBLADE.get()))
-                                .save(consumer, FantasyDesire.prefix("crimson_scythe"));
-
                 // 无星之夜 已换成虚无转变制作
                 // FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.StarlessNight.location())
                 // .pattern(" AO")
@@ -136,6 +122,25 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                 // .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
                 // has(SlashBladeItems.SLASHBLADE.get()))
                 // .save(consumer, FantasyDesire.prefix("starless_night"));
+
+                FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.OverColdP0.location())
+                                .pattern(" OO")
+                                .pattern("OAO")
+                                .pattern("EO ")
+                                .define('E', SlashBladeIngredient.of(
+                                                RequestDefinition.Builder.newInstance()
+                                                                .name(SlashBladeBuiltInRegistry.RODAI_STONE
+                                                                                .location())
+                                                                .addEnchantment(new EnchantmentDefinition(
+                                                                                getEnchantmentID(
+                                                                                                Enchantments.FIRE_PROTECTION),
+                                                                                3))
+                                                                .build()))
+                                .define('O', Ingredient.of(Items.ICE))
+                                .define('A', Ingredient.of(Items.AMETHYST_BLOCK))
+                                .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
+                                                has(SlashBladeItems.SLASHBLADE.get()))
+                                .save(consumer, FantasyDesire.prefix("over_cold_p0"));
 
                 FantasySlashBladeShapedRecipeBuilder.shaped(FantasySlashBladeBuiltInRegistry.TwinBladeL.location())
                                 .pattern(" AO")

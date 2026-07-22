@@ -47,12 +47,15 @@ public class SmartPistolMode {
             return;
 
         ItemStack blade = player.getMainHandItem();
+        boolean thunderOn = CapabilityUtils.SEConditionMatcher.of(blade, player)
+                .requireSE(FDSpecialEffectsRegistry.ThunderBullet)
+                .match() != null;
         float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
         int refine = state.getRefine();
         float refineBonus = (float) (refine * 0.1f + Math.sqrt(refine) * 1.5f);
         int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
         float enchantMultiplier = 1.0f + (enchantLevel * 0.25f);
-        float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ammo);
+        float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ammo * (thunderOn ? 1.0f : 1.5f));
 
         EntityFDBFG ss = new EntityFDBFG(FDEntitys.FDBFG.get(), player.level());
         ss.setIsCritical(false);
@@ -68,9 +71,10 @@ public class SmartPistolMode {
         ss.setSeekDelay(15);
         ss.setScale(2f);
         ss.setExpRadius(25f);
-        ss.setMultipleHit(true);
+        ss.setMultipleHit(thunderOn);
+        ss.setChaining(thunderOn);
         ss.setFireSound(SoundEvents.WITHER_SHOOT, 1, 1.5f);
-        ss.setHasTail(true);
+        ss.setHasTail(false);
         ss.setPos(player.position());
         ss.setCenterOffset(new Vec3(0, player.getEyeHeight(), 0));
         ss.setOffset(new Vec3(0, 0, 0.75f));

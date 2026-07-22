@@ -266,6 +266,7 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
 
         private void renderMagneticFieldArcs(T entity, float time, PoseStack matrixStack, MultiBufferSource bufferIn) {
                 VertexConsumer builder = bufferIn.getBuffer(RenderType.lightning());
+                int[] arcColor = getBfgEffectChannels(entity, 0.16f);
                 int arcCount = 26;
                 for (int arc = 0; arc < arcCount; arc++) {
                         float seed = arc * 12.9898f + entity.getId() * 0.173f;
@@ -296,7 +297,7 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                                                 Math.sin(a1 * 1.7f + seed) * radius * 0.10f,
                                                 Math.sin(a1) * (radius - wobble1));
                                 int alpha = (int) (128 + 58 * Mth.sin(time * 0.05f + seed + i * 0.37f));
-                                emitSegment(builder, mat, p0, p1, width, 50, 255, 112, alpha);
+                                emitSegment(builder, mat, p0, p1, width, arcColor[0], arcColor[1], arcColor[2], alpha);
                         }
                         matrixStack.popPose();
                 }
@@ -482,6 +483,7 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                 if (dist <= 1e-4) {
                         return;
                 }
+                int[] flowColor = getBfgEffectChannels(entity, 0.10f);
                 VertexConsumer builder = bufferIn.getBuffer(RenderType.lightning());
                 Matrix4f mat = matrixStack.last().pose();
                 Vec3 dir = diff.normalize();
@@ -504,7 +506,7 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                                 right = right.length() <= 1e-6 ? axisA : right.normalize();
                                 float width = entity.getScale() * 0.045f;
                                 emitFlowQuad(builder, mat, entityPos, prev, next, right, width, width,
-                                                36, 255, 132, 68, 68);
+                                                flowColor[0], flowColor[1], flowColor[2], 68, 68);
                         }
                         prev = next;
                 }
@@ -517,6 +519,8 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                 if (dist <= 1e-4) {
                         return;
                 }
+                int[] outerArcColor = getBfgEffectChannels(entity, 0.08f);
+                int[] innerArcColor = getBfgEffectChannels(entity, 0.64f);
                 VertexConsumer builder = bufferIn.getBuffer(RenderType.lightning());
                 Matrix4f mat = matrixStack.last().pose();
                 Vec3 dir = diff.normalize();
@@ -549,9 +553,11 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                                         float width = entity.getScale() * (0.010f + 0.009f * flicker);
                                         emitFlowQuad(builder, mat, entityPos, prev, next, right, width * 2.6f,
                                                         width * 2.0f,
-                                                        0, 255, 210, (int) (40 * flicker), (int) (30 * flicker));
+                                                        outerArcColor[0], outerArcColor[1], outerArcColor[2],
+                                                        (int) (40 * flicker), (int) (30 * flicker));
                                         emitFlowQuad(builder, mat, entityPos, prev, next, right, width, width * 0.75f,
-                                                        218, 255, 226, (int) (150 * flicker), (int) (120 * flicker));
+                                                        innerArcColor[0], innerArcColor[1], innerArcColor[2],
+                                                        (int) (150 * flicker), (int) (120 * flicker));
                                 }
                                 prev = next;
                         }
@@ -661,6 +667,15 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                 b /= max;
                 return new float[] { Mth.clamp(r, 0.0f, 1.0f), Mth.clamp(g, 0.0f, 1.0f),
                                 Mth.clamp(b, 0.0f, 1.0f) };
+        }
+
+        private int[] getBfgEffectChannels(T entity, float whiteMix) {
+                float[] color = getBfgEffectColor(entity);
+                return new int[] {
+                                toColorChannel(mixColor(color[0], 1.0f, whiteMix)),
+                                toColorChannel(mixColor(color[1], 1.0f, whiteMix)),
+                                toColorChannel(mixColor(color[2], 1.0f, whiteMix))
+                };
         }
 
         private static float mixColor(float from, float to, float amount) {
@@ -781,7 +796,8 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                 VertexConsumer builder = bufferIn
                                 .getBuffer(RenderType.energySwirl(ENERGY_TEX, time * 0.01f, time * 0.01f));
 
-                int r = 50, g = 255, b = 50;
+                int[] fallbackColor = getBfgEffectChannels(entity, 0.12f);
+                int r = fallbackColor[0], g = fallbackColor[1], b = fallbackColor[2];
                 renderFace(builder, mat, normal, r, g, b, packedLightIn, -0.5f, -0.5f, 0.5f, 0.5f, -0.5f, 0.5f,
                                 0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f, 0, 0, 1);
                 renderFace(builder, mat, normal, r, g, b, packedLightIn, 0.5f, -0.5f, -0.5f, -0.5f, -0.5f, -0.5f,

@@ -1,7 +1,40 @@
 package tennouboshiuzume.mods.FantasyDesire.utils;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import net.minecraft.network.chat.Component;
+
 //用于颜色计算的工具类
 public class ColorUtils {
+    /**
+     * Reads the particle command form 0xRRGGBB (the alpha channel is never
+     * accepted).
+     */
+    public static int readRgb(StringReader reader) throws CommandSyntaxException {
+        String value = reader.readString();
+        try {
+            return parseRgb(value);
+        } catch (IllegalArgumentException exception) {
+            throw new SimpleCommandExceptionType(Component.literal("Expected 0xRRGGBB color"))
+                    .createWithContext(reader);
+        }
+    }
+
+    public static int parseRgb(String value) {
+        String text = value;
+        if (text.startsWith("0x") || text.startsWith("0X"))
+            text = text.substring(2);
+        if (text.length() != 6 || !text.matches("[0-9a-fA-F]{6}")) {
+            throw new IllegalArgumentException("Expected 0xRRGGBB color");
+        }
+        return Integer.parseInt(text, 16) & 0xFFFFFF;
+    }
+
+    public static String formatRgb(int color) {
+        return String.format(java.util.Locale.ROOT, "0x%06X", color & 0xFFFFFF);
+    }
+
     public static int getSmoothTransitionColor(float step, int totalSteps, boolean isHex) {
         // 限制 step 在 [0, totalSteps) 内
         if (step >= totalSteps) {

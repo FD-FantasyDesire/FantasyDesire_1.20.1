@@ -8,6 +8,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.ColorShardParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.BladeRiftParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions;
@@ -51,4 +52,13 @@ public class FDParticles {
 
     public static final RegistryObject<SimpleParticleType> ENDER_SHARD = PARTICLES.register("ender_shard",
             () -> new SimpleParticleType(false));
+
+    public static final RegistryObject<ParticleType<BladeRiftParticleOptions>> BLADE_RIFT = PARTICLES.register(
+            "blade_rift",
+            () -> new ParticleType<>(false, BladeRiftParticleOptions.DESERIALIZER) {
+                @Override
+                public Codec<BladeRiftParticleOptions> codec() {
+                    return BladeRiftParticleOptions.CODEC;
+                }
+            });
 }

@@ -23,6 +23,7 @@ run
 run-data
 deplib
 plans
+.vscode
 
 # Files from Forge MDK
 forge*changelog.txt

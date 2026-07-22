@@ -1,0 +1,35 @@
+{
+  "type": "fantasydesire:shaped_fantasy_blade",
+  "blade": "fantasydesire:over_cold_0",
+  "category": "equipment",
+  "key": {
+    "A": {
+      "item": "minecraft:amethyst_block"
+    },
+    "E": {
+      "type": "slashblade:blade",
+      "item": "slashblade:slashblade",
+      "request": {
+        "enchantments": [
+          {
+            "id": "minecraft:fire_protection",
+            "lvl": 3
+          }
+        ],
+        "name": "slashblade:rodai_stone"
+      }
+    },
+    "O": {
+      "item": "minecraft:ice"
+    }
+  },
+  "pattern": [
+    " OO",
+    "OAO",
+    "EO "
+  ],
+  "result": {
+    "item": "fantasydesire:fantasyslashblade"
+  },
+  "show_notification": true
+}

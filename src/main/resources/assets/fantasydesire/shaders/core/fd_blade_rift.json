@@ -1,0 +1,117 @@
+{
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "one",
+        "srcalpha": "one",
+        "dstalpha": "1-srcalpha"
+    },
+    "vertex": "fantasydesire:fd_blade_rift",
+    "fragment": "fantasydesire:fd_blade_rift",
+    "attributes": [
+        "Position",
+        "Color",
+        "UV0"
+    ],
+    "samplers": [],
+    "uniforms": [
+        {
+            "name": "ModelViewMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+            ]
+        },
+        {
+            "name": "ProjMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0,
+                1
+            ]
+        },
+        {
+            "name": "Progress",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.0
+            ]
+        },
+        {
+            "name": "FlowTime",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.0
+            ]
+        },
+        {
+            "name": "RiftLength",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.9
+            ]
+        },
+        {
+            "name": "RiftWidth",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.03
+            ]
+        },
+        {
+            "name": "CoreColor",
+            "type": "float",
+            "count": 3,
+            "values": [
+                1.0,
+                0.0039,
+                0.9843
+            ]
+        },
+        {
+            "name": "EnergyColor",
+            "type": "float",
+            "count": 3,
+            "values": [
+                0.0,
+                1.0,
+                1.0
+            ]
+        }
+    ]
+}

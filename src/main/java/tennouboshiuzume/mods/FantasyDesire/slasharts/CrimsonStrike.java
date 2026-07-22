@@ -3,6 +3,7 @@ package tennouboshiuzume.mods.FantasyDesire.slasharts;
 import mods.flammpfeil.slashblade.capability.slashblade.ISlashBladeState;
 import mods.flammpfeil.slashblade.util.KnockBacks;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -13,14 +14,29 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.utils.AddonSlashUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
+import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
 import java.util.List;
+import java.util.Random;
 
 public class CrimsonStrike {
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation("item.fantasydesire.crimson_scythe")
                 .match() != null;
+    }
+
+    public static void HitEffect(Entity entity, float radiusMult) {
+        Random rd = new Random();
+        Boolean tColor = Math.random() < 0.5;
+        float halfLength = (entity.getBbHeight() + entity.getBbWidth()) / 3 * radiusMult * (tColor ? 0.5f : 1f);
+        Vec3 base = new Vec3(0, 0, halfLength)
+                .yRot((float) Math.toRadians(rd.nextInt(360))).xRot((float) Math.toRadians(rd.nextInt(360)));
+        Vec3 start = entity.position().add(base).add(0, entity.getBbHeight() / 2, 0);
+        Vec3 end = entity.position().add(base.scale(-1)).add(0, entity.getBbHeight() / 2, 0);
+        ParticleUtils.spwanBladeRiftParticles(entity.level(), start, end, 20, 1.5f, 0.03f,
+                tColor ? 0xFFFFFF : 0x000000,
+                0xFF0000);
     }
 
     public static void ShootHunterSword(LivingEntity player) {

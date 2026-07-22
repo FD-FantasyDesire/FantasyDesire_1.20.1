@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import tennouboshiuzume.mods.FantasyDesire.client.particle.BladeRiftParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions;
 
@@ -124,5 +125,17 @@ public class ParticleUtils {
                 leftPoints, ringRadius);
         spawnSegmentAstra(serverLevel, midWithRandom, end, color, thickness, lifetime, alpha, fade, randomness,
                 rightPoints, ringRadius);
+    }
+
+    // 剑痕粒子
+    public static void spwanBladeRiftParticles(Level level, Vec3 start, Vec3 end, int lifetime, float length,
+            float width,
+            int innerColor, int outerColor) {
+        if (level instanceof ServerLevel serverLevel) {
+            Vec3 midPoint = start.add(end).scale(0.5);
+            BladeRiftParticleOptions opts = new BladeRiftParticleOptions(start, end, lifetime, length, width,
+                    innerColor, outerColor);
+            sendForceParticles(serverLevel, opts, midPoint.x, midPoint.y, midPoint.z, 1, 0, 0, 0, 0, 64.0);
+        }
     }
 }

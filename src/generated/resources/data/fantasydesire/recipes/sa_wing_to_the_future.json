@@ -3,7 +3,7 @@
   "category": "equipment",
   "key": {
     "B": {
-      "item": "minecraft:blue_stained_glass"
+      "item": "minecraft:light_blue_stained_glass"
     },
     "N": {
       "item": "minecraft:nether_star"

@@ -7,11 +7,8 @@
       "type": "slashblade:blade",
       "item": "slashblade:slashblade",
       "request": {
-        "kill": 300,
-        "name": "slashblade:ruby",
-        "sword_type": [
-          "broken"
-        ]
+        "kill": 1000,
+        "name": "slashblade:ruby"
       }
     },
     "G": {
@@ -19,11 +16,14 @@
     },
     "L": {
       "item": "minecraft:redstone_block"
+    },
+    "O": {
+      "tag": "forge:obsidian"
     }
   },
   "pattern": [
-    "  L",
-    " L ",
+    "LLL",
+    " OG",
     "BG "
   ],
   "result": {

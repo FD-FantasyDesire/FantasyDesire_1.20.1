@@ -2,6 +2,10 @@ package tennouboshiuzume.mods.FantasyDesire.entity;
 
 import mods.flammpfeil.slashblade.entity.Projectile;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -20,16 +24,28 @@ import java.util.Comparator;
 import java.util.List;
 
 public class EntityFDBFG extends EntityFDEnergyBullet {
+    private static final EntityDataAccessor<Boolean> CHAINING = SynchedEntityData.defineId(EntityFDBFG.class,
+            EntityDataSerializers.BOOLEAN);
+    private static final int CHAIN_DAMAGE_INTERVAL = 10;
+    private static final float CHAIN_DAMAGE_RATE = 0.2f;
+
     public List<LivingEntity> clientTargets = new ArrayList<>();
+    private boolean exploded = false;
 
     public EntityFDBFG(EntityType<? extends Projectile> entityTypeIn, Level worldIn) {
         super(entityTypeIn, worldIn);
     }
 
     @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(CHAINING, false);
+    }
+
+    @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide() && this.tickCount % 2 == 0) {
+        if (this.level().isClientSide() && this.getChaining() && this.tickCount % 2 == 0) {
             List<Entity> excludeList = new ArrayList<>();
             excludeList.add(this.getShooter());
             this.clientTargets = FDTargetSelector.getLivingEntitiesInRadius(this, this.position(), 25, false,
@@ -40,7 +56,9 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
     // 非常！？DOOM？！的BFG
     @Override
     public void customEffectFired() {
-        if (this.tickCount % 2 != 0)
+        if (!this.getChaining())
+            return;
+        if (this.tickCount % CHAIN_DAMAGE_INTERVAL != 0)
             return;
         List<Entity> excludeList = new ArrayList<>();
         excludeList.add(this.getShooter());
@@ -57,7 +75,7 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
                 damagesource = this.damageSources().indirectMagic(this, shooter);
             }
             target.invulnerableTime = 0; // 确保可以被高频攻击
-            target.hurt(damagesource, (float) this.getDamage() * 0.2f); // 每次闪电造成20%伤害
+            target.hurt(damagesource, (float) this.getDamage() * CHAIN_DAMAGE_RATE); // 每次闪电造成20%伤害
             if (this.level() instanceof ServerLevel serverLevel) {
                 // ParticleUtils.LightBoltParticles(serverLevel, start, end, 0x00FF00, 0.1f, 2,
                 // 0.75f, false, 2, 8);
@@ -69,6 +87,9 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
 
     @Override
     protected void doExplosive() {
+        if (this.exploded)
+            return;
+        this.exploded = true;
         if (!this.level().isClientSide() && this.level() instanceof ServerLevel serverLevel) {
             float expRadius = this.getExpRadius();
             if (expRadius <= 0)
@@ -92,18 +113,6 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
                             true,
                             excludes));
             targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(this)));
-            ParticleUtils.LightBoltParticles(
-                    serverLevel,
-                    center,
-                    this.position().add(0, 20, 0),
-                    color,
-                    0.2f, // thickness
-                    10, // lifetime
-                    1.0f, // alpha
-                    true, // fade
-                    2.0, // randomness
-                    8 // maxSegments
-            );
             this.playSound(SoundEvents.GENERIC_EXPLODE, 3, 0.5f);
             for (LivingEntity target : targets) {
                 // Deal damage
@@ -111,32 +120,49 @@ public class EntityFDBFG extends EntityFDEnergyBullet {
                 DamageSource source = shooter == null ? this.damageSources().indirectMagic(this, this)
                         : this.damageSources().indirectMagic(this, shooter);
                 target.invulnerableTime = 0;
-                if (doExplosiveDamage(target, source)) {
-                    // Create lightning particle lines
-                    Vec3 targetCenter = target.position().add(0, target.getBbHeight() / 2.0, 0);
-                    ParticleUtils.LightBoltParticles(
-                            serverLevel,
-                            center,
-                            targetCenter,
-                            color,
-                            0.05f, // thickness
-                            10, // lifetime
-                            1.0f, // alpha
-                            true, // fade
-                            0.5, // randomness
-                            3 // maxSegments
-                    );
-                }
+                this.doExplosiveDamage(target, source);
             }
         }
     }
 
     @Override
     protected boolean doExplosiveDamage(LivingEntity target, DamageSource source) {
-        int tickRemain = getDelay() - tickCount;
-        float damage = (float) (this.getDamage() * 0.2f);
-        int remainDamageTimes = tickRemain / 10;
+        if (!this.getChaining()) {
+            return target.hurt(source, (float) this.getDamage());
+        }
+        int tickRemain = Math.max(0, getDelay() - tickCount);
+        float damage = (float) (this.getDamage() * CHAIN_DAMAGE_RATE);
+        int remainDamageTimes = (int) Math.ceil(tickRemain / (double) CHAIN_DAMAGE_INTERVAL);
         // 使其提前引爆时造成剩余全额伤害
         return target.hurt(source, remainDamageTimes * damage);
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (!this.exploded && !this.level().isClientSide() && reason == RemovalReason.DISCARDED
+                && this.getExpRadius() > 0) {
+            this.doExplosive();
+        }
+        super.remove(reason);
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putBoolean("Chaining", this.getChaining());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        this.setChaining(tag.getBoolean("Chaining"));
+    }
+
+    public void setChaining(boolean value) {
+        this.entityData.set(CHAINING, value);
+    }
+
+    public boolean getChaining() {
+        return this.entityData.get(CHAINING);
     }
 }

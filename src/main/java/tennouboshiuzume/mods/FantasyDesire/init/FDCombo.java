@@ -127,7 +127,7 @@ public class FDCombo extends ComboStateRegistry {
                                                         .build())
                                         .addHitEffect(StunManager::setStun)::build);
 
-        // 腥红风暴（乱舞斩击）
+        // 爪刃斩 左
         public static final RegistryObject<ComboState> CRIMSON_STRIKE_1 = FD_COMBO_STATES.register("crimson_strike_1",
                         ComboState.Builder.newInstance().startAndEnd(1816, 1859).speed(6F).priority(50)
                                         .next(ComboState.TimeoutNext.buildFromFrame(18,
@@ -142,9 +142,12 @@ public class FDCombo extends ComboStateRegistry {
                                                         20))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .build())
-                                        .addHitEffect(StunManager::setStun)::build);
+                                        .addHitEffect((target, attacker) -> {
+                                                StunManager.setStun(target, 40);
+                                                CrimsonStrike.HitEffect(target, 3f);
+                                        })::build);
 
-        // 深红裁决（终结爆发）
+        // 爪刃斩 右
         public static final RegistryObject<ComboState> CRIMSON_STRIKE_2 = FD_COMBO_STATES.register("crimson_strike_2",
                         ComboState.Builder.newInstance().startAndEnd(204, 218).speed(1.1F).priority(50)
                                         .next(ComboState.TimeoutNext.buildFromFrame(20,
@@ -159,7 +162,10 @@ public class FDCombo extends ComboStateRegistry {
                                                         15))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .build())
-                                        .addHitEffect(StunManager::setStun)::build);
+                                        .addHitEffect((target, attacker) -> {
+                                                StunManager.setStun(target, 40);
+                                                CrimsonStrike.HitEffect(target, 3f);
+                                        })::build);
 
         public static final RegistryObject<ComboState> CRIMSON_STRIKE_END = FD_COMBO_STATES.register(
                         "crimson_strike_end",
@@ -267,10 +273,13 @@ public class FDCombo extends ComboStateRegistry {
                                                                 AttackManager.doSlash(entityIn, -90 - 10, Vec3.ZERO,
                                                                                 false, false, 0.50f, KnockBacks.toss);
                                                         }).build())
-                                        .addHitEffect((t, a) -> {
-                                                t.setDeltaMovement(0, 0.6f, 0);
-                                                t.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 0));
-                                        }).addHitEffect((t, a) -> StunManager.setStun(t, 15))::build);
+                                        .addHitEffect((target, attacker) -> {
+                                                target.setDeltaMovement(0, 0.6f, 0);
+                                                target.addEffect(
+                                                                new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 0));
+                                                StunManager.setStun(target, 15);
+                                                TwinSlash.HitEffect(target, 1.5f);
+                                        })::build);
         // 3段，双旋斩
         public static final RegistryObject<ComboState> MOOD_SLASH_2 = FD_COMBO_STATES.register("mood_slash_2",
                         ComboState.Builder.newInstance().startAndEnd(725, 743).priority(80)
@@ -299,9 +308,9 @@ public class FDCombo extends ComboStateRegistry {
                                                         .put(10, entityIn -> TwinSlash.MoodSlash(entityIn,
                                                                         entityIn.getOffhandItem(), 0, 0, 135, -72 * 3))
                                                         .build())
-                                        .addHitEffect((t, a) -> {
-                                                StunManager.setStun(t, 40);
-                                                TwinSlash.HitEffect(t, 5);
+                                        .addHitEffect((target, attacker) -> {
+                                                StunManager.setStun(target, 40);
+                                                TwinSlash.HitEffect(target, 1.5f);
                                         }).addTickAction(FallHandler::fallDecrease)::build);
         // 4段，重锤落斩 + 幻影剑追击
         public static final RegistryObject<ComboState> MOOD_SLASH_3 = FD_COMBO_STATES.register("mood_slash_3",
@@ -319,6 +328,7 @@ public class FDCombo extends ComboStateRegistry {
                                         }).build()).addTickAction(FallHandler::fallDecrease)
                                         .addHitEffect((target, attacker) -> {
                                                 StunManager.setStun(target, 40);
+                                                TwinSlash.HitEffect(target, 4f);
                                                 TwinSlash.MoodFinalRuneSword(attacker, target,
                                                                 attacker.getMainHandItem());
                                                 TwinSlash.MoodFinalRuneSword(attacker, target,
@@ -396,7 +406,10 @@ public class FDCombo extends ComboStateRegistry {
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
                                                                         0.244f))
                                                         .build())
-                                        .addHitEffect(StunManager::setStun)::build);
+                                        .addHitEffect((target, attacker) -> {
+                                                StunManager.setStun(target, 40);
+                                                TwinSlash.HitEffect(target, 1.5f);
+                                        })::build);
         // 3段，循环狂热
         public static final RegistryObject<ComboState> DOOM_SLASH_2 = FD_COMBO_STATES.register("doom_slash_2",
                         ComboState.Builder.newInstance().startAndEnd(710, 720).priority(80)
@@ -435,7 +448,10 @@ public class FDCombo extends ComboStateRegistry {
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
                                                                         0.244f))
                                                         .build())
-                                        .addHitEffect(StunManager::setStun)::build);
+                                        .addHitEffect((target, attacker) -> {
+                                                StunManager.setStun(target, 40);
+                                                TwinSlash.HitEffect(target, 1.5f);
+                                        })::build);
         // 4段，循环狂热
         public static final RegistryObject<ComboState> DOOM_SLASH_3 = FD_COMBO_STATES.register("doom_slash_3",
                         ComboState.Builder.newInstance().startAndEnd(710, 720).priority(80)
@@ -474,7 +490,10 @@ public class FDCombo extends ComboStateRegistry {
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
                                                                         0.244f))
                                                         .build())
-                                        .addHitEffect(StunManager::setStun)::build);
+                                        .addHitEffect((target, attacker) -> {
+                                                StunManager.setStun(target, 40);
+                                                TwinSlash.HitEffect(target, 1.5f);
+                                        })::build);
         // 5段，重锤落，追加群攻
         public static final RegistryObject<ComboState> DOOM_SLASH_4 = FD_COMBO_STATES.register("doom_slash_4",
                         ComboState.Builder.newInstance().startAndEnd(500, 576).priority(80)
@@ -491,24 +510,7 @@ public class FDCombo extends ComboStateRegistry {
                                                 TwinSlash.ConvertForm(entityIn, entityIn.getOffhandItem());
                                         }).build()).addHitEffect((target, attacker) -> {
                                                 StunManager.setStun(target, 40);
-                                                if (target.isAlive() && attacker != null) {
-                                                        for (int i = 0; i < 4; i++) {
-                                                                Vec3 start = target.position().add(0,
-                                                                                target.getBbHeight() / 2, 0);
-                                                                Vec3 end = new Vec3(0, 0, 10);
-                                                                end = end.yRot((float) Math
-                                                                                .toRadians(Math.random() * 360f))
-                                                                                .xRot((float) Math.toRadians(
-                                                                                                Math.random() * 360f))
-                                                                                .add(start);
-                                                                ParticleUtils.LightBoltParticles(target.level(), start,
-                                                                                end, 0x00C8FF, 0.05f, 20, 0.75f, true,
-                                                                                2, 8);
-                                                                ParticleUtils.LightBoltParticles(target.level(), start,
-                                                                                end, 0xFF0089, 0.05f, 20, 0.75f, true,
-                                                                                2, 8);
-                                                        }
-                                                }
+                                                TwinSlash.HitEffect(target, 5f);
                                         })::build);
         // 虚空回响
         public static final RegistryObject<ComboState> ECHOING_VOID = FD_COMBO_STATES.register("echoing_void",

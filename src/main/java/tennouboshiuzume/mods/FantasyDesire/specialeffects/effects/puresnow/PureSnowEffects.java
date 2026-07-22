@@ -23,6 +23,7 @@ import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -150,7 +151,7 @@ public class PureSnowEffects {
         event.setCanceled(true);
     }
 
-    // 棱光通量
+    // 全色汇流
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onHit(SlashBladeEvent.HitEvent event) {
         if (!(event.getUser() instanceof Player player))
@@ -164,9 +165,9 @@ public class PureSnowEffects {
         IFantasySlashBladeState fdState = ctx.fantasyState;
         ISlashBladeState state = ctx.state;
         CapabilityUtils.addSpecialCharge(fdState, 1);
+        LivingEntity target = event.getTarget();
         if (fdState.getSpecialCharge() >= fdState.getMaxSpecialCharge()) {
             CapabilityUtils.tryConsumeSpecialCharge(fdState, fdState.getMaxSpecialCharge());
-            LivingEntity target = event.getTarget();
             if (target == null)
                 return;
             float baseModif = state.getDamage();
@@ -204,8 +205,24 @@ public class PureSnowEffects {
                 player.level().addFreshEntity(ss);
             }
         }
+        if (player.hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get())) {
+            HitEffect(target, (float) (1 + 0.3f * fdState.getSpecialCharge()), state.getColorCode());
+        }
     }
 
+    private static void HitEffect(Entity entity, float radiusMult, int color) {
+        Random rd = new Random();
+        float halfLength = (entity.getBbHeight() + entity.getBbWidth()) / 3 * radiusMult;
+        Vec3 base = new Vec3(0, 0, halfLength)
+                .yRot((float) Math.toRadians(rd.nextInt(360))).xRot((float) Math.toRadians(rd.nextInt(360)));
+        Vec3 start = entity.position().add(base).add(0, entity.getBbHeight() / 2, 0);
+        Vec3 end = entity.position().add(base.scale(-1)).add(0, entity.getBbHeight() / 2, 0);
+        ParticleUtils.spwanBladeRiftParticles(entity.level(), start, end, 20, 1.5f, 0.03f,
+                0xFFFFFF,
+                color);
+    }
+
+    // 棱光通量
     @SubscribeEvent
     public static void summonedSwordHit(SlashBladeEvent.SummonedSwordOnHitEntityEvent event) {
         if (event.getSummonedSword().getOwner() instanceof LivingEntity attacker) {

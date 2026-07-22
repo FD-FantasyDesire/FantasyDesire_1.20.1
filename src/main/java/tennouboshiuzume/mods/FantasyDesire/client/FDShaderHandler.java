@@ -27,6 +27,7 @@ public class FDShaderHandler {
 
     /** BFG 敌人连接桥的自定义核心着色器实例 */
     private static ShaderInstance bfgBridgeShader;
+    private static ShaderInstance bladeRiftShader;
 
     /** 着色器是否成功加载 */
     private static boolean crossFlashShaderLoaded = false;
@@ -52,6 +53,10 @@ public class FDShaderHandler {
 
     public static ShaderInstance getBfgBridgeShader() {
         return bfgBridgeShader;
+    }
+
+    public static ShaderInstance getBladeRiftShader() {
+        return bladeRiftShader;
     }
 
     public static boolean isCrossFlashShaderLoaded() {
@@ -123,6 +128,15 @@ public class FDShaderHandler {
             e.printStackTrace();
             bfgBridgeShader = null;
             bfgBridgeShaderLoaded = false;
+        }
+
+        try {
+            ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
+                    new ResourceLocation(FantasyDesire.MODID, "fd_blade_rift"), DefaultVertexFormat.POSITION_COLOR_TEX);
+            event.registerShader(shader, loaded -> bladeRiftShader = loaded);
+        } catch (IOException e) {
+            System.err.println("[FantasyDesire] Failed to register BladeRift shader: " + e.getMessage());
+            bladeRiftShader = null;
         }
     }
 }
