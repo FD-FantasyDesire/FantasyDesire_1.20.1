@@ -87,6 +87,8 @@ public class VoidTransform {
                 ParticleUtils.sendForceParticles(serverLevel, option, x, y + 4 * i, z, 1, 0, 0, 0, 0, 128.0);
             }
         }
+        // 生成一个平台防止剑掉下去，，，
+        // 我还以为是没触发合成，搞半天是掉下去了
         BlockPos platformPos = BlockPos.containing(
                 x,
                 y - 1,
