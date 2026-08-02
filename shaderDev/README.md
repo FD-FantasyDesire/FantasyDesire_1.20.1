@@ -57,3 +57,7 @@ uniform vec2 u_mouse;       // 鼠标像素坐标
 5. 只迁移确认需要的函数，避免与 Minecraft 的 include 文件、宏和 uniform 命名冲突。
 
 本目录仅用于原型开发，不修改或自动接入项目的正式 Minecraft shader 资源。
+
+## 独立作品
+
+- [`VoidRift`](VoidRift/README.md)：交错菱形十字裂痕、折射色散冲击波与深邃中央传送门；同时提供 GLSL Canvas 入口和零依赖响应式 WebGL 1 网页预览器。

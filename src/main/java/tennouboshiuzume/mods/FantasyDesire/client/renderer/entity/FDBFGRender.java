@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -1124,5 +1125,11 @@ public class FDBFGRender<T extends EntityFDBFG> extends EntityRenderer<T> {
                                         .normal(normal, 0f, 0f, -1f)
                                         .endVertex();
                 }
+        }
+
+        @Override
+        public boolean shouldRender(T p_114491_, Frustum p_114492_, double p_114493_, double p_114494_,
+                        double p_114495_) {
+                return true;
         }
 }
