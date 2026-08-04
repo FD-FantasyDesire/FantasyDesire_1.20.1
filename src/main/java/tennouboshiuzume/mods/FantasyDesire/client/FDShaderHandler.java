@@ -28,6 +28,7 @@ public class FDShaderHandler {
     /** BFG 敌人连接桥的自定义核心着色器实例 */
     private static ShaderInstance bfgBridgeShader;
     private static ShaderInstance bladeRiftShader;
+    private static ShaderInstance frostFieldShader;
 
     /** 着色器是否成功加载 */
     private static boolean crossFlashShaderLoaded = false;
@@ -37,6 +38,9 @@ public class FDShaderHandler {
 
     /** BFG 敌人连接桥着色器是否成功加载 */
     private static boolean bfgBridgeShaderLoaded = false;
+
+    /** 寒霜风暴球形能量场着色器是否成功加载 */
+    private static boolean frostFieldShaderLoaded = false;
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(FDShaderHandler::onRegisterShaders);
@@ -59,6 +63,10 @@ public class FDShaderHandler {
         return bladeRiftShader;
     }
 
+    public static ShaderInstance getFrostFieldShader() {
+        return frostFieldShader;
+    }
+
     public static boolean isCrossFlashShaderLoaded() {
         return crossFlashShaderLoaded && crossFlashShader != null;
     }
@@ -69,6 +77,10 @@ public class FDShaderHandler {
 
     public static boolean isBfgBridgeShaderLoaded() {
         return bfgBridgeShaderLoaded && bfgBridgeShader != null;
+    }
+
+    public static boolean isFrostFieldShaderLoaded() {
+        return frostFieldShaderLoaded && frostFieldShader != null;
     }
 
     @SubscribeEvent
@@ -137,6 +149,21 @@ public class FDShaderHandler {
         } catch (IOException e) {
             System.err.println("[FantasyDesire] Failed to register BladeRift shader: " + e.getMessage());
             bladeRiftShader = null;
+        }
+
+        try {
+            ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
+                    new ResourceLocation(FantasyDesire.MODID, "fd_frost_field"), DefaultVertexFormat.POSITION_TEX);
+            event.registerShader(shader, loaded -> {
+                frostFieldShader = loaded;
+                frostFieldShaderLoaded = true;
+                System.out.println(
+                        "[FantasyDesire] Frost storm energy field shader loaded successfully: fantasydesire:fd_frost_field");
+            });
+        } catch (IOException e) {
+            System.err.println("[FantasyDesire] Failed to register frost storm energy field shader: " + e.getMessage());
+            frostFieldShader = null;
+            frostFieldShaderLoaded = false;
         }
     }
 }

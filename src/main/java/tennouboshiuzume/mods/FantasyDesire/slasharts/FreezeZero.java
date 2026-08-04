@@ -15,6 +15,10 @@ public class FreezeZero {
     }
 
     public static void FreezeZero(LivingEntity entity) {
+        if (entity.level().isClientSide()) {
+            return;
+        }
+
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation("item.fantasydesire.over_cold")
                 .match();

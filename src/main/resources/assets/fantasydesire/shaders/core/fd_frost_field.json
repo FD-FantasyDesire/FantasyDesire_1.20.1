@@ -1,0 +1,93 @@
+{
+    "blend": {
+        "func": "add",
+        "srcrgb": "one",
+        "dstrgb": "one",
+        "srcalpha": "zero",
+        "dstalpha": "one"
+    },
+    "vertex": "fantasydesire:fd_frost_field",
+    "fragment": "fantasydesire:fd_frost_field",
+    "attributes": [
+        "Position",
+        "UV0"
+    ],
+    "samplers": [
+        {
+            "name": "DepthSampler"
+        },
+        {
+            "name": "BlockDepthSampler"
+        }
+    ],
+    "uniforms": [
+        {
+            "name": "InvViewProj",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ]
+        },
+        {
+            "name": "PatternOrigin",
+            "type": "float",
+            "count": 3,
+            "values": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "name": "FieldCenter",
+            "type": "float",
+            "count": 3,
+            "values": [
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        {
+            "name": "FieldRadius",
+            "type": "float",
+            "count": 1,
+            "values": [
+                4.0
+            ]
+        },
+        {
+            "name": "FieldTime",
+            "type": "float",
+            "count": 1,
+            "values": [
+                0.0
+            ]
+        },
+        {
+            "name": "DepthUvScale",
+            "type": "float",
+            "count": 2,
+            "values": [
+                1.0,
+                1.0
+            ]
+        }
+    ]
+}

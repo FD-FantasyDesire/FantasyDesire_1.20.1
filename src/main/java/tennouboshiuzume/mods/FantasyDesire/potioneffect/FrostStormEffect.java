@@ -22,6 +22,18 @@ public class FrostStormEffect extends MobEffect {
         super(MobEffectCategory.HARMFUL, 0x99FFFF);
     }
 
+    public static float getFieldRadius(int amplifier) {
+        return Math.max(4.0F, Math.min(4.0F + amplifier * 3.0F, 16.0F));
+    }
+
+    public static Vec3 getFieldCenter(LivingEntity entity) {
+        return getFieldCenter(entity, 1.0F);
+    }
+
+    public static Vec3 getFieldCenter(LivingEntity entity, float partialTick) {
+        return entity.getPosition(partialTick).add(0.0, entity.getBbHeight() * 0.5, 0.0);
+    }
+
     @Override
     public boolean isDurationEffectTick(int pDuration, int pAmplifier) {
         return true;
@@ -30,7 +42,7 @@ public class FrostStormEffect extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide && entity.level() instanceof ServerLevel serverLevel) {
-            double r = Math.min(4 + amplifier * 3.0, 16);
+            double r = getFieldRadius(amplifier);
             double yPos = entity.getY() + entity.getBbHeight() + Math.min(4 + amplifier, 8);
             // 冰封风暴边缘视觉粒子
             if (entity.tickCount % 5 == 0) {
@@ -72,7 +84,7 @@ public class FrostStormEffect extends MobEffect {
                 }
                 double range = r;
                 List<LivingEntity> enemies = FDTargetSelector.getNearbyLivingEntities(
-                        entity, range, true, null);
+                        entity, getFieldCenter(entity), range, true, null);
                 int swordCount = 1 + amplifier / 2;
                 for (int s = 0; s < swordCount; s++) {
                     Vec3 spawnPos;

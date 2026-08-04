@@ -57,13 +57,21 @@ public class FDTargetSelector extends TargetSelector {
         if (entity == null || entity.level().isClientSide)
             return List.of();
 
-        Level level = entity.level();
         Vec3 eyePos = entity.getEyePosition(1.0f);
+        return getNearbyLivingEntities(entity, eyePos, radius, requireVisible, exclude);
+    }
+
+    public static List<LivingEntity> getNearbyLivingEntities(Entity entity, Vec3 center, double radius,
+            boolean requireVisible, @Nullable List<Entity> exclude) {
+        if (entity == null || center == null || entity.level().isClientSide)
+            return List.of();
+
+        Level level = entity.level();
         TargetSelector.AttackablePredicate predicate = new TargetSelector.AttackablePredicate();
 
         AABB boundingBox = new AABB(
-                eyePos.x - radius, eyePos.y - radius, eyePos.z - radius,
-                eyePos.x + radius, eyePos.y + radius, eyePos.z + radius);
+                center.x - radius, center.y - radius, center.z - radius,
+                center.x + radius, center.y + radius, center.z + radius);
         double radiusSq = radius * radius;
         return level.getEntitiesOfClass(LivingEntity.class, boundingBox)
                 .stream()
@@ -71,7 +79,7 @@ public class FDTargetSelector extends TargetSelector {
                 .filter(e -> exclude == null || !exclude.contains(e))
                 .filter(Entity::isAttackable)
                 .filter(predicate::test)
-                .filter(e -> e.distanceToSqr(eyePos) <= radiusSq)
+                .filter(e -> e.getBoundingBox().getCenter().distanceToSqr(center) <= radiusSq)
                 .filter(e -> !requireVisible || canSee(entity, e))
                 .collect(Collectors.toList());
     }
