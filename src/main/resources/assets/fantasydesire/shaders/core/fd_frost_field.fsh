@@ -10,7 +10,7 @@ uniform float FieldRadius;
 uniform float FieldTime;
 uniform vec2 DepthUvScale;
 
-const float FIELD_CRYSTAL_SCALE = 0.12;
+const float FIELD_CRYSTAL_SCALE = 0.06;
 const float TERRAIN_CRYSTAL_SCALE = 0.62;
 
 in vec2 texCoord0;
