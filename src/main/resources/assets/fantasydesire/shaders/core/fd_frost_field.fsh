@@ -220,6 +220,8 @@ void main() {
     }
 
     float time = FieldTime * 0.05;
+    // 镜头在球外（观察其他实体）时增强可见度
+    float outsideBoost = cameraInsideField ? 1.0 : 3.0;
     float segmentStart = max(nearDistance, 0.0);
     float segmentEnd = min(farDistance, max(sceneLimit - 0.025, 0.0));
     float volumeEnergy = 0.0;
@@ -240,10 +242,13 @@ void main() {
                     * stepLength / max(FieldRadius, 0.001);
         }
     }
+    volumeEnergy *= outsideBoost;
 
-    float boundary = boundaryEnergy(nearDistance, sceneLimit, rayOrigin, rayDirection, time, cameraInsideField);
+    float boundary = boundaryEnergy(nearDistance, sceneLimit, rayOrigin, rayDirection, time, cameraInsideField)
+            * outsideBoost;
     if (nearDistance < 0.0 || farDistance <= sceneLimit + 0.025) {
-        boundary += boundaryEnergy(farDistance, sceneLimit, rayOrigin, rayDirection, time, cameraInsideField) * 0.72;
+        boundary += boundaryEnergy(farDistance, sceneLimit, rayOrigin, rayDirection, time, cameraInsideField)
+                * 0.72 * outsideBoost;
     }
 
     bool blockIsVisible = hasBlockSurface && (!hasSurface || blockDepth <= depth + 0.0005);

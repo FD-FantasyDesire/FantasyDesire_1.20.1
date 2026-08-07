@@ -29,6 +29,8 @@ public class FDShaderHandler {
     private static ShaderInstance bfgBridgeShader;
     private static ShaderInstance bladeRiftShader;
     private static ShaderInstance frostFieldShader;
+    private static ShaderInstance voidFlameMaskShader;
+    private static ShaderInstance voidFlameOutlineShader;
 
     /** 着色器是否成功加载 */
     private static boolean crossFlashShaderLoaded = false;
@@ -41,6 +43,8 @@ public class FDShaderHandler {
 
     /** 寒霜风暴球形能量场着色器是否成功加载 */
     private static boolean frostFieldShaderLoaded = false;
+    private static boolean voidFlameMaskShaderLoaded = false;
+    private static boolean voidFlameOutlineShaderLoaded = false;
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(FDShaderHandler::onRegisterShaders);
@@ -67,6 +71,14 @@ public class FDShaderHandler {
         return frostFieldShader;
     }
 
+    public static ShaderInstance getVoidFlameMaskShader() {
+        return voidFlameMaskShader;
+    }
+
+    public static ShaderInstance getVoidFlameOutlineShader() {
+        return voidFlameOutlineShader;
+    }
+
     public static boolean isCrossFlashShaderLoaded() {
         return crossFlashShaderLoaded && crossFlashShader != null;
     }
@@ -81,6 +93,14 @@ public class FDShaderHandler {
 
     public static boolean isFrostFieldShaderLoaded() {
         return frostFieldShaderLoaded && frostFieldShader != null;
+    }
+
+    public static boolean isVoidFlameMaskShaderLoaded() {
+        return voidFlameMaskShaderLoaded && voidFlameMaskShader != null;
+    }
+
+    public static boolean isVoidFlameOutlineShaderLoaded() {
+        return voidFlameOutlineShaderLoaded && voidFlameOutlineShader != null;
     }
 
     @SubscribeEvent
@@ -164,6 +184,34 @@ public class FDShaderHandler {
             System.err.println("[FantasyDesire] Failed to register frost storm energy field shader: " + e.getMessage());
             frostFieldShader = null;
             frostFieldShaderLoaded = false;
+        }
+
+        try {
+            ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
+                    new ResourceLocation(FantasyDesire.MODID, "fd_void_flame_mask"), DefaultVertexFormat.NEW_ENTITY);
+            event.registerShader(shader, loaded -> {
+                voidFlameMaskShader = loaded;
+                voidFlameMaskShaderLoaded = true;
+                System.out.println("[FantasyDesire] Void flame silhouette mask shader loaded successfully.");
+            });
+        } catch (IOException e) {
+            System.err.println("[FantasyDesire] Failed to register void flame silhouette mask shader: " + e.getMessage());
+            voidFlameMaskShader = null;
+            voidFlameMaskShaderLoaded = false;
+        }
+
+        try {
+            ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
+                    new ResourceLocation(FantasyDesire.MODID, "fd_void_flame_outline"), DefaultVertexFormat.POSITION_TEX);
+            event.registerShader(shader, loaded -> {
+                voidFlameOutlineShader = loaded;
+                voidFlameOutlineShaderLoaded = true;
+                System.out.println("[FantasyDesire] Void flame outline shader loaded successfully.");
+            });
+        } catch (IOException e) {
+            System.err.println("[FantasyDesire] Failed to register void flame outline shader: " + e.getMessage());
+            voidFlameOutlineShader = null;
+            voidFlameOutlineShaderLoaded = false;
         }
     }
 }

@@ -1,0 +1,33 @@
+{
+    "vertex": "fantasydesire:fd_void_flame_mask",
+    "fragment": "fantasydesire:fd_void_flame_mask",
+    "attributes": [
+        "Position",
+        "Color",
+        "UV0",
+        "UV1",
+        "UV2",
+        "Normal"
+    ],
+    "samplers": [],
+    "uniforms": [
+        {
+            "name": "ModelViewMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+        },
+        {
+            "name": "ProjMat",
+            "type": "matrix4x4",
+            "count": 16,
+            "values": [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+        },
+        {
+            "name": "TargetColor",
+            "type": "float",
+            "count": 3,
+            "values": [1.0, 1.0, 1.0]
+        }
+    ]
+}

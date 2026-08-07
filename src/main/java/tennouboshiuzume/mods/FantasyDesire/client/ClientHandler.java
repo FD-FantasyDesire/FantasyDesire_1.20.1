@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -37,6 +38,7 @@ import tennouboshiuzume.mods.FantasyDesire.client.particle.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.FrostCrownLayer;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.VoidFlameOutlineLayer;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItemsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
@@ -103,7 +105,24 @@ public class ClientHandler {
                 PlayerRenderer rendererd = event.getSkin(skin);
                 rendererd.addLayer(new CometBladeLayer(rendererd));
                 rendererd.addLayer(new FrostCrownLayer(rendererd));
+                rendererd.addLayer(new VoidFlameOutlineLayer<>(rendererd));
             }
+        }
+
+        for (EntityType<?> entityType : ForgeRegistries.ENTITY_TYPES.getValues()) {
+            addVoidFlameOutlineLayer(event, entityType);
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static void addVoidFlameOutlineLayer(EntityRenderersEvent.AddLayers event, EntityType<?> entityType) {
+        try {
+            LivingEntityRenderer renderer = event.getRenderer((EntityType) entityType);
+            if (renderer != null) {
+                renderer.addLayer(new VoidFlameOutlineLayer<>(renderer));
+            }
+        } catch (ClassCastException ignored) {
+            // 不继承 LivingEntityRenderer 的特殊活体实体暂不通过无 Mixin 方案处理。
         }
     }
 
