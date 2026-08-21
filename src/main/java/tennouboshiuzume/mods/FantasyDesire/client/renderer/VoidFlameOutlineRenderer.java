@@ -31,6 +31,7 @@ import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
+import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -41,8 +42,8 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class VoidFlameOutlineRenderer {
-    private static final float VOID_STRIKE_STRENGTH = 0.5F;
-    private static final float ECHO_DAMAGE_STRENGTH = 0.5F;
+    private static final float MAX_VOID_STRIKE_STACK = 50.0F;
+    private static final float MAX_ECHO_DAMAGE = 1000.0F;
     private static final float MAX_EFFECT_RADIUS = 128.0F;
     private static final BufferBuilder SILHOUETTE_BUILDER = new BufferBuilder(256);
     private static final Map<LivingEntity, Integer> OUTLINED_ENTITIES = new IdentityHashMap<>();
@@ -93,7 +94,7 @@ public final class VoidFlameOutlineRenderer {
 
     public static <T extends LivingEntity> void renderSilhouette(T entity, EntityModel<T> model, PoseStack poseStack,
             int packedLight) {
-        if (!maskReady || silhouetteTarget == null) {
+        if (!maskReady || silhouetteTarget == null || !hasVisualState(entity)) {
             return;
         }
 
@@ -150,8 +151,6 @@ public final class VoidFlameOutlineRenderer {
         shader.setSampler("SilhouetteSampler", silhouetteTarget.getColorTextureId());
         set(shader, "ScreenSize", mainTarget.viewWidth, mainTarget.viewHeight);
         set(shader, "FlameTime", (float) (level.getGameTime() & 0xFFFFFL) + event.getPartialTick());
-        set(shader, "VoidStrikeStrength", VOID_STRIKE_STRENGTH);
-        set(shader, "EchoDamageStrength", ECHO_DAMAGE_STRENGTH);
 
         Matrix3f viewRotation = new Matrix3f(RenderSystem.getInverseViewRotationMatrix()).invert();
         Matrix4f viewProjection = new Matrix4f(event.getProjectionMatrix()).mul(new Matrix4f(viewRotation));
@@ -188,6 +187,10 @@ public final class VoidFlameOutlineRenderer {
                 set(shader, "EffectCenter", (bounds.minX() + bounds.maxX()) * 0.25F + 0.5F,
                         (bounds.minY() + bounds.maxY()) * 0.25F + 0.5F);
                 set(shader, "EffectSeed", (entity.getId() & 0xFFFF) * 0.75487766F);
+                set(shader, "VoidStrikeStrength", normalize(FDAttributes.getVoidStrikeStack(entity),
+                        MAX_VOID_STRIKE_STACK));
+                set(shader, "EchoDamageStrength", normalize(FDAttributes.getTotalEchoDamage(entity),
+                        MAX_ECHO_DAMAGE));
                 setTargetColor(shader, entry.getValue());
                 RenderSystem.setShader(() -> shader);
                 drawScreenQuad(minX, minY, maxX, maxY);
@@ -215,6 +218,15 @@ public final class VoidFlameOutlineRenderer {
         }
         target.setFilterMode(GL11.GL_LINEAR);
         return target;
+    }
+
+    private static boolean hasVisualState(LivingEntity entity) {
+        return FDAttributes.getVoidStrikeStack(entity) > 0.0F
+                || FDAttributes.getTotalEchoDamage(entity) > 0.0F;
+    }
+
+    private static float normalize(float value, float maximum) {
+        return Math.min(1.0F, Math.max(0.0F, value / maximum));
     }
 
     private static ScreenBounds projectBounds(LivingEntity entity, float partialTick, Matrix4f viewProjection,

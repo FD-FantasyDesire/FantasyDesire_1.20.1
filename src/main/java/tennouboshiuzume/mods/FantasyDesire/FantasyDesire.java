@@ -42,6 +42,7 @@ public class FantasyDesire {
         FDSlashArtRegistry.FD_SLASH_ARTS.register(eventBus);
         FDSpecialEffectsRegistry.SPECIAL_EFFECT.register(eventBus);
         FDPotionEffects.register(eventBus);
+        FDAttributes.register(eventBus);
         FDTab.register(eventBus);
         FDRecipeSerializerRegistry.register(eventBus);
         FDItemsRegistry.register(eventBus);

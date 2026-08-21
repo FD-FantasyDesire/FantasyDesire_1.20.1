@@ -172,6 +172,8 @@
   "slash_art.fantasydesire.freeze_zero.desc_7": "进化点数耗尽，寒霜风暴将自动终止",
   "slash_art.fantasydesire.chromite_comet": "辉绿彗星",
   "effect.fantasydesire.void_strike": "虚空强袭",
+  "attribute.fantasydesire.void_strike_stack": "虚空强袭层数",
+  "attribute.fantasydesire.total_echo_damage": "回响伤害总计",
   "effect.fantasydesire.immortal_soul": "不屈之魂",
   "effect.fantasydesire.rainbow_seven_edge": "虹羽七刃剑",
   "effect.fantasydesire.teleport_blocked": "传送管制",

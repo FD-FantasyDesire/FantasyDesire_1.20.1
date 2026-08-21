@@ -13,7 +13,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
@@ -28,7 +27,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
-import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
+import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 import tennouboshiuzume.mods.FantasyDesire.potioneffect.FrostStormEffect;
 
 import java.util.ArrayList;
@@ -141,12 +140,12 @@ public final class FrostStormFieldRenderer {
                 continue;
             }
 
-            MobEffectInstance effect = living.getEffect(FDPotionEffects.FROST_STORM.get());
-            if (effect == null) {
+            // 属性修改器检测：服务端每 tick 同步的半径/强度（绕开 MobEffect 对非玩家实体同步失败）
+            float radius = FDAttributes.getStormRadius(living);
+            if (radius <= 0.01F || FDAttributes.getStormStrength(living) <= 0.01F) {
                 continue;
             }
 
-            float radius = FrostStormEffect.getFieldRadius(effect.getAmplifier());
             Vec3 center = FrostStormEffect.getFieldCenter(living, event.getPartialTick());
             AABB bounds = new AABB(center.x - radius, center.y - radius, center.z - radius,
                     center.x + radius, center.y + radius, center.z + radius);

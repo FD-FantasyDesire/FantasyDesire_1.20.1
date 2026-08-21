@@ -9,12 +9,21 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraftforge.event.entity.living.MobEffectEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
+import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 
 import javax.annotation.Nullable;
 
 public class VoidStrikeEffect extends MobEffect {
+    public static final java.util.UUID STACK_MODIFIER_UUID = java.util.UUID.fromString(
+            "b9b8b5ec-0a7f-4e9d-8f75-4f7c5d9d4a11");
+
     public VoidStrikeEffect() {
         super(MobEffectCategory.HARMFUL, 0x5500AA); // 紫黑色
     }
@@ -22,6 +31,7 @@ public class VoidStrikeEffect extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide() && entity.level() instanceof ServerLevel sl) {
+            syncStackAttribute(entity, amplifier);
             sl.playSound(null, entity.blockPosition(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.AMBIENT, 0.5f,
                     1f);
 
@@ -55,12 +65,48 @@ public class VoidStrikeEffect extends MobEffect {
     }
 
     public static int getVoidStrikeLayers(LivingEntity entity) {
+        AttributeInstance stack = entity.getAttribute(FDAttributes.VOID_STRIKE_STACK.get());
+        if (stack != null && stack.getValue() > 0.0D) {
+            return Math.min(50, Math.max(0, (int) Math.round(stack.getValue())));
+        }
         MobEffectInstance current = entity
-                .getEffect(tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects.VOID_STRIKE.get());
+                .getEffect(FDPotionEffects.VOID_STRIKE.get());
         if (current != null) {
             return Math.min(50, current.getAmplifier() + 1);
         }
         return 0;
+    }
+
+    public static void syncStackAttribute(LivingEntity entity, int amplifier) {
+        double stack = Math.min(50.0D, Math.max(0.0D, amplifier + 1.0D));
+        FDAttributes.syncVoidStrikeStack(entity, stack, STACK_MODIFIER_UUID);
+    }
+
+    public static void clearStackAttribute(LivingEntity entity) {
+        FDAttributes.clearVoidStrikeStack(entity, STACK_MODIFIER_UUID);
+    }
+
+    @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static class VoidStrikeEffectEvents {
+        @SubscribeEvent
+        public static void onEffectRemoved(MobEffectEvent.Remove event) {
+            if (event.getEffect() != FDPotionEffects.VOID_STRIKE.get()) {
+                return;
+            }
+            MobEffectInstance current = event.getEntity().getEffect(FDPotionEffects.VOID_STRIKE.get());
+            if (current == null) {
+                clearStackAttribute(event.getEntity());
+            } else {
+                syncStackAttribute(event.getEntity(), current.getAmplifier());
+            }
+        }
+
+        @SubscribeEvent
+        public static void onEffectExpired(MobEffectEvent.Expired event) {
+            if (event.getEffectInstance().getEffect() == FDPotionEffects.VOID_STRIKE.get()) {
+                clearStackAttribute(event.getEntity());
+            }
+        }
     }
 
     @Override

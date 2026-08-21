@@ -155,6 +155,8 @@ public class DamageConverterEvent {
                 target.getCapability(tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider.ECHO_DAMAGE)
                         .ifPresent(cap -> {
                             cap.addDamage(attacker.getUUID(), storeAmount);
+                            tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper
+                                    .syncTotalDamageAttribute(target);
                         });
                 amount = 0.1f;
             }

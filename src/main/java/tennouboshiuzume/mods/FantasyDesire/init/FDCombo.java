@@ -425,8 +425,12 @@ public class FDCombo extends ComboStateRegistry {
                                                 if (entityIn instanceof Player player) {
                                                         player.hurt(player.damageSources().playerAttack(player), 2f);
                                                 }
-                                        }).put(1, entityIn -> TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
-                                                        90 + 180 * entityIn.getRandom().nextFloat(), 0.244f))
+                                        }).put(1, entityIn -> {
+                                                TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
+                                                                90 + 180 * entityIn.getRandom().nextFloat(), 0.244f);
+                                                entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
+                                                                new Vec3(0, 0, 4.5f));
+                                        })
                                                         .put(2, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
@@ -467,8 +471,13 @@ public class FDCombo extends ComboStateRegistry {
                                                 if (entityIn instanceof Player player) {
                                                         player.hurt(player.damageSources().playerAttack(player), 2f);
                                                 }
-                                        }).put(1, entityIn -> TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
-                                                        90 + 180 * entityIn.getRandom().nextFloat(), 0.244f))
+                                        }).put(1, entityIn -> {
+                                                TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
+                                                                90 + 180 * entityIn.getRandom().nextFloat(), 0.244f);
+                                                ;
+                                                entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
+                                                                new Vec3(0, 0, 4.5f));
+                                        })
                                                         .put(2, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),

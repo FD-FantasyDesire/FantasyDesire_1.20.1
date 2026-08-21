@@ -62,7 +62,7 @@ public class TwinSlash {
                 performTeleportation((Entity) player, serverlevel, teleportPos);
                 applyPostTeleportEffects(player);
             }
-            Vec3 pos = player.position().add(0, 0.25, 0);
+            Vec3 pos = player.position().add(0, 0.05, 0);
             serverlevel.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 20, 0.1, 0.1, 0.1, 0.2);
         }
     }
@@ -84,9 +84,11 @@ public class TwinSlash {
         Vec3 teleportPos = calculateTeleportPosition(player, target);
 
         if ((player.level() instanceof ServerLevel serverlevel)) {
-            for (int i = 0; i < 8; i++) {
-                Vec3 offset = new Vec3((Math.random() - 0.5), (Math.random() - 0.5), (Math.random() - 0.5));
-                Vec3 start = player.position().add(0, player.getBbHeight() / 2, 0).add(offset);
+            for (int i = 0; i < 2; i++) {
+                Vec3 offset = new Vec3((Math.random() - 0.5), (Math.random() - 0.5),
+                        (Math.random() - 0.5));
+                Vec3 start = player.position().add(0, player.getBbHeight() / 2,
+                        0).add(offset);
                 Vec3 end = teleportPos.add(0, player.getBbHeight() / 2, 0).add(offset);
                 ParticleUtils.LightBoltParticles(player.level(), start, end, i % 2 == 0 ? 0x00C8FF : 0xFF0089, 0.05f,
                         20,
@@ -97,7 +99,7 @@ public class TwinSlash {
                 applyPostTeleportEffects(player);
                 player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
             }
-            Vec3 pos = player.position().add(0, 0.25, 0);
+            Vec3 pos = player.position().add(0, 0.05, 0);
             serverlevel.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 20, 0.1, 0.1, 0.1, 0.2);
         }
     }

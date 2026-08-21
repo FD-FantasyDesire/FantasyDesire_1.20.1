@@ -8,8 +8,13 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider;
+import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
+import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 
 import java.util.List;
 import java.util.Map;
@@ -17,6 +22,8 @@ import java.util.UUID;
 
 public class EchoDamageHelper {
     private static final String ECHO_DATA_TAG = "FDEchoDamageData";
+    public static final UUID TOTAL_ECHO_DAMAGE_MODIFIER_UUID = UUID.fromString(
+            "2a3b8c44-9f57-4c3e-b1a7-7a91c12e6d82");
 
     public static void addDamage(LivingEntity target, UUID attackerUUID, float amount) {
         CompoundTag persistentData = target.getPersistentData();
@@ -60,8 +67,10 @@ public class EchoDamageHelper {
     public static void detonateSingle(LivingEntity target) {
         target.getCapability(EchoDamageProvider.ECHO_DAMAGE).ifPresent(cap -> {
             Map<UUID, Float> damageMap = cap.getAllDamage();
-            if (damageMap.isEmpty())
+            if (damageMap.isEmpty()) {
+                syncTotalDamageAttribute(target, cap);
                 return;
+            }
 
             boolean triggered = false;
             List<UUID> keysToRemove = new java.util.ArrayList<>();
@@ -91,6 +100,7 @@ public class EchoDamageHelper {
             for (UUID key : keysToRemove) {
                 damageMap.remove(key);
             }
+            syncTotalDamageAttribute(target, cap);
 
             if (triggered) {
                 target.playSound(SoundEvents.TRIDENT_RETURN, 1f, 1.5f);
@@ -104,8 +114,10 @@ public class EchoDamageHelper {
     public static void detonateArea(LivingEntity centerEntity, double radius) {
         centerEntity.getCapability(EchoDamageProvider.ECHO_DAMAGE).ifPresent(cap -> {
             Map<UUID, Float> damageMap = cap.getAllDamage();
-            if (damageMap.isEmpty())
+            if (damageMap.isEmpty()) {
+                syncTotalDamageAttribute(centerEntity, cap);
                 return;
+            }
             boolean triggered = false;
             List<UUID> keysToRemove = new java.util.ArrayList<>();
             if (centerEntity.level() instanceof ServerLevel serverLevel) {
@@ -154,6 +166,7 @@ public class EchoDamageHelper {
             for (UUID key : keysToRemove) {
                 damageMap.remove(key);
             }
+            syncTotalDamageAttribute(centerEntity, cap);
 
             if (triggered) {
                 centerEntity.playSound(SoundEvents.TRIDENT_RETURN, 1f, 1.5f);
@@ -177,5 +190,34 @@ public class EchoDamageHelper {
                 }
             }
         });
+    }
+
+    public static void syncTotalDamageAttribute(LivingEntity target) {
+        target.getCapability(EchoDamageProvider.ECHO_DAMAGE)
+                .ifPresent(cap -> syncTotalDamageAttribute(target, cap));
+    }
+
+    private static void syncTotalDamageAttribute(LivingEntity target,
+            tennouboshiuzume.mods.FantasyDesire.capability.IEchoDamageCap cap) {
+        if (target.level().isClientSide()) {
+            return;
+        }
+        double total = 0.0D;
+        for (float damage : cap.getAllDamage().values()) {
+            if (damage > 0.0F) {
+                total += damage;
+            }
+        }
+        FDAttributes.syncTotalEchoDamage(target, total, TOTAL_ECHO_DAMAGE_MODIFIER_UUID);
+    }
+
+    @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+    public static class EchoDamageAttributeEvents {
+        @SubscribeEvent
+        public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
+            if (event.getEntity() instanceof LivingEntity living && !living.level().isClientSide()) {
+                syncTotalDamageAttribute(living);
+            }
+        }
     }
 }

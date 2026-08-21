@@ -1,0 +1,121 @@
+package tennouboshiuzume.mods.FantasyDesire.init;
+
+import net.minecraft.core.registries.Registries;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.RangedAttribute;
+import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.RegistryObject;
+import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+
+/**
+ * 自定义属性注册表。
+ *
+ * 寒霜风暴（FROST_STORM）的半径/强度经属性修改器写入并通过属性同步包下发客户端，
+ * 供渲染器检测激活（绕开 MobEffect 对非玩家实体同步不可靠的问题）。
+ */
+public class FDAttributes {
+    public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(Registries.ATTRIBUTE,
+            FantasyDesire.MODID);
+
+    /** 寒霜风暴领域半径（0~64） */
+    public static final RegistryObject<Attribute> FROST_STORM_RADIUS = ATTRIBUTES.register("frost_storm_radius",
+            () -> new RangedAttribute("attribute.fantasydesire.frost_storm_radius", 0.0D, 0.0D, 64.0D).setSyncable(true));
+    /** 寒霜风暴领域强度（0~8） */
+    public static final RegistryObject<Attribute> FROST_STORM_STRENGTH = ATTRIBUTES.register("frost_storm_strength",
+            () -> new RangedAttribute("attribute.fantasydesire.frost_storm_strength", 0.0D, 0.0D, 8.0D).setSyncable(true));
+    /** 虚空强袭层数，等于效果 AMP + 1（0~50） */
+    public static final RegistryObject<Attribute> VOID_STRIKE_STACK = ATTRIBUTES.register("void_strike_stack",
+            () -> new RangedAttribute("attribute.fantasydesire.void_strike_stack", 0.0D, 0.0D, 50.0D).setSyncable(true));
+    /** 目标身上所有攻击者的 Echo 伤害计数合计值 */
+    public static final RegistryObject<Attribute> TOTAL_ECHO_DAMAGE = ATTRIBUTES.register("total_echo_damage",
+            () -> new RangedAttribute("attribute.fantasydesire.total_echo_damage", 0.0D, 0.0D, 1.0E9D).setSyncable(true));
+
+    public static void register(IEventBus modEventBus) {
+        ATTRIBUTES.register(modEventBus);
+        modEventBus.addListener(FDAttributes::onEntityAttributeModification);
+        System.out.println("[FantasyDesire] Registered custom attributes on MOD event bus.");
+    }
+
+    @SubscribeEvent
+    public static void onEntityAttributeModification(EntityAttributeModificationEvent event) {
+        for (EntityType<? extends LivingEntity> entityType : event.getTypes()) {
+            event.add(entityType, FROST_STORM_RADIUS.get());
+            event.add(entityType, FROST_STORM_STRENGTH.get());
+            event.add(entityType, VOID_STRIKE_STACK.get());
+            event.add(entityType, TOTAL_ECHO_DAMAGE.get());
+        }
+    }
+
+    /** 读取实体当前寒霜风暴半径（无修改器时返回 0） */
+    public static float getStormRadius(LivingEntity entity) {
+        var attr = entity.getAttribute(FROST_STORM_RADIUS.get());
+        return attr == null ? 0.0F : (float) attr.getValue();
+    }
+
+    /** 读取实体当前寒霜风暴强度（无修改器时返回 0） */
+    public static float getStormStrength(LivingEntity entity) {
+        var attr = entity.getAttribute(FROST_STORM_STRENGTH.get());
+        return attr == null ? 0.0F : (float) attr.getValue();
+    }
+
+    public static float getVoidStrikeStack(LivingEntity entity) {
+        var attr = entity.getAttribute(VOID_STRIKE_STACK.get());
+        return attr == null ? 0.0F : (float) attr.getValue();
+    }
+
+    public static float getTotalEchoDamage(LivingEntity entity) {
+        var attr = entity.getAttribute(TOTAL_ECHO_DAMAGE.get());
+        return attr == null ? 0.0F : (float) attr.getValue();
+    }
+
+    public static void syncVoidStrikeStack(LivingEntity entity, double stack, java.util.UUID modifierId) {
+        var attr = entity.getAttribute(VOID_STRIKE_STACK.get());
+        if (attr == null) {
+            return;
+        }
+        var old = attr.getModifier(modifierId);
+        if (old == null || old.getAmount() != stack) {
+            attr.removeModifier(modifierId);
+            attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                    modifierId, "fd_void_strike_stack", stack,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION));
+        }
+    }
+
+    public static void clearVoidStrikeStack(LivingEntity entity, java.util.UUID modifierId) {
+        var attr = entity.getAttribute(VOID_STRIKE_STACK.get());
+        if (attr != null) {
+            attr.removeModifier(modifierId);
+        }
+    }
+
+    public static void syncTotalEchoDamage(LivingEntity entity, double total, java.util.UUID modifierId) {
+        var attr = entity.getAttribute(TOTAL_ECHO_DAMAGE.get());
+        if (attr == null) {
+            return;
+        }
+        if (total <= 0.0D) {
+            attr.removeModifier(modifierId);
+            return;
+        }
+        var old = attr.getModifier(modifierId);
+        if (old == null || old.getAmount() != total) {
+            attr.removeModifier(modifierId);
+            attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
+                    modifierId, "fd_total_echo_damage", total,
+                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION));
+        }
+    }
+
+    public static void clearTotalEchoDamage(LivingEntity entity, java.util.UUID modifierId) {
+        var attr = entity.getAttribute(TOTAL_ECHO_DAMAGE.get());
+        if (attr != null) {
+            attr.removeModifier(modifierId);
+        }
+    }
+}
