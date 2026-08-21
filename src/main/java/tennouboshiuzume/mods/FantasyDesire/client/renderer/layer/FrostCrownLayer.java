@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
-import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
+import tennouboshiuzume.mods.FantasyDesire.client.PlayerVisualStateCache;
 
 // 寒霜风暴 附加寒霜王冠特效
 public class FrostCrownLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -40,7 +40,7 @@ public class FrostCrownLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             float netHeadYaw,
             float headPitch) {
 
-        boolean hasFrostStorm = player.hasEffect(FDPotionEffects.FROST_STORM.get());
+        boolean hasFrostStorm = PlayerVisualStateCache.hasFrostStorm(player);
 
         if (!hasFrostStorm) {
             return;

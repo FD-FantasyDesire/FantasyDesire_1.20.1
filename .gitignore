@@ -20,6 +20,8 @@ build
 # other
 analysis
 run
+run2
+net
 run-data
 deplib
 plans

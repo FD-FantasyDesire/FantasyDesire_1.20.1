@@ -15,8 +15,9 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 /**
  * 自定义属性注册表。
  *
- * 寒霜风暴（FROST_STORM）的半径/强度经属性修改器写入并通过属性同步包下发客户端，
- * 供渲染器检测激活（绕开 MobEffect 对非玩家实体同步不可靠的问题）。
+ * 寒霜风暴（FROST_STORM）半径由原版效果属性机制（MobEffect.addAttributeModifier +
+ * getAmount 动态计算）写入，随属性同步包下发客户端供渲染器检测激活。
+ * 风暴强度（FROST_STORM_STRENGTH）由其他机制写入。
  */
 public class FDAttributes {
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(Registries.ATTRIBUTE,

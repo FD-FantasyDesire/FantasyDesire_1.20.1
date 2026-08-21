@@ -38,6 +38,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.data.builtin.FantasySlashBladeBuiltInRegistry;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
@@ -57,6 +58,9 @@ import tennouboshiuzume.mods.FantasyDesire.utils.VecMathUtils;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class PureSnowEffects {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.RainbowFlux RAINBOW_FLUX = FDConfig.RAINBOW_FLUX;
+    private static final FDConfig.ColorFlux COLOR_FLUX = FDConfig.COLOR_FLUX;
     private static final String TRANSLATION_KEY = "item.fantasydesire.pure_snow";
 
     // 虹光通量
@@ -119,7 +123,8 @@ public class PureSnowEffects {
         if (fdDamageType != null && !fdDamageType.equals("Null")) {
             DamageSource fds = FDDamageSource.getEntityDamageSource(player.level(),
                     FDDamageSource.fromString(fdDamageType), player);
-            FDAttackManager.areaAttackWithSource(event.getUser(), KnockBacks.cancel.action, (float) (damage * 7), true,
+            FDAttackManager.areaAttackWithSource(event.getUser(), KnockBacks.cancel.action,
+                    (float) (damage * RAINBOW_FLUX.areaDamageMult()), true,
                     true, false, null, fds);
         }
         for (int i = 0; i < 7; i++) {
@@ -171,7 +176,8 @@ public class PureSnowEffects {
             if (target == null)
                 return;
             float baseModif = state.getDamage();
-            float magicDamage = 1.0f + (baseModif / 2.0f);
+            float magicDamage = COLOR_FLUX.swordDamageBase()
+                    + (baseModif * COLOR_FLUX.swordDamageAttackRatio());
             float directionAngel = RandomUtils.nextBoolean() ? 120f : -120f;
             for (int i = 0; i < 7; i++) {
                 Vec3 direction = new Vec3(0, 0, 1)
@@ -206,7 +212,8 @@ public class PureSnowEffects {
             }
         }
         if (player.hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get())) {
-            HitEffect(target, (float) (1 + 0.3f * fdState.getSpecialCharge()), state.getColorCode());
+            HitEffect(target, (float) (1 + COLOR_FLUX.hitEffectRadiusChargeScale() * fdState.getSpecialCharge()),
+                    state.getColorCode());
         }
     }
 

@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSlashArtRegistry;
@@ -35,13 +36,18 @@ import static mods.flammpfeil.slashblade.ability.SlayerStyleArts.*;
 ;
 
 public class TwinSlash {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.TwinSystemL TWIN_SYSTEM_L = FDConfig.TWIN_SYSTEM_L;
+    private static final FDConfig.TwinSystemR TWIN_SYSTEM_R = FDConfig.TWIN_SYSTEM_R;
+
     public static void RippedStep(LivingEntity player, ItemStack blade) {
         if (!(blade.getItem() instanceof ItemSlashBlade))
             return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         if (!(player instanceof Player))
             return;
-        LivingEntity nearest = FDTargetSelector.getNearestTargetInSight((Player) player, 35, 25, true, null);
+        LivingEntity nearest = FDTargetSelector.getNearestTargetInSight((Player) player,
+                TWIN_SYSTEM_L.rippedRange(), TWIN_SYSTEM_L.rippedAngle(), true, null);
         if (state.getTargetEntity(player.level()) instanceof LivingEntity targeted)
             nearest = targeted;
         if (nearest == null)
@@ -61,6 +67,7 @@ public class TwinSlash {
                 // 我不知道拔刀剑原作者为什么要这么写瞬步，但是一定有他的道理
                 performTeleportation((Entity) player, serverlevel, teleportPos);
                 applyPostTeleportEffects(player);
+                player.lookAt(EntityAnchorArgument.Anchor.EYES, nearest.getEyePosition());
             }
             Vec3 pos = player.position().add(0, 0.05, 0);
             serverlevel.sendParticles(ParticleTypes.SMOKE, pos.x, pos.y, pos.z, 20, 0.1, 0.1, 0.1, 0.2);
@@ -73,7 +80,8 @@ public class TwinSlash {
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         if (!(player instanceof Player))
             return;
-        List<LivingEntity> targetList = FDTargetSelector.getNearbyLivingEntities(player, 15, true, null);
+        List<LivingEntity> targetList = FDTargetSelector.getNearbyLivingEntities(player,
+                TWIN_SYSTEM_R.dominateRadius(), true, null);
         LivingEntity target = targetList.isEmpty() ? null
                 : targetList.get(player.getRandom().nextInt(targetList.size()));
         if (state.getTargetEntity(player.level()) instanceof LivingEntity targeted)
@@ -112,7 +120,7 @@ public class TwinSlash {
             return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         AddonSlashUtils.doAddonSlash(player, roll, player.getYRot() + Yrot, Xrot, state.getColorCode(), offset,
-                Vec3.ZERO, false, false, 0.3f, KnockBacks.cancel);
+                Vec3.ZERO, false, false, TWIN_SYSTEM_L.spinRatio(), KnockBacks.cancel);
     }
 
     public static void MoodFinalRuneSword(LivingEntity player, LivingEntity target, ItemStack blade) {
@@ -135,7 +143,7 @@ public class TwinSlash {
             ss.setIsCritical(false);
             ss.setOwner(player);
             ss.setRoll(roll);
-            ss.setDamage(player.getMaxHealth() * 0.25);
+            ss.setDamage(player.getMaxHealth() * TWIN_SYSTEM_R.runeDamageHealthRatio());
             ss.setSpeed(1);
             ss.setColor(state.getColorCode());
             ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
@@ -177,7 +185,7 @@ public class TwinSlash {
 
     public static Vec3 calculateTeleportPosition(Entity entityIn, LivingEntity target) {
         return target.position().add(0.0, (double) target.getBbHeight() * 0.1, 0.0)
-                .add(target.getLookAngle().scale(2.0));
+                .add(target.getLookAngle().scale(TWIN_SYSTEM_R.teleportDistance()));
     }
 
     public static boolean AntiNTR(LivingEntity entity) {

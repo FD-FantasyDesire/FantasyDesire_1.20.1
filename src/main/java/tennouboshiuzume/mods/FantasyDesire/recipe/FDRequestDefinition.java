@@ -122,9 +122,6 @@ public record FDRequestDefinition(ResourceLocation name, int proudSoulCount, int
         var fdState = blade.getCapability(ItemFantasySlashBlade.FDBLADESTATE).orElse(new FantasySlashBladeState(blade));
         fdState.setSpecialCharge(fantasyDefinition().getSpecialCharge());
         fdState.setMaxSpecialCharge(fantasyDefinition().getMaxSpecialCharge());
-        fdState.setSpecialLore(fantasyDefinition().getSpecialLore());
-        fdState.setSpecialEffectLore(fantasyDefinition().getSpecialEffectLore());
-        fdState.setSpecialAttackLore(fantasyDefinition().getSpecialAttackLore());
         fdState.setSpecialType(fantasyDefinition().getSpecialType());
         fdState.setSpecialChargeName(fantasyDefinition().getSpecialChargeName());
         fdState.setSpecialAttackEffect(fantasyDefinition().getSpecialAttackEffect());
@@ -167,16 +164,7 @@ public record FDRequestDefinition(ResourceLocation name, int proudSoulCount, int
         }
         var fdState = blade.getCapability(ItemFantasySlashBlade.FDBLADESTATE).orElseThrow(NullPointerException::new);
 
-        if (fdState.getSpecialCharge() < this.fantasyDefinition().getSpecialCharge())
-            return false;
-        if (fdState.getMaxSpecialCharge() < this.fantasyDefinition().getMaxSpecialCharge())
-            return false;
-        if (fdState.getSpecialLore() < this.fantasyDefinition().getSpecialLore())
-            return false;
-        if (fdState.getSpecialEffectLore() < this.fantasyDefinition().getSpecialEffectLore())
-            return false;
-        if (fdState.getSpecialAttackLore() < this.fantasyDefinition().getSpecialAttackLore())
-            return false;
+        // SpecialCharge/MaxSpecialCharge 等属性在游戏中是可变的，不参与配方校验
 
         if (!"Null".equals(this.fantasyDefinition().getSpecialType()) &&
                 !this.fantasyDefinition().getSpecialType().equals(fdState.getSpecialType()))
@@ -259,9 +247,6 @@ public record FDRequestDefinition(ResourceLocation name, int proudSoulCount, int
             this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
                     .specialCharge(specialCharge)
                     .maxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge())
-                    .specialLore(this.fantasyDefinition.getSpecialLore())
-                    .specialEffectLore(this.fantasyDefinition.getSpecialEffectLore())
-                    .specialAttackLore(this.fantasyDefinition.getSpecialAttackLore())
                     .specialType(this.fantasyDefinition.getSpecialType())
                     .specialChargeName(this.fantasyDefinition.getSpecialChargeName())
                     .specialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect())
@@ -273,51 +258,6 @@ public record FDRequestDefinition(ResourceLocation name, int proudSoulCount, int
             this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
                     .specialCharge(this.fantasyDefinition.getSpecialCharge())
                     .maxSpecialCharge(maxSpecialCharge)
-                    .specialLore(this.fantasyDefinition.getSpecialLore())
-                    .specialEffectLore(this.fantasyDefinition.getSpecialEffectLore())
-                    .specialAttackLore(this.fantasyDefinition.getSpecialAttackLore())
-                    .specialType(this.fantasyDefinition.getSpecialType())
-                    .specialChargeName(this.fantasyDefinition.getSpecialChargeName())
-                    .specialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect())
-                    .build();
-            return this;
-        }
-
-        public Builder specialLore(int specialLore) {
-            this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
-                    .specialCharge(this.fantasyDefinition.getSpecialCharge())
-                    .maxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge())
-                    .specialLore(specialLore)
-                    .specialEffectLore(this.fantasyDefinition.getSpecialEffectLore())
-                    .specialAttackLore(this.fantasyDefinition.getSpecialAttackLore())
-                    .specialType(this.fantasyDefinition.getSpecialType())
-                    .specialChargeName(this.fantasyDefinition.getSpecialChargeName())
-                    .specialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect())
-                    .build();
-            return this;
-        }
-
-        public Builder specialEffectLore(int specialEffectLore) {
-            this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
-                    .specialCharge(this.fantasyDefinition.getSpecialCharge())
-                    .maxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge())
-                    .specialLore(this.fantasyDefinition.getSpecialLore())
-                    .specialEffectLore(specialEffectLore)
-                    .specialAttackLore(this.fantasyDefinition.getSpecialAttackLore())
-                    .specialType(this.fantasyDefinition.getSpecialType())
-                    .specialChargeName(this.fantasyDefinition.getSpecialChargeName())
-                    .specialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect())
-                    .build();
-            return this;
-        }
-
-        public Builder specialAttackLore(int specialAttackLore) {
-            this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
-                    .specialCharge(this.fantasyDefinition.getSpecialCharge())
-                    .maxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge())
-                    .specialLore(this.fantasyDefinition.getSpecialLore())
-                    .specialEffectLore(this.fantasyDefinition.getSpecialEffectLore())
-                    .specialAttackLore(specialAttackLore)
                     .specialType(this.fantasyDefinition.getSpecialType())
                     .specialChargeName(this.fantasyDefinition.getSpecialChargeName())
                     .specialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect())
@@ -329,9 +269,6 @@ public record FDRequestDefinition(ResourceLocation name, int proudSoulCount, int
             this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
                     .specialCharge(this.fantasyDefinition.getSpecialCharge())
                     .maxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge())
-                    .specialLore(this.fantasyDefinition.getSpecialLore())
-                    .specialEffectLore(this.fantasyDefinition.getSpecialEffectLore())
-                    .specialAttackLore(this.fantasyDefinition.getSpecialAttackLore())
                     .specialType(specialType)
                     .specialChargeName(this.fantasyDefinition.getSpecialChargeName())
                     .specialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect())
@@ -343,9 +280,6 @@ public record FDRequestDefinition(ResourceLocation name, int proudSoulCount, int
             this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
                     .specialCharge(this.fantasyDefinition.getSpecialCharge())
                     .maxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge())
-                    .specialLore(this.fantasyDefinition.getSpecialLore())
-                    .specialEffectLore(this.fantasyDefinition.getSpecialEffectLore())
-                    .specialAttackLore(this.fantasyDefinition.getSpecialAttackLore())
                     .specialType(this.fantasyDefinition.getSpecialType())
                     .specialChargeName(specialChargeName)
                     .specialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect())
@@ -357,9 +291,6 @@ public record FDRequestDefinition(ResourceLocation name, int proudSoulCount, int
             this.fantasyDefinition = FantasyDefinition.Builder.newInstance()
                     .specialCharge(this.fantasyDefinition.getSpecialCharge())
                     .maxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge())
-                    .specialLore(this.fantasyDefinition.getSpecialLore())
-                    .specialEffectLore(this.fantasyDefinition.getSpecialEffectLore())
-                    .specialAttackLore(this.fantasyDefinition.getSpecialAttackLore())
                     .specialType(this.fantasyDefinition.getSpecialType())
                     .specialChargeName(this.fantasyDefinition.getSpecialChargeName())
                     .specialAttackEffect(specialAttackEffect)

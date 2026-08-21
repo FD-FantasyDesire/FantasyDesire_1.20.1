@@ -20,6 +20,7 @@ const vec3 MINT_STREAM = vec3(0.52, 1.00, 0.24);
 const vec3 PINK_STREAM = vec3(0.92, 0.43, 0.62);
 const vec3 RED_STREAM = vec3(1.00, 0.24, 0.08);
 const vec3 SPOKE_COLOR = vec3(0.18, 0.39, 1.00);
+const vec3 ETCH_COLOR = vec3(0.08, 0.82, 1.00);
 
 const float CYCLE = 1.40;
 const float SPHERE_RADIUS = 0.88;
@@ -28,6 +29,7 @@ const float PI = 3.14159265359;
 const int VOLUME_STEPS = 18;
 const int FLOW_TRACE_SEGMENTS = 32;
 const int SPOKE_COUNT = 11;
+const int SURFACE_ARC_COUNT = 9;
 
 float sat(float value) {
     return clamp(value, 0.0, 1.0);
@@ -99,40 +101,63 @@ float ringNoise(float angle, float radius, float angularScale,
     return fbm(angularDomain + radialDomain + drift);
 }
 
-// 每条流线从自己的固定颜色点出发，路径长度不依赖其它流线的半径。
-vec2 flowPoint(vec2 source, float progress, float bend,
+// 每条流线显式连接自己的固定颜色点和目标点，避免终点隐式回落到原点。
+vec2 flowPoint(vec2 source, vec2 target, float progress, float bend,
                float curl, float seed) {
     float t = sat(progress);
-    vec2 radial = normalize(source);
+    vec2 sourceOffset = source - target;
+    vec2 radial = sourceOffset / max(length(sourceOffset), 0.0001);
     vec2 tangent = vec2(-radial.y, radial.x);
     float variation = mix(0.96, 1.04, hash11(seed * 5.31));
     float clockwiseBend = -abs(bend) * variation;
     float clockwiseCurl = -abs(curl) * (2.0 - variation);
-    vec2 controlOne = source * 0.70 + tangent * clockwiseBend;
-    vec2 controlTwo = source * 0.24 + tangent * clockwiseCurl;
+    vec2 controlOne = target + sourceOffset * 0.70 + tangent * clockwiseBend;
+    vec2 controlTwo = target + sourceOffset * 0.24 + tangent * clockwiseCurl;
     float inverse = 1.0 - t;
     return source * (inverse * inverse * inverse)
          + controlOne * (3.0 * inverse * inverse * t)
-         + controlTwo * (3.0 * inverse * t * t);
+         + controlTwo * (3.0 * inverse * t * t)
+         + target * (t * t * t);
 }
 
 // x=历史沉积尾迹，y=移动粒子头，z=粒子抵达中心时的撞击脉冲。
-vec3 particleTrace(vec2 position, vec2 source, float bend,
+vec3 particleTrace(vec2 position, vec2 source, vec2 target, float bend,
                    float curl, float width, float startDelay,
                    float duration, float seed, float phase) {
     float rawAge = (phase - startDelay) / max(duration, 0.001);
     float particleProgress = pow(sat(rawAge), 0.84);
     float particleLife = smoothstep(0.0, 0.045, rawAge)
                        * (1.0 - smoothstep(0.94, 1.04, rawAge));
-    vec2 particlePosition = flowPoint(source, particleProgress,
+    vec2 particlePosition = flowPoint(source, target, particleProgress,
                                       bend, curl, seed);
-    float particleDistanceSquared = dot(position - particlePosition,
-                                        position - particlePosition);
-    float particleCore = exp(-particleDistanceSquared
-                             / max(width * width * 1.35, 0.000001));
+    float tangentStep = 0.018;
+    vec2 tangentStart = flowPoint(source, target,
+        max(particleProgress - tangentStep, 0.0), bend, curl, seed);
+    vec2 tangentEnd = flowPoint(source, target,
+        min(particleProgress + tangentStep, 1.0), bend, curl, seed);
+    vec2 particleTangent = normalize(tangentEnd - tangentStart);
+    vec2 particleNormal = vec2(-particleTangent.y, particleTangent.x);
+    vec2 particleOffset = position - particlePosition;
+    float particleAlong = dot(particleOffset, particleTangent);
+    float particleAcross = dot(particleOffset, particleNormal);
+
+    // 将圆形粒子头塑形成沿运动切线展开的菱形彗核与短促星芒。
+    float particleDiamond = abs(particleAlong) / max(width * 1.65, 0.0005)
+                          + abs(particleAcross) / max(width * 0.72, 0.0005);
+    float particleCore = exp(-particleDiamond * particleDiamond * 1.45);
+    float particleDistanceSquared = dot(particleOffset, particleOffset);
     float particleHalo = exp(-particleDistanceSquared
-                             / max(width * width * 18.0, 0.000001));
-    float particle = (particleCore * 2.35 + particleHalo * 0.78) * particleLife;
+                             / max(width * width * 16.0, 0.000001));
+    float particleRay = exp(-abs(particleAcross) / max(width * 0.17, 0.0005))
+                      * exp(-abs(particleAlong) / max(width * 4.2, 0.0005));
+    float particleCross = exp(-abs(particleAlong) / max(width * 0.15, 0.0005))
+                        * exp(-abs(particleAcross) / max(width * 1.55, 0.0005));
+    float cometTail = exp(-abs(particleAcross) / max(width * 0.24, 0.0005))
+                    * exp(-max(-particleAlong, 0.0) / max(width * 3.8, 0.0005))
+                    * (1.0 - smoothstep(0.0, width * 0.75, particleAlong));
+    float particle = (particleCore * 2.55 + particleHalo * 0.48
+                    + particleRay * 0.72 + particleCross * 0.38
+                    + cometTail * 0.58) * particleLife;
 
     float impactPhase = startDelay + duration;
     float traceClear = 1.0 - smoothstep(impactPhase + 0.035,
@@ -146,17 +171,32 @@ vec3 particleTrace(vec2 position, vec2 source, float bend,
         float t0 = index / float(FLOW_TRACE_SEGMENTS);
         float t1 = (index + 1.0) / float(FLOW_TRACE_SEGMENTS);
         float midpoint = (t0 + t1) * 0.5;
-        vec2 segmentStart = flowPoint(source, t0, bend, curl, seed);
-        vec2 segmentEnd = flowPoint(source, t1, bend, curl, seed);
+        vec2 segmentStart = flowPoint(source, target, t0, bend, curl, seed);
+        vec2 segmentEnd = flowPoint(source, target, t1, bend, curl, seed);
         float distanceToTrace = segmentDistance(position, segmentStart, segmentEnd);
-        float traceShape = exp(-distanceToTrace * distanceToTrace
-                               / max(width * width, 0.000001));
+        float strokeTaper = mix(0.58, 1.12,
+            pow(max(sin(midpoint * PI), 0.0), 0.32));
+        float coreWidth = width * strokeTaper * 0.43;
+        float haloWidth = width * strokeTaper * 1.85;
+        float traceCore = exp(-distanceToTrace * distanceToTrace
+                              / max(coreWidth * coreWidth, 0.000001));
+        float traceHalo = exp(-distanceToTrace * distanceToTrace
+                              / max(haloWidth * haloWidth, 0.000001));
         float passageAge = pow(midpoint, 1.0 / 0.84);
         float passagePhase = startDelay + duration * passageAge;
         float timeSincePassage = phase - passagePhase;
         float deposited = smoothstep(-0.010, 0.014, timeSincePassage);
         float localAfterglow = mix(0.34, 1.0,
             exp(-max(timeSincePassage, 0.0) / 0.14));
+
+        // 固定在曲线上的能量结打断均匀亮度，宽外晕仍维持流线整体连贯。
+        float knotWave = 0.5 + 0.5 * cos(midpoint * PI * 18.0
+                                       + seed * 2.37);
+        float energyKnot = pow(knotWave, 5.0);
+        float recentWake = exp(-max(timeSincePassage, 0.0) / 0.045);
+        float traceShape = traceCore * (0.38 + energyKnot * 1.12)
+                         + traceHalo * (0.11 + energyKnot * 0.23
+                                      + recentWake * 0.16);
         float segmentTrace = traceShape * deposited * localAfterglow * traceClear;
         trace = max(trace, segmentTrace);
     }
@@ -167,13 +207,13 @@ vec3 particleTrace(vec2 position, vec2 source, float bend,
     return vec3(trace, particle, impact);
 }
 
-vec3 particleTracePair(vec2 position, vec2 source, float bend, float curl,
+vec3 particleTracePair(vec2 position, vec2 source, vec2 target, float bend, float curl,
                        float width, float startDelay, float duration,
                        float seed, float phase) {
-    return particleTrace(position, source, bend, curl, width, startDelay,
-                         duration, seed, phase)
-         + particleTrace(position, -source, bend, curl, width, startDelay,
-                         duration, seed, phase);
+    return particleTrace(position, source, target, bend, curl, width, startDelay,
+                          duration, seed, phase)
+         + particleTrace(position, -source, target, bend, curl, width, startDelay,
+                          duration, seed, phase);
 }
 
 float crossSpark(vec2 position, float size) {
@@ -213,6 +253,9 @@ vec4 plasmaSample(vec3 position, float shellRadius, float shellWidth,
                            / max(shellWidth, 0.001));
     float shell = exp(-shellCoordinate * shellCoordinate);
     float clumps = smoothstep(0.44, 0.67, turbulence);
+    float clumpBand = smoothstep(0.50, 0.565, turbulence);
+    float highlightBand = smoothstep(0.635, 0.70,
+                                     turbulence + shell * 0.08);
     float fissures = smoothstep(0.43, 0.64,
         volumeTurbulence(position * 1.61 + vec3(2.3, -1.7, 0.8), -time * 0.63));
 
@@ -224,14 +267,21 @@ vec4 plasmaSample(vec3 position, float shellRadius, float shellWidth,
 
     float density = (shell * (0.10 + clumps * 1.72) * (0.16 + fissures * 1.18)
                     + body * (0.42 + clumps * 0.92)) * cavity;
+    float stratumCoordinate = fract((radius + radialWarp) * 9.0
+                                    - turbulence * 1.65);
+    float stratumLine = 1.0 - smoothstep(0.055, 0.15,
+                                        abs(stratumCoordinate - 0.5));
+    density *= mix(0.76, 1.13, clumpBand)
+             * (1.0 - stratumLine * shell * 0.18);
     density = density * volumeLife + core * 1.8;
 
     float frontLight = sat(position.z * 0.52 + 0.52);
     vec3 plasmaColor = mix(SHELL_DARK, SHELL_MID,
-                           sat(turbulence * 1.18 + frontLight * 0.18));
+                           sat(clumpBand * 0.82 + frontLight * 0.23));
     plasmaColor = mix(plasmaColor, SHELL_BRIGHT,
-                      sat(shell * clumps * 0.42 + frontLight * 0.14));
+                      sat(highlightBand * 0.62 + shell * frontLight * 0.20));
     vec3 emission = plasmaColor * density * (0.58 + clumps * 0.88);
+    emission += ETCH_COLOR * stratumLine * shell * density * 0.16;
     emission += CORE_COLOR * core * 3.4;
     return vec4(emission, density);
 }
@@ -286,16 +336,79 @@ vec4 surfaceSpokes(vec2 position, float shellRadius,
         float seed = hash11(index + 4.7);
         float angle = index * 2.399963 + seed * 1.73 + time * 0.08;
         vec2 direction = vec2(cos(angle), sin(angle));
-        float spokeLength = mix(0.035, 0.12, hash11(index + 11.3));
-        vec2 start = direction * max(shellRadius * 0.93, 0.03);
+        float spokeLength = mix(0.045, 0.16, hash11(index + 11.3));
+        vec2 start = direction * max(shellRadius * 0.91, 0.03);
         vec2 end = direction * min(shellRadius + spokeLength, 0.995);
-        float width = mix(0.0025, 0.0060, hash11(index + 19.1));
+        float width = mix(0.0020, 0.0052, hash11(index + 19.1));
         float distanceToSpoke = segmentDistance(position, start, end);
-        float spoke = exp(-distanceToSpoke * distanceToSpoke
-                          / max(width * width, 0.000001));
-        spoke *= active * mix(0.38, 1.0, seed);
-        light += SPOKE_COLOR * spoke * 0.82;
-        opacity = max(opacity, spoke * 0.55);
+        float spokeCore = exp(-distanceToSpoke * distanceToSpoke
+                              / max(width * width, 0.000001));
+        float spokeHalo = exp(-distanceToSpoke * distanceToSpoke
+                              / max(width * width * 10.0, 0.000001));
+        float alongSpoke = dot(position - start, direction)
+                         / max(spokeLength, 0.001);
+        float tipFade = 1.0 - smoothstep(0.42, 1.08, alongSpoke);
+        float spoke = (spokeCore + spokeHalo * 0.22) * tipFade
+                    * active * mix(0.42, 1.0, seed);
+        vec3 spokeColor = mix(SPOKE_COLOR, ETCH_COLOR, seed);
+        spokeColor = mix(spokeColor, CORE_COLOR,
+                         smoothstep(0.82, 0.98, seed) * 0.52);
+        light += spokeColor * spoke * 0.92;
+        opacity = max(opacity, spoke * 0.52);
+    }
+    return vec4(light, opacity);
+}
+
+// 投影到球体近侧的断续弧线，为平滑体积补充图形化层级而不改变壳体运动。
+vec4 surfaceContours(vec2 position, float shellRadius,
+                     float openingRadius, float active, float time) {
+    float safeRadius = max(shellRadius, 0.001);
+    float radius = length(position);
+    float normalizedRadius = radius / safeRadius;
+    float angle = atan(position.y, position.x);
+    float frontDepth = sqrt(max(1.0 - normalizedRadius * normalizedRadius, 0.0));
+    float sphereClip = smoothstep(0.12, 0.24, normalizedRadius)
+                     * (1.0 - smoothstep(0.88, 0.975, normalizedRadius));
+    float openingClip = mix(1.0,
+        smoothstep(openingRadius * 0.42, openingRadius * 0.92, radius), 0.88);
+    float surfaceMask = sphereClip * openingClip * active
+                      * (0.34 + frontDepth * 0.66);
+    vec3 light = vec3(0.0);
+    float opacity = 0.0;
+
+    for (int arcIndex = 0; arcIndex < SURFACE_ARC_COUNT; ++arcIndex) {
+        float index = float(arcIndex);
+        float seedA = hash11(index + 23.7);
+        float seedB = hash11(index + 47.3);
+        float seedC = hash11(index + 71.9);
+        float arcAngle = index * 2.399963 + seedA * 2.1
+                       + time * mix(-0.035, 0.035, seedB);
+        float angleDelta = atan(sin(angle - arcAngle), cos(angle - arcAngle));
+        float arcSpan = mix(0.32, 0.82, seedB);
+        float arcTaper = 1.0 - smoothstep(arcSpan * 0.68,
+                                         arcSpan, abs(angleDelta));
+
+        float radialLayer = (index + 0.7) / float(SURFACE_ARC_COUNT);
+        float arcRadius = mix(0.24, 0.88,
+            sat(radialLayer + (seedA - 0.5) * 0.18));
+        float arcBend = sin(angleDelta * mix(1.6, 3.8, seedC)
+                            + seedB * PI * 2.0)
+                      * mix(0.018, 0.060, seedA);
+        float arcWidth = mix(0.007, 0.017, seedC);
+        float distanceToArc = abs(normalizedRadius - arcRadius - arcBend);
+        float arcLine = 1.0 - smoothstep(arcWidth,
+                                        arcWidth * 2.35, distanceToArc);
+        float breakWave = 0.5 + 0.5 * cos(angleDelta * mix(7.0, 13.0, seedA)
+                                         + seedC * 9.0);
+        float broken = mix(0.16, 1.0, smoothstep(0.28, 0.76, breakWave));
+        float arc = arcLine * arcTaper * broken * surfaceMask;
+
+        vec3 arcColor = mix(ETCH_COLOR, SHELL_BRIGHT, seedB * 0.76);
+        float hotNode = exp(-angleDelta * angleDelta
+                            / max(arcSpan * arcSpan * 0.11, 0.001)) * arc;
+        light += arcColor * arc * mix(0.34, 0.62, seedC)
+               + CORE_COLOR * hotNode * 0.24;
+        opacity = max(opacity, arc * 0.22);
     }
     return vec4(light, opacity);
 }
@@ -333,16 +446,22 @@ void main() {
     float redPoints = crossSpark(spherePosition - redSource, 0.020)
                     + crossSpark(spherePosition + redSource, 0.020);
 
-    vec3 mint = particleTracePair(spherePosition, mintSource, 0.07, 0.07, 0.010,
+    vec2 streamTarget = vec2(0.0);
+    vec3 mint = particleTracePair(spherePosition, mintSource, streamTarget,
+                                  0.07, 0.07, 0.010,
                                   0.105, 0.265, 1.4, phase);
-    vec3 pink = particleTracePair(spherePosition, pinkSource, 0.05, 0.05, 0.008,
+    vec3 pink = particleTracePair(spherePosition, pinkSource, streamTarget,
+                                  0.05, 0.05, 0.008,
                                   0.120, 0.285, 3.1, phase);
-    vec3 gold = particleTracePair(spherePosition, goldSource, 0.34, 0.22, 0.013,
+    vec3 gold = particleTracePair(spherePosition, goldSource, streamTarget,
+                                  0.34, 0.22, 0.013,
                                   0.090, 0.245, 5.8, phase);
-    vec3 cyan = particleTracePair(spherePosition, cyanSource, 0.32, 0.24, 0.011,
+    vec3 cyan = particleTracePair(spherePosition, cyanSource, streamTarget,
+                                  0.32, 0.24, 0.011,
                                   0.135, 0.300, 7.2, phase);
-    vec3 red = particleTracePair(spherePosition, redSource, 0.22, 0.38, 0.005,
-                                 0.145, 0.275, 9.6, phase);
+    vec3 red = particleTracePair(spherePosition, redSource, streamTarget,
+                                 0.22, 0.38, 0.005,
+                                  0.145, 0.275, 9.6, phase);
 
     light += MINT_STREAM * (mint.x * 0.74 + mint.y * 1.82
                           + mintPoints * pointLife * 1.05);
@@ -393,16 +512,16 @@ void main() {
                      + expansionDrift * 0.025;
     float cavityGrowth = smoothstep(0.56, 0.76, phase);
     float cavityRadius = shellRadius3D * mix(0.0, 0.67, cavityGrowth);
+    float openingRadius = shellRadius3D * mix(0.08, 0.58, cavityGrowth);
     float coreLife = smoothstep(0.515, 0.548, phase)
                    * (1.0 - smoothstep(0.58, 0.69, phase));
 
     if (sphereRadius < 1.005 && volumeLife + coreLife > 0.0001) {
         vec4 volume = integrateSphere(spherePosition, shellRadius3D,
                                       shellWidth, expansionKick,
-                                      cavityRadius, coreLife,
-                                      volumeLife, time);
+                                       cavityRadius, coreLife,
+                                       volumeLife, time);
         // 球壳径向空腔本身仍会投影到视线中央；锥形疏散区让爆心沿视轴破开。
-        float openingRadius = shellRadius3D * mix(0.08, 0.58, cavityGrowth);
         float opening = smoothstep(openingRadius - 0.075,
                                    openingRadius + 0.055, sphereRadius);
         float centerTransmission = mix(1.0, 0.14 + opening * 0.86,
@@ -413,28 +532,51 @@ void main() {
         opacity = max(opacity, volume.a * sphereMask);
     }
 
+    float contourLife = smoothstep(0.565, 0.62, phase)
+                      * (1.0 - smoothstep(0.84, 0.965, phase));
+    if (contourLife > 0.0001 && sphereRadius < shellRadius3D) {
+        vec4 contours = surfaceContours(spherePosition, shellRadius3D,
+                                        openingRadius, contourLife, time);
+        light += contours.rgb * sphereMask;
+        opacity = max(opacity, contours.a * sphereMask);
+    }
+
     float ignitionLife = smoothstep(0.515, 0.545, phase)
                        * (1.0 - smoothstep(0.59, 0.66, phase));
     float star = ignitionStar(spherePosition, ignitionLife);
     light += CORE_COLOR * star * 1.62 * sphereMask;
     opacity = max(opacity, sat(star * 0.72 * sphereMask));
 
-    // 球壳切线方向自然增亮，替代与体积脱节的二维花瓣圆环。
+    // 低频折面与断续双描边将体积壳收束成更明确的图形化球体轮廓。
     float angle = atan(spherePosition.y, spherePosition.x);
     float rimNoise = ringNoise(angle, sphereRadius, 4.3, 8.0,
                                vec2(time * 0.12, -time * 0.28));
+    float rimFacet = cos(angle * 7.0 - 0.8) * 0.62
+                   + cos(angle * 13.0 + 1.4) * 0.38;
     float rimRadius = shellRadius3D + (rimNoise - 0.5)
-                    * mix(0.018, 0.035, expansionKick);
+                    * mix(0.018, 0.035, expansionKick)
+                    + rimFacet * mix(0.004, 0.013, expansionKick);
     float rimBreak = ringNoise(angle, sphereRadius, 7.1, 14.0,
                                vec2(-time * 0.21, time * 0.17));
+    float rimSegmentWave = 0.5 + 0.5 * cos(angle * 13.0
+                                         + rimNoise * 5.2);
+    float rimSegments = smoothstep(0.24, 0.72, rimSegmentWave);
     float rim = softRing(sphereRadius, rimRadius,
                          mix(0.014, 0.025, expansionKick));
     rim *= (0.28 + rimNoise * 0.48 + smoothstep(0.48, 0.68, rimBreak) * 0.46)
-         * volumeLife;
+         * (0.34 + rimSegments * 0.82) * volumeLife;
+    float innerSegments = smoothstep(0.34, 0.76,
+        0.5 + 0.5 * sin(angle * 9.0 - rimNoise * 4.1));
+    float innerRim = softRing(sphereRadius,
+        rimRadius - shellWidth * 0.34, mix(0.007, 0.012, expansionKick));
+    innerRim *= (0.07 + innerSegments * 0.83) * volumeLife
+              * smoothstep(0.57, 0.64, phase);
     vec3 rimColor = mix(CORE_COLOR, SHELL_BRIGHT,
-                        smoothstep(0.58, 0.76, phase));
+                         smoothstep(0.58, 0.76, phase));
     light += rimColor * rim * mix(1.45, 0.58, expansionDrift) * sphereMask;
-    opacity = max(opacity, sat(rim * 0.58 * sphereMask));
+    light += mix(ETCH_COLOR, SHELL_BRIGHT, rimNoise * 0.42)
+           * innerRim * 0.68 * sphereMask;
+    opacity = max(opacity, sat((rim * 0.58 + innerRim * 0.32) * sphereMask));
 
     float spokeLife = smoothstep(0.56, 0.60, phase)
                     * (1.0 - smoothstep(0.72, 0.86, phase));

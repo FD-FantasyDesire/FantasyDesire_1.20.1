@@ -20,6 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.*;
@@ -30,6 +31,12 @@ import tennouboshiuzume.mods.FantasyDesire.utils.ItemUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 
 public class FDCombo extends ComboStateRegistry {
+        // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+        private static final FDConfig.CometElytra COMET_ELYTRA = FDConfig.COMET_ELYTRA;
+        private static final FDConfig.CrimsonStrikeSa CRIMSON_STRIKE_SA = FDConfig.CRIMSON_STRIKE_SA;
+        private static final FDConfig.TwinSystemL TWIN_SYSTEM_L = FDConfig.TWIN_SYSTEM_L;
+        private static final FDConfig.TwinSystemR TWIN_SYSTEM_R = FDConfig.TWIN_SYSTEM_R;
+        private static final FDConfig.EchoingVoidSa ECHOING_VOID_SA = FDConfig.ECHOING_VOID_SA;
 
         public static final DeferredRegister<ComboState> FD_COMBO_STATES = DeferredRegister
                         .create(ComboState.REGISTRY_KEY, FantasyDesire.MODID);
@@ -92,7 +99,7 @@ public class FDCombo extends ComboStateRegistry {
                                                         .put(1, entityIn -> {
                                                                 entityIn.addEffect(new MobEffectInstance(
                                                                                 FDPotionEffects.COMET_ELYTRA.get(),
-                                                                                1200, 0));
+                                                                                COMET_ELYTRA.baseDuration(), 0));
                                                         })
                                                         .build())
                                         .addHitEffect(StunManager::setStun)::build);
@@ -138,7 +145,8 @@ public class FDCombo extends ComboStateRegistry {
                                                         22.5F,
                                                         entityIn.getYRot(), 0, 0xFF0000, 0,
                                                         Vec3.ZERO,
-                                                        false, false, 4f, KnockBacks.cancel,
+                                                        false, false, CRIMSON_STRIKE_SA.clawDamage(),
+                                                        KnockBacks.cancel,
                                                         20))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .build())
@@ -158,7 +166,8 @@ public class FDCombo extends ComboStateRegistry {
                                                         180F - 22.5F,
                                                         entityIn.getYRot(), 0, 0xFF0000, 0,
                                                         Vec3.ZERO,
-                                                        false, false, 4f, KnockBacks.cancel,
+                                                        false, false, CRIMSON_STRIKE_SA.clawDamage(),
+                                                        KnockBacks.cancel,
                                                         15))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder()
                                                         .build())
@@ -269,9 +278,13 @@ public class FDCombo extends ComboStateRegistry {
                                                                 Vec3 motion = entityIn.getDeltaMovement();
                                                                 entityIn.setDeltaMovement(motion.x, 0.6f, motion.z);
                                                                 AttackManager.doSlash(entityIn, -90 + 10, Vec3.ZERO,
-                                                                                false, false, 0.50f, KnockBacks.toss);
+                                                                                false, false,
+                                                                                TWIN_SYSTEM_L.riseRatio(),
+                                                                                KnockBacks.toss);
                                                                 AttackManager.doSlash(entityIn, -90 - 10, Vec3.ZERO,
-                                                                                false, false, 0.50f, KnockBacks.toss);
+                                                                                false, false,
+                                                                                TWIN_SYSTEM_L.riseRatio(),
+                                                                                KnockBacks.toss);
                                                         }).build())
                                         .addHitEffect((target, attacker) -> {
                                                 target.setDeltaMovement(0, 0.6f, 0);
@@ -319,8 +332,10 @@ public class FDCombo extends ComboStateRegistry {
                                         .next(entity -> SlashBlade.prefix("none"))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(8, entityIn -> {
-                                                AttackManager.doSlash(entityIn, 90 - 15, false, false, 2.875f);
-                                                AttackManager.doSlash(entityIn, 90 + 15, true, false, 2.875f);
+                                                AttackManager.doSlash(entityIn, 90 - 15, false, false,
+                                                        TWIN_SYSTEM_L.slamRatio());
+                                                AttackManager.doSlash(entityIn, 90 + 15, true, false,
+                                                        TWIN_SYSTEM_L.slamRatio());
                                                 entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
                                                                 new Vec3(0, -0.5, 1.25));
                                                 TwinSlash.ConvertForm(entityIn, entityIn.getMainHandItem());
@@ -372,39 +387,41 @@ public class FDCombo extends ComboStateRegistry {
                                                         entity -> FantasyDesire.prefix("doom_slash_2")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("doom_slash_2"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(6, entityIn -> {
-                                                TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(), -30, 0.244f);
+                                                TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(), -30,
+                                                                TWIN_SYSTEM_R.doomSlashRatio());
                                                 TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(), 180 - 35,
-                                                                0.244f);
+                                                                TWIN_SYSTEM_R.doomSlashRatio());
                                         }).put(7, entityIn -> TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
-                                                        -90 + 180 * entityIn.getRandom().nextFloat(), 0.244f))
+                                                        -90 + 180 * entityIn.getRandom().nextFloat(),
+                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(8, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(9, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(10, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(11, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(12, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(13, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(14, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .build())
                                         .addHitEffect((target, attacker) -> {
                                                 StunManager.setStun(target, 40);
@@ -414,43 +431,49 @@ public class FDCombo extends ComboStateRegistry {
         public static final RegistryObject<ComboState> DOOM_SLASH_2 = FD_COMBO_STATES.register("doom_slash_2",
                         ComboState.Builder.newInstance().startAndEnd(710, 720).priority(80)
                                         .next(ComboState.TimeoutNext.buildFromFrame(3,
-                                                        entity -> entity.getHealth() > entity.getMaxHealth() / 2
-                                                                        ? FantasyDesire.prefix("doom_slash_3")
-                                                                        : FantasyDesire.prefix("doom_slash_4")))
+                                                        entity -> entity.getHealth() > entity.getMaxHealth()
+                                                                        * TWIN_SYSTEM_R.doomHealthThreshold()
+                                                                                        ? FantasyDesire.prefix(
+                                                                                                        "doom_slash_3")
+                                                                                        : FantasyDesire.prefix(
+                                                                                                        "doom_slash_4")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("doom_slash_4"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, entityIn -> {
                                                 TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
-                                                                -90 + 180 * entityIn.getRandom().nextFloat(), 0.244f);
+                                                                -90 + 180 * entityIn.getRandom().nextFloat(),
+                                                                TWIN_SYSTEM_R.doomSlashRatio());
                                                 TwinSlash.DominateStep(entityIn, entityIn.getMainHandItem());
                                                 if (entityIn instanceof Player player) {
-                                                        player.hurt(player.damageSources().playerAttack(player), 2f);
+                                                        player.hurt(player.damageSources().playerAttack(player),
+                                                                        TWIN_SYSTEM_R.doomSelfDamage());
                                                 }
                                         }).put(1, entityIn -> {
                                                 TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
-                                                                90 + 180 * entityIn.getRandom().nextFloat(), 0.244f);
+                                                                90 + 180 * entityIn.getRandom().nextFloat(),
+                                                                TWIN_SYSTEM_R.doomSlashRatio());
                                                 entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
                                                                 new Vec3(0, 0, 4.5f));
                                         })
                                                         .put(2, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(3, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(4, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(5, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(6, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .build())
                                         .addHitEffect((target, attacker) -> {
                                                 StunManager.setStun(target, 40);
@@ -460,20 +483,26 @@ public class FDCombo extends ComboStateRegistry {
         public static final RegistryObject<ComboState> DOOM_SLASH_3 = FD_COMBO_STATES.register("doom_slash_3",
                         ComboState.Builder.newInstance().startAndEnd(710, 720).priority(80)
                                         .next(ComboState.TimeoutNext.buildFromFrame(3,
-                                                        entity -> entity.getHealth() > entity.getMaxHealth() / 2
-                                                                        ? FantasyDesire.prefix("doom_slash_2")
-                                                                        : FantasyDesire.prefix("doom_slash_4")))
+                                                        entity -> entity.getHealth() > entity.getMaxHealth()
+                                                                        * TWIN_SYSTEM_R.doomHealthThreshold()
+                                                                                        ? FantasyDesire.prefix(
+                                                                                                        "doom_slash_2")
+                                                                                        : FantasyDesire.prefix(
+                                                                                                        "doom_slash_4")))
                                         .nextOfTimeout(entity -> FantasyDesire.prefix("doom_slash_4"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(0, entityIn -> {
                                                 TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
-                                                                -90 + 180 * entityIn.getRandom().nextFloat(), 0.244f);
+                                                                -90 + 180 * entityIn.getRandom().nextFloat(),
+                                                                TWIN_SYSTEM_R.doomSlashRatio());
                                                 TwinSlash.DominateStep(entityIn, entityIn.getMainHandItem());
                                                 if (entityIn instanceof Player player) {
-                                                        player.hurt(player.damageSources().playerAttack(player), 2f);
+                                                        player.hurt(player.damageSources().playerAttack(player),
+                                                                        TWIN_SYSTEM_R.doomSelfDamage());
                                                 }
                                         }).put(1, entityIn -> {
                                                 TwinSlash.DoomSlash(entityIn, entityIn.getMainHandItem(),
-                                                                90 + 180 * entityIn.getRandom().nextFloat(), 0.244f);
+                                                                90 + 180 * entityIn.getRandom().nextFloat(),
+                                                                TWIN_SYSTEM_R.doomSlashRatio());
                                                 ;
                                                 entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
                                                                 new Vec3(0, 0, 4.5f));
@@ -481,23 +510,23 @@ public class FDCombo extends ComboStateRegistry {
                                                         .put(2, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(3, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(4, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(5, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .put(6, entityIn -> TwinSlash.DoomSlash(entityIn,
                                                                         entityIn.getMainHandItem(),
                                                                         -90 + 180 * entityIn.getRandom().nextFloat(),
-                                                                        0.244f))
+                                                                        TWIN_SYSTEM_R.doomSlashRatio()))
                                                         .build())
                                         .addHitEffect((target, attacker) -> {
                                                 StunManager.setStun(target, 40);
@@ -511,8 +540,10 @@ public class FDCombo extends ComboStateRegistry {
                                                         entity -> SlashBlade.prefix("none")))
                                         .nextOfTimeout(entity -> SlashBlade.prefix("none"))
                                         .addTickAction(ComboState.TimeLineTickAction.getBuilder().put(8, entityIn -> {
-                                                AttackManager.doSlash(entityIn, 90 - 15, false, false, 2.875f);
-                                                AttackManager.doSlash(entityIn, 90 + 15, true, false, 2.875f);
+                                                AttackManager.doSlash(entityIn, 90 - 15, false, false,
+                                                        TWIN_SYSTEM_L.slamRatio());
+                                                AttackManager.doSlash(entityIn, 90 + 15, true, false,
+                                                        TWIN_SYSTEM_L.slamRatio());
                                                 entityIn.moveRelative(entityIn.isInWater() ? 0.35f : 0.8f,
                                                                 new Vec3(0, -0.5, 5.25));
                                                 TwinSlash.ConvertForm(entityIn, entityIn.getMainHandItem());
@@ -570,11 +601,15 @@ public class FDCombo extends ComboStateRegistry {
                                                         entityIn -> AddonSlashUtils.doAddonFDSlash(entityIn,
                                                                         180 - 42,
                                                                         entityIn.getYRot(), 0, 0x8000FF, 0, Vec3.ZERO,
-                                                                        false, false, 0.1f, KnockBacks.cancel, 10f, 10,
+                                                                        false, false,
+                                                                        (float) FDConfig.ECHOING_VOID_SA
+                                                                                        .slashDamage(0),
+                                                                        KnockBacks.cancel, 10f, 10,
                                                                         FDDamageSource.ECHO.location().toString()))
                                                         .build())
                                         .addHitEffect((target, attacker) -> {
-                                                StarlessNightEffects.stackVoidStrike(target, 10);
+                                                StarlessNightEffects.stackVoidStrike(target,
+                                                        ECHOING_VOID_SA.voidStrikeStacks());
                                         })::build);
 
         public static final RegistryObject<ComboState> ECHOING_VOID_2 = FD_COMBO_STATES.register("echoing_void_2",
@@ -588,28 +623,40 @@ public class FDCombo extends ComboStateRegistry {
                                                                         0,
                                                                         entityIn.getYRot() + 180, 0, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 3f, KnockBacks.cancel, 10f,
+                                                                        false, false,
+                                                                        (float) FDConfig.ECHOING_VOID_SA
+                                                                                        .slashDamage(1),
+                                                                        KnockBacks.cancel, 10f,
                                                                         10))
                                                         .put(5, (entityIn) -> EchoingVoid.doEnderSlash(
                                                                         entityIn,
                                                                         0,
                                                                         entityIn.getYRot() + 270, 0, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 5f, KnockBacks.cancel, 10f,
+                                                                        false, false,
+                                                                        (float) FDConfig.ECHOING_VOID_SA
+                                                                                        .slashDamage(2),
+                                                                        KnockBacks.cancel, 10f,
                                                                         10))
                                                         .put(6, (entityIn) -> EchoingVoid.doEnderSlash(
                                                                         entityIn,
                                                                         0,
                                                                         entityIn.getYRot(), +360, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 7f, KnockBacks.cancel, 10f,
+                                                                        false, false,
+                                                                        (float) FDConfig.ECHOING_VOID_SA
+                                                                                        .slashDamage(3),
+                                                                        KnockBacks.cancel, 10f,
                                                                         10))
                                                         .put(7, (entityIn) -> EchoingVoid.doEnderSlash(
                                                                         entityIn,
                                                                         0,
                                                                         entityIn.getYRot() + 450, 0, 0x8000FF, 0,
                                                                         Vec3.ZERO,
-                                                                        false, false, 9f, KnockBacks.cancel, 10f,
+                                                                        false, false,
+                                                                        (float) FDConfig.ECHOING_VOID_SA
+                                                                                        .slashDamage(4),
+                                                                        KnockBacks.cancel, 10f,
                                                                         10))
                                                         .build())::build);
 

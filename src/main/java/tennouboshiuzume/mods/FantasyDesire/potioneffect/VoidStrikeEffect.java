@@ -15,12 +15,15 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 
 import javax.annotation.Nullable;
 
 public class VoidStrikeEffect extends MobEffect {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.VoidStrikeEffect VOID_STRIKE_EFFECT = FDConfig.VOID_STRIKE_EFFECT;
     public static final java.util.UUID STACK_MODIFIER_UUID = java.util.UUID.fromString(
             "b9b8b5ec-0a7f-4e9d-8f75-4f7c5d9d4a11");
 
@@ -66,19 +69,21 @@ public class VoidStrikeEffect extends MobEffect {
 
     public static int getVoidStrikeLayers(LivingEntity entity) {
         AttributeInstance stack = entity.getAttribute(FDAttributes.VOID_STRIKE_STACK.get());
+        int cap = VOID_STRIKE_EFFECT.stackCap();
         if (stack != null && stack.getValue() > 0.0D) {
-            return Math.min(50, Math.max(0, (int) Math.round(stack.getValue())));
+            return Math.min(cap, Math.max(0, (int) Math.round(stack.getValue())));
         }
         MobEffectInstance current = entity
                 .getEffect(FDPotionEffects.VOID_STRIKE.get());
         if (current != null) {
-            return Math.min(50, current.getAmplifier() + 1);
+            return Math.min(cap, current.getAmplifier() + 1);
         }
         return 0;
     }
 
     public static void syncStackAttribute(LivingEntity entity, int amplifier) {
-        double stack = Math.min(50.0D, Math.max(0.0D, amplifier + 1.0D));
+        double stack = Math.min(VOID_STRIKE_EFFECT.stackCap(),
+                Math.max(0.0D, amplifier + 1.0D));
         FDAttributes.syncVoidStrikeStack(entity, stack, STACK_MODIFIER_UUID);
     }
 
@@ -112,7 +117,7 @@ public class VoidStrikeEffect extends MobEffect {
     @Override
     public boolean isDurationEffectTick(int duration, int amplifier) {
         // 每 20 tick 触发一次，同时播放粒子
-        return duration % 20 == 0;
+        return duration % VOID_STRIKE_EFFECT.tickInterval() == 0;
     }
 
     public @Nullable ResourceLocation getIcon() {

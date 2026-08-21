@@ -12,6 +12,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDHuntSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
@@ -28,6 +29,8 @@ import java.util.Random;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CrimsonScytheEffects {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.BloodDrain BLOOD_DRAIN = FDConfig.BLOOD_DRAIN;
     private static final String TRANSLATION_KEY = "item.fantasydesire.crimson_scythe";
 
     @SubscribeEvent
@@ -70,9 +73,9 @@ public class CrimsonScytheEffects {
         if (offCtx != null) {
             IFantasySlashBladeState fdState = offCtx.fantasyState;
             int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
-            float lockDistance = 15 + sweepLevel * 10;
+            float lockDistance = BLOOD_DRAIN.lockBase() + sweepLevel * BLOOD_DRAIN.lockPerSweep();
             int maxVolleyCount = 3 + sweepLevel;
-            float angleDeg = 30 + sweepLevel * 10;
+            float angleDeg = BLOOD_DRAIN.angleBase() + sweepLevel * BLOOD_DRAIN.anglePerSweep();
             List<LivingEntity> targets = FDTargetSelector.getTargetsInSight(entity, lockDistance, angleDeg, true, null);
             targets.sort((e1, e2) -> Double.compare(e2.distanceToSqr(entity), e1.distanceToSqr(entity)));
 
@@ -134,7 +137,7 @@ public class CrimsonScytheEffects {
                 .match();
         if (ctx != null) {
             IFantasySlashBladeState fdState = ctx.fantasyState;
-            CapabilityUtils.addSpecialCharge(fdState, 1);
+            CapabilityUtils.addSpecialCharge(fdState, BLOOD_DRAIN.hitCharge());
         }
     }
 }

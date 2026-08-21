@@ -24,6 +24,7 @@ import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
@@ -35,6 +36,15 @@ import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class DamageConverterEvent {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.Resolution RESOLUTION = FDConfig.RESOLUTION;
+    private static final FDConfig.EchoDamageType ECHO = FDConfig.ECHO;
+    private static final FDConfig.EchoTimer ECHO_TIMER = FDConfig.ECHO_TIMER;
+    private static final FDConfig.Eternity ETERNITY = FDConfig.ETERNITY;
+    private static final FDConfig.Absorb ABSORB = FDConfig.ABSORB;
+    private static final FDConfig.Lust LUST = FDConfig.LUST;
+    private static final FDConfig.Gluttony GLUTTONY = FDConfig.GLUTTONY;
+    private static final FDConfig.VoidStrikeEffect VOID_STRIKE_EFFECT = FDConfig.VOID_STRIKE_EFFECT;
     public static final Capability<IFantasySlashBladeState> FDBLADESTATE = CapabilityManager
             .get(new CapabilityToken<IFantasySlashBladeState>() {
             });
@@ -100,7 +110,7 @@ public class DamageConverterEvent {
         // 决断 (Resolution)
         // 追加本次伤害50%的魔法伤害
         if (source.is(FDDamageSource.RESOLUTION)) {
-            float extraDamage = amount * 0.5f;
+            float extraDamage = amount * RESOLUTION.extraRatio();
             resetInvulnerable(target);
             target.hurt(attackerLiving.damageSources().magic(), extraDamage);
             resetInvulnerable(target);
@@ -148,17 +158,19 @@ public class DamageConverterEvent {
         }
         // 回响（Echo）
         if (source.is(FDDamageSource.ECHO)) {
-            target.forceAddEffect(new MobEffectInstance(FDPotionEffects.ECHO_TIMER.get(), 60, 0, false, false, false),
+            target.forceAddEffect(
+                    new MobEffectInstance(FDPotionEffects.ECHO_TIMER.get(), ECHO_TIMER.duration(), 0, false,
+                            false, false),
                     attacker);
-            if (amount > 0.1f) {
-                float storeAmount = amount - 0.1f;
+            if (amount > ECHO.directDamage()) {
+                float storeAmount = amount - ECHO.directDamage();
                 target.getCapability(tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider.ECHO_DAMAGE)
                         .ifPresent(cap -> {
                             cap.addDamage(attacker.getUUID(), storeAmount);
                             tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper
                                     .syncTotalDamageAttribute(target);
                         });
-                amount = 0.1f;
+                amount = ECHO.directDamage();
             }
         }
         event.setAmount(amount);
@@ -180,11 +192,11 @@ public class DamageConverterEvent {
         int voidStrikeLayers = tennouboshiuzume.mods.FantasyDesire.potioneffect.VoidStrikeEffect
                 .getVoidStrikeLayers(target);
         if (voidStrikeLayers > 0) {
-            amount *= 1.0f + voidStrikeLayers * 0.1f;
+            amount *= 1.0f + voidStrikeLayers * VOID_STRIKE_EFFECT.damagePerLayer();
         }
         // 永劫
         if (source.is(FDDamageSource.ETERNITY)) {
-            float reduce = amount * 0.1f;
+            float reduce = amount * ETERNITY.reduceRatio();
             AttributeInstance maxHealth = target.getAttribute(Attributes.MAX_HEALTH);
             if (maxHealth != null) {
                 // 先尝试获取旧的 modifier
@@ -209,25 +221,27 @@ public class DamageConverterEvent {
             float overflow = Math.max(0, heal - missing);
             attackerLiving.heal(heal);
             if (overflow > 0) {
-                float bonus = overflow * 0.1f;
-                float newAbsorb = Math.min(20f, attackerLiving.getAbsorptionAmount() + bonus);
+                float bonus = overflow * ABSORB.overflowRatio();
+                float newAbsorb = Math.min(ABSORB.absorbCap(),
+                        attackerLiving.getAbsorptionAmount() + bonus);
                 attackerLiving.setAbsorptionAmount(newAbsorb);
             }
         }
         // 色欲 (Lust)
         if (source.is(FDDamageSource.LUST)) {
-            attackerLiving.heal(amount * 0.05f);
+            attackerLiving.heal(amount * LUST.healRatio());
         }
         // 暴食 (Gluttony)
         if (source.is(FDDamageSource.GLUTTONY)) {
             if (attackerLiving instanceof Player player) {
-                float healFood = amount * 0.1f;
+                float healFood = amount * GLUTTONY.foodRatio();
                 int foodNeeded = 20 - player.getFoodData().getFoodLevel();
                 if (healFood > foodNeeded) {
                     player.getFoodData().setFoodLevel(20);
                     float excess = healFood - foodNeeded;
-                    float bonusAbsorb = excess * 0.5f;
-                    float newAbsorb = Math.min(10f, attackerLiving.getAbsorptionAmount() + bonusAbsorb);
+                    float bonusAbsorb = excess * GLUTTONY.absorbRatio();
+                    float newAbsorb = Math.min(GLUTTONY.absorbCap(),
+                            attackerLiving.getAbsorptionAmount() + bonusAbsorb);
                     attackerLiving.setAbsorptionAmount(newAbsorb);
                 } else {
                     int newFood = Math.min(20, player.getFoodData().getFoodLevel() + (int) Math.max(1, healFood));

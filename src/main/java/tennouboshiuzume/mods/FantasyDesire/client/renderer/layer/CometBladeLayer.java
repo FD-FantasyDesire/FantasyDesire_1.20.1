@@ -13,8 +13,10 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import tennouboshiuzume.mods.FantasyDesire.client.PlayerVisualStateCache;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
+import tennouboshiuzume.mods.FantasyDesire.network.FDPlayerVisualStateSync;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
@@ -39,23 +41,25 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             float netHeadYaw,
             float headPitch) {
 
-        boolean hasTyrant = CapabilityUtils.SEConditionMatcher.of(player)
+        boolean hasTyrant = isLocalPlayer(player) ? CapabilityUtils.SEConditionMatcher.of(player)
                 .requireTranslation("item.fantasydesire.chikeflare")
                 .requireSE(FDSpecialEffectsRegistry.TyrantStrike)
-                .match() != null;
+                .match() != null : PlayerVisualStateCache.hasCometState(player, FDPlayerVisualStateSync.TYRANT);
 
-        boolean hasShield = CapabilityUtils.SEConditionMatcher.of(player)
+        boolean hasShield = isLocalPlayer(player) ? CapabilityUtils.SEConditionMatcher.of(player)
                 .requireTranslation("item.fantasydesire.chikeflare")
                 .requireSE(FDSpecialEffectsRegistry.SoulShield)
-                .match() != null;
+                .match() != null : PlayerVisualStateCache.hasCometState(player, FDPlayerVisualStateSync.SHIELD);
 
-        boolean hasImmortal = CapabilityUtils.SEConditionMatcher.of(player)
+        boolean hasImmortal = isLocalPlayer(player) ? CapabilityUtils.SEConditionMatcher.of(player)
                 .allowBothHands()
                 .requireTranslation("item.fantasydesire.chikeflare")
                 .requireSE(FDSpecialEffectsRegistry.ImmortalSoul)
-                .match() != null;
+                .match() != null : PlayerVisualStateCache.hasCometState(player, FDPlayerVisualStateSync.IMMORTAL);
 
-        boolean hasCometElytra = player.hasEffect(FDPotionEffects.COMET_ELYTRA.get());
+        boolean hasCometElytra = isLocalPlayer(player)
+                ? player.hasEffect(FDPotionEffects.COMET_ELYTRA.get())
+                : PlayerVisualStateCache.hasCometElytra(player);
 
         if (!hasTyrant && !hasShield && !hasImmortal && !hasCometElytra) {
             return;
@@ -87,6 +91,10 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             }
         }
         poseStack.popPose();
+    }
+
+    private boolean isLocalPlayer(AbstractClientPlayer player) {
+        return player == net.minecraft.client.Minecraft.getInstance().player;
     }
 
     private void renderMainBlade(PoseStack poseStack,

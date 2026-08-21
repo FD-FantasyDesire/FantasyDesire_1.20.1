@@ -7,6 +7,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDHuntSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
@@ -20,6 +21,9 @@ import java.util.List;
 import java.util.Random;
 
 public class CrimsonStrike {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.CrimsonStrikeSa CRIMSON_STRIKE_SA = FDConfig.CRIMSON_STRIKE_SA;
+
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation("item.fantasydesire.crimson_scythe")
@@ -47,9 +51,10 @@ public class CrimsonStrike {
         if (state == null)
             return;
         // 发射 EntityFDHuntSword 聚怪
-        int count = 24;
+        int count = CRIMSON_STRIKE_SA.huntSwordCount();
         double radius = 1.5;
-        List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(player, player.position(), 40.0, true,
+        List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(player, player.position(),
+                CRIMSON_STRIKE_SA.huntTargetRange(), true,
                 null);
         double phi = Math.PI * (3.0 - Math.sqrt(5.0)); // 黄金角
         for (int i = 0; i < count; i++) {
@@ -80,7 +85,7 @@ public class CrimsonStrike {
             sword.setDelay(100);
             sword.setDelayTicks(0);
             sword.setSeekDelay(10);
-            sword.setSeekAngle(36);
+            sword.setSeekAngle(CRIMSON_STRIKE_SA.huntSeekAngle());
             sword.setNoClip(true);
             sword.setHasTail(true);
             sword.setScale(0.5f);
@@ -103,7 +108,8 @@ public class CrimsonStrike {
         }
 
         AddonSlashUtils.doAddonFDSlash(playerIn, roll, YRot, XRot, colorCode, rotationOffset, centerOffset, mute,
-                critical, damage, knockback, 3.0f, lifetime, FDDamageSource.ABSORB.location().toString());
+                critical, damage, knockback, CRIMSON_STRIKE_SA.clawScale(), lifetime,
+                FDDamageSource.ABSORB.location().toString());
 
         float distance = 1.5f;
         float rad = (float) Math.toRadians(-roll + 90.0f);
@@ -114,9 +120,11 @@ public class CrimsonStrike {
         Vec3 offset2 = centerOffset.add(0, -dy, -dz);
 
         AddonSlashUtils.doAddonFDSlash(playerIn, roll, YRot, XRot, colorCode, rotationOffset, offset1, mute, critical,
-                damage, knockback, 3.0f, lifetime, FDDamageSource.ABSORB.location().toString());
+                damage, knockback, CRIMSON_STRIKE_SA.clawScale(), lifetime,
+                FDDamageSource.ABSORB.location().toString());
         AddonSlashUtils.doAddonFDSlash(playerIn, roll, YRot, XRot, colorCode, rotationOffset, offset2, mute, critical,
-                damage, knockback, 3.0f, lifetime, FDDamageSource.ABSORB.location().toString());
+                damage, knockback, CRIMSON_STRIKE_SA.clawScale(), lifetime,
+                FDDamageSource.ABSORB.location().toString());
     }
 
 }

@@ -10,26 +10,26 @@ public class FDSlashArtRegistry {
         public static final DeferredRegister<SlashArts> FD_SLASH_ARTS = DeferredRegister.create(SlashArts.REGISTRY_KEY,
                         FantasyDesire.MODID);
         public static final RegistryObject<SlashArts> WING_TO_THE_FUTURE = FD_SLASH_ARTS.register("wing_to_the_future",
-                        () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), 4, true));
+                        () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), true));
         public static final RegistryObject<SlashArts> RAINBOW_STAR = FD_SLASH_ARTS.register("rainbow_star",
-                        () -> new FDSlashArts((e) -> FDCombo.RAINBOW_STAR.getId(), 1, true));
+                        () -> new FDSlashArts((e) -> FDCombo.RAINBOW_STAR.getId(), true));
         public static final RegistryObject<SlashArts> CRIMSON_STRIKE = FD_SLASH_ARTS.register("crimson_strike",
-                        () -> new FDSlashArts((e) -> FDCombo.CRIMSON_STRIKE.getId(), 1));
+                        () -> new FDSlashArts((e) -> FDCombo.CRIMSON_STRIKE.getId()));
         public static final RegistryObject<SlashArts> TWIN_SYSTEM_L = FD_SLASH_ARTS.register("twin_system_l",
-                        () -> new FDSlashArts((e) -> FDCombo.MOOD_SLASH.getId(), 4));
+                        () -> new FDSlashArts((e) -> FDCombo.MOOD_SLASH.getId()));
         public static final RegistryObject<SlashArts> TWIN_SYSTEM_R = FD_SLASH_ARTS.register("twin_system_r",
-                        () -> new FDSlashArts((e) -> FDCombo.DOOM_SLASH.getId(), 4));
+                        () -> new FDSlashArts((e) -> FDCombo.DOOM_SLASH.getId()));
         public static final RegistryObject<SlashArts> CHARGE_SHOT = FD_SLASH_ARTS.register("charge_shot",
-                        () -> new FDSlashArts((e) -> FDCombo.CHARGE_SHOT.getId(), 2));
+                        () -> new FDSlashArts((e) -> FDCombo.CHARGE_SHOT.getId()));
         public static final RegistryObject<SlashArts> OVER_CHARGE = FD_SLASH_ARTS.register("over_charge",
-                        () -> new FDSlashArts((e) -> FDCombo.OVER_CHARGE.getId(), 2));
+                        () -> new FDSlashArts((e) -> FDCombo.OVER_CHARGE.getId()));
         public static final RegistryObject<SlashArts> ECHOING_VOID = FD_SLASH_ARTS.register("echoing_void",
-                        () -> new FDSlashArts((e) -> FDCombo.ECHOING_VOID.getId(), 4));
+                        () -> new FDSlashArts((e) -> FDCombo.ECHOING_VOID.getId()));
         public static final RegistryObject<SlashArts> FREEZE_ZERO = FD_SLASH_ARTS.register("freeze_zero",
-                        () -> new FDSlashArts((e) -> FDCombo.FREEZE_ZERO.getId(), 8)
+                        () -> new FDSlashArts((e) -> FDCombo.FREEZE_ZERO.getId())
                                         .setComboStateJust((e) -> FDCombo.FREEZE_ZERO_JUST.getId()));
         // 已废弃
         // public static final RegistryObject<SlashArts> CHROMITE_COMET =
         // FD_SLASH_ARTS.register("chromite_comet",
-        // () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId(), 1));
+        // () -> new FDSlashArts((e) -> FDCombo.WING_TO_THE_FUTURE.getId()));
 }

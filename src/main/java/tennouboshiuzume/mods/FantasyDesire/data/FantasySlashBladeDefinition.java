@@ -136,9 +136,6 @@ public class FantasySlashBladeDefinition {
                 .getCapability(ItemFantasySlashBlade.FDBLADESTATE).orElse(new FantasySlashBladeState(result));
         fdState.setSpecialCharge(this.fantasyDefinition.getSpecialCharge());
         fdState.setMaxSpecialCharge(this.fantasyDefinition.getMaxSpecialCharge());
-        fdState.setSpecialLore(this.fantasyDefinition.getSpecialLore());
-        fdState.setSpecialEffectLore(this.fantasyDefinition.getSpecialEffectLore());
-        fdState.setSpecialAttackLore(this.fantasyDefinition.getSpecialAttackLore());
         fdState.setSpecialType(this.fantasyDefinition.getSpecialType());
         fdState.setSpecialChargeName(this.fantasyDefinition.getSpecialChargeName());
         fdState.setSpecialAttackEffect(this.fantasyDefinition.getSpecialAttackEffect());

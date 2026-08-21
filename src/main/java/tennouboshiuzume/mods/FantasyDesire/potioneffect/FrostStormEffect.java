@@ -13,6 +13,7 @@ import net.minecraftforge.event.entity.living.MobEffectEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
@@ -26,9 +27,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class FrostStormEffect extends MobEffect {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.FrostStorm FROST_STORM = FDConfig.FROST_STORM;
     /** 半径属性修改器 UUID（客户端渲染器凭此检测激活） */
     public static final UUID RADIUS_MODIFIER_UUID = UUID.fromString("f3a9c7d1-4f2b-4e8a-9c1d-5b7e3a2f6b40");
-    /** 强度属性修改器 UUID */
+    /** 强度属性修改器 UUID（强度系数尚未设计，当前写入占位值 1.0） */
     public static final UUID STRENGTH_MODIFIER_UUID = UUID.fromString("8e5d2b9a-6c4f-4a1e-b8d3-7f0a9e2c5d60");
 
     public FrostStormEffect() {
@@ -36,7 +39,9 @@ public class FrostStormEffect extends MobEffect {
     }
 
     public static float getFieldRadius(int amplifier) {
-        return Math.max(4.0F, Math.min(4.0F + amplifier * 3.0F, 16.0F));
+        float base = FROST_STORM.radiusBase();
+        float radius = base + Math.max(amplifier, 0) * FROST_STORM.radiusPerAmp();
+        return Math.min(radius, FROST_STORM.radiusCap());
     }
 
     public static Vec3 getFieldCenter(LivingEntity entity) {
@@ -108,7 +113,8 @@ public class FrostStormEffect extends MobEffect {
                     if (!enemies.isEmpty()) {
                         for (LivingEntity tarEntity : enemies) {
                             tarEntity.addEffect(
-                                    new MobEffectInstance(FDPotionEffects.FROST_BITE.get(), 20 * 5, evolutionTier,
+                                    new MobEffectInstance(FDPotionEffects.FROST_BITE.get(),
+                                            FROST_STORM.biteDuration(), evolutionTier,
                                             true, false, true));
                         }
                         // 从总范围r内的敌人中随机选择一个
@@ -179,6 +185,7 @@ public class FrostStormEffect extends MobEffect {
     /**
      * 服务端：把当前效果的半径/强度写入实体自定义属性修改器（值不变时跳过，避免每 tick 发同步包）。
      * 客户端渲染器据此检测激活并获取半径（见 FrostStormFieldRenderer）。
+     * 强度系数尚未设计，暂以占位值 1.0 写入，保证渲染器能检测到激活。
      */
     public static void syncStormAttributes(LivingEntity entity, int amplifier) {
         AttributeInstance radiusAttr = entity.getAttribute(FDAttributes.FROST_STORM_RADIUS.get());

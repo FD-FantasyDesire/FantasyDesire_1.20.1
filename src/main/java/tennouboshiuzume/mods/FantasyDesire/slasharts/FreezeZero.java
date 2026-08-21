@@ -2,11 +2,14 @@ package tennouboshiuzume.mods.FantasyDesire.slasharts;
 
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.overcold.OverColdEffects;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 public class FreezeZero {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.FreezeZero FREEZE_ZERO = FDConfig.FREEZE_ZERO;
 
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
@@ -36,13 +39,17 @@ public class FreezeZero {
     }
 
     public static void StartStorm(LivingEntity entity, int evolutionTier) {
-        entity.addEffect(
-                new MobEffectInstance(FDPotionEffects.FROST_STORM.get(), 20 * (6 + evolutionTier * 3), evolutionTier));
+        entity.addEffect(new MobEffectInstance(FDPotionEffects.FROST_STORM.get(),
+                (int) (20 * (FREEZE_ZERO.baseDurationSec()
+                        + evolutionTier * FREEZE_ZERO.baseDurationPerTierSec())),
+                evolutionTier));
     }
 
     public static void StackStorm(LivingEntity entity, int evolutionTier, MobEffectInstance current) {
-        int durationExtension = Math.max(20 * evolutionTier * 3, 30);
-        int newAmplifier = Math.min(current.getAmplifier() + 1, 14);
+        int durationExtension = Math.max(
+                (int) (20 * evolutionTier * FREEZE_ZERO.stackExtensionPerTierSec()),
+                FREEZE_ZERO.stackExtensionMinTick());
+        int newAmplifier = Math.min(current.getAmplifier() + 1, FREEZE_ZERO.ampCap());
         int newDuration = current.getDuration() + durationExtension;
         entity.addEffect(new MobEffectInstance(FDPotionEffects.FROST_STORM.get(), newDuration, newAmplifier, false,
                 false, true));

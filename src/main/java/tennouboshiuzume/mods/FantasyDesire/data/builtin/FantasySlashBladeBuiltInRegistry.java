@@ -67,8 +67,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                 FantasyDefinition.Builder.newInstance()
                                                                 .maxSpecialCharge(360)
                                                                 .specialChargeName("Soul")
-                                                                .specialLore(3)
-                                                                .specialAttackLore(6)
                                                                 .specialType("Yarimono")
                                                                 .specialAttackEffect("dimension")
                                                                 .build(),
@@ -416,7 +414,6 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                                                 .getId())
                                                                 .build(),
                                                 FantasyDefinition.Builder.newInstance()
-                                                                .specialLore(1)
                                                                 .specialType("StarlessNight")
                                                                 .specialAttackEffect("echo")
                                                                 .build(),

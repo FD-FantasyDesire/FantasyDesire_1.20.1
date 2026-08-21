@@ -98,6 +98,15 @@ minecraft {
             property 'forge.enabledGameTestNamespaces', mod_id
         }
 
+        // 第二个客户端，用于多人联机测试：不同用户名(离线UUID随之不同) + 独立运行目录 run2
+        // 必须 parent 自 client，否则不会继承 userdev 默认的 main/BootstrapLauncher、args、jvmArgs 等启动配置
+        client2 {
+            parent runs.client
+            workingDirectory project.file('run2')
+            property 'forge.enabledGameTestNamespaces', mod_id
+            args '--username', 'Player2'
+        }
+
         server {
             property 'forge.enabledGameTestNamespaces', mod_id
             args '--nogui'
@@ -177,6 +186,11 @@ dependencies {
 minecraft {
     runs {
         client {
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
+        }
+
+        client2 {
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
         }

@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDBFG;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
@@ -20,6 +21,10 @@ import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlash
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 public class SmartPistolMode {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.OverCharge OVER_CHARGE = FDConfig.OVER_CHARGE;
+    private static final FDConfig.ChargeShot CHARGE_SHOT = FDConfig.CHARGE_SHOT;
+
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation("item.fantasydesire.smart_pistol")
@@ -52,10 +57,11 @@ public class SmartPistolMode {
                 .match() != null;
         float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
         int refine = state.getRefine();
-        float refineBonus = (float) (refine * 0.1f + Math.sqrt(refine) * 1.5f);
+        float refineBonus = (float) (refine * OVER_CHARGE.bfgRefineLinear() + Math.sqrt(refine) * 1.5f);
         int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
-        float enchantMultiplier = 1.0f + (enchantLevel * 0.25f);
-        float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ammo * (thunderOn ? 1.0f : 1.5f));
+        float enchantMultiplier = 1.0f + (enchantLevel * OVER_CHARGE.bfgEnchantMult());
+        float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ammo
+                * (thunderOn ? 1.0f : OVER_CHARGE.bfgThunderRatio()));
 
         EntityFDBFG ss = new EntityFDBFG(FDEntitys.FDBFG.get(), player.level());
         ss.setIsCritical(false);
@@ -70,7 +76,7 @@ public class SmartPistolMode {
         ss.setDelayTicks(0);
         ss.setSeekDelay(15);
         ss.setScale(2f);
-        ss.setExpRadius(25f);
+        ss.setExpRadius(OVER_CHARGE.bfgExpRadius());
         ss.setMultipleHit(thunderOn);
         ss.setChaining(thunderOn);
         ss.setFireSound(SoundEvents.WITHER_SHOOT, 1, 1.5f);
@@ -96,18 +102,20 @@ public class SmartPistolMode {
             return;
 
         int volleyCount = explosiveOn ? ammo : ammo * 3;
-        double ratio = 3.0;
+        double ratio = CHARGE_SHOT.dumpRatio();
 
         float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
         int refine = state.getRefine();
         float refineBonus = (float) (refine * 0.1f + Math.sqrt(refine) * 1.5f);
         int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
-        float enchantMultiplier = 1.0f + (enchantLevel * 0.10f);
+        float enchantMultiplier = 1.0f + (enchantLevel * CHARGE_SHOT.dumpEnchantMult());
         float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ratio);
 
         int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
-        float sweepRangeMult = explosiveOn ? 15 : 5;
-        float lockDistance = (explosiveOn ? 35 : 15) + sweepLevel * sweepRangeMult;
+        float sweepRangeMult = explosiveOn ? CHARGE_SHOT.dumpSweepMultExplosive()
+                : CHARGE_SHOT.dumpSweepMult();
+        float lockDistance = (explosiveOn ? CHARGE_SHOT.dumpLockBaseExplosive()
+                : CHARGE_SHOT.dumpLockBase()) + sweepLevel * sweepRangeMult;
 
         java.util.List<LivingEntity> targets = tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector
                 .getTargetsInSight(
@@ -115,10 +123,12 @@ public class SmartPistolMode {
         targets.sort(java.util.Comparator.comparingDouble(e -> e.distanceToSqr(player)));
 
         int color = state.getColorCode();
-        float expRadius = explosiveOn ? 2 + enchantLevel : 0;
-        finalDamage *= explosiveOn ? 5 : 1;
+        float expRadius = explosiveOn
+                ? CHARGE_SHOT.dumpExpRadiusExplosiveBase() + enchantLevel
+                : CHARGE_SHOT.dumpExpRadiusBase();
+        finalDamage *= explosiveOn ? CHARGE_SHOT.dumpExplosiveMult() : 1;
 
-        float speed = explosiveOn ? 0.33f : 1f;
+        float speed = explosiveOn ? CHARGE_SHOT.dumpSpeedExplosive() : CHARGE_SHOT.dumpSpeed();
         int tailNodes = explosiveOn ? 48 : 8;
 
         double phi = Math.PI * (3.0 - Math.sqrt(5.0));

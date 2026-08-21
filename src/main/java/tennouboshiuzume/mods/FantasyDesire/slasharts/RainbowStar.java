@@ -10,6 +10,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDRainbowPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
@@ -20,6 +21,10 @@ import tennouboshiuzume.mods.FantasyDesire.utils.ColorUtils;
 import java.util.Random;
 
 public class RainbowStar {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.RainbowStar RAINBOW_STAR = FDConfig.RAINBOW_STAR;
+    private static final FDConfig.RainbowSevenEdge RAINBOW_SEVEN_EDGE = FDConfig.RAINBOW_SEVEN_EDGE;
+
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
                 .requireTranslation("item.fantasydesire.pure_snow")
@@ -35,13 +40,14 @@ public class RainbowStar {
                 if (!(player instanceof Player))
                     return;
                 float baseModif = state.getDamage();
-                float magicDamage = 1.0f + (baseModif / 2.0f);
+                float magicDamage = RAINBOW_STAR.swordDamageBase()
+                        + (baseModif * RAINBOW_STAR.swordDamageAttackRatio());
                 Random random = new Random();
 
                 // 检查玩家是否潜行
                 boolean isSneaking = player.isShiftKeyDown();
 
-                for (int i = 0; i < 21; i++) {
+                for (int i = 0; i < RAINBOW_STAR.swordCount(); i++) {
                     float yaw, pitch;
                     Vec3 pos;
 
@@ -106,12 +112,13 @@ public class RainbowStar {
                     ss.setDamage(magicDamage);
                     ss.setRoll(random.nextInt(360));
                     ss.setScale(2f);
-                    ss.setSpeed(5f);
+                    ss.setSpeed(RAINBOW_STAR.speed());
                     ss.setHasTail(true);
                     ss.setOwner(player);
                     player.level().addFreshEntity(ss);
                 }
-                player.addEffect(new MobEffectInstance(FDPotionEffects.RAINBOW_SEVEN_EDGE.get(), 20 * 14, 0));
+                player.addEffect(new MobEffectInstance(FDPotionEffects.RAINBOW_SEVEN_EDGE.get(),
+                        RAINBOW_SEVEN_EDGE.castDuration(), 0));
             }
         }
     }

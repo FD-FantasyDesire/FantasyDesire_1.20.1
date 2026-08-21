@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
@@ -18,6 +19,8 @@ import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 @SuppressWarnings("removal")
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class OverColdEffects {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.ColdLeak COLD_LEAK = FDConfig.COLD_LEAK;
     // 冰川进化序列 进化事件
     @SubscribeEvent
     public static void OnAddProudSoul(SlashBladeEvent.AddProudSoulEvent event) {
@@ -79,11 +82,12 @@ public class OverColdEffects {
         LivingEntity target = event.getTarget();
         int evolutionTier = getEvolutionTier(fdState.getSpecialType());
         if (evolutionTier == 3) {
-            CapabilityUtils.addSpecialCharge(fdState, 2);
+            CapabilityUtils.addSpecialCharge(fdState, COLD_LEAK.tier3Charge());
         }
         // 施加/刷新效果
+        int biteAmp = COLD_LEAK.biteAmplifier() < 0 ? evolutionTier : COLD_LEAK.biteAmplifier();
         target.addEffect(
-                new MobEffectInstance(FDPotionEffects.FROST_BITE.get(), 120, evolutionTier));
+                new MobEffectInstance(FDPotionEffects.FROST_BITE.get(), COLD_LEAK.biteDuration(), biteAmp));
     }
 
     public static int getEvolutionTier(String specialType) {

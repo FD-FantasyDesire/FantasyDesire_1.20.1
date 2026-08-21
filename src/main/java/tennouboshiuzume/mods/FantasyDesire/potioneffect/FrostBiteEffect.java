@@ -4,20 +4,27 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
-import java.util.UUID;
-
 // 寒霜咬噬
 // 降低移动速度，并且坠向地面
 public class FrostBiteEffect extends MobEffect {
-    private static final UUID FROST_BITE_SPEED_UUID = UUID.fromString("b2c4d6e8-1a3f-4b5c-9d8e-2f4a6b8c0d2e");
+    /** 减速属性修改器 UUID（原版效果属性机制：效果附加/移除/升级时自动 add/remove/刷新） */
+    private static final String FROST_BITE_SPEED_UUID = "b2c4d6e8-1a3f-4b5c-9d8e-2f4a6b8c0d2e";
 
     public FrostBiteEffect() {
         super(MobEffectCategory.HARMFUL, 0xADD8E6);
+        // 注册减速属性修改器：实际数值在 getAttributeModifierValue 里按 amplifier 动态计算
+        addAttributeModifier(Attributes.MOVEMENT_SPEED, FROST_BITE_SPEED_UUID, -0.2D,
+                AttributeModifier.Operation.MULTIPLY_TOTAL);
+    }
+
+    /** 原版机制：效果附加/升级时按 amplifier 动态计算减速量（升级会自动刷新数值） */
+    @Override
+    public double getAttributeModifierValue(int amplifier, AttributeModifier modifier) {
+        return Math.max(-0.2 * amplifier, -1.0);
     }
 
     @Override
@@ -31,26 +38,12 @@ public class FrostBiteEffect extends MobEffect {
     @Override
     public void addAttributeModifiers(LivingEntity entity, AttributeMap attributes, int amplifier) {
         super.addAttributeModifiers(entity, attributes, amplifier);
-        AttributeInstance movementSpeed = entity.getAttribute(Attributes.MOVEMENT_SPEED);
-        if (movementSpeed != null) {
-            AttributeModifier speedMod = movementSpeed.getModifier(FROST_BITE_SPEED_UUID);
-            if (speedMod == null) {
-                movementSpeed.addPermanentModifier(new AttributeModifier(FROST_BITE_SPEED_UUID,
-                        "Frost Bite Speed", Math.max(-0.2 * amplifier, -1.0),
-                        AttributeModifier.Operation.MULTIPLY_TOTAL));
-            }
-        }
         entity.setNoGravity(true);
     }
 
     @Override
-    public void removeAttributeModifiers(LivingEntity entity,
-            net.minecraft.world.entity.ai.attributes.AttributeMap pAttributeMap, int pAmplifier) {
+    public void removeAttributeModifiers(LivingEntity entity, AttributeMap pAttributeMap, int pAmplifier) {
         super.removeAttributeModifiers(entity, pAttributeMap, pAmplifier);
-        AttributeInstance movementSpeed = entity.getAttribute(Attributes.MOVEMENT_SPEED);
-        if (movementSpeed != null) {
-            movementSpeed.removeModifier(FROST_BITE_SPEED_UUID);
-        }
         entity.setNoGravity(false);
     }
 

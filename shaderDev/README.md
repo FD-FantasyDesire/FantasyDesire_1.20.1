@@ -1,17 +1,17 @@
 # 纯 GLSL Shader 开发脚手架
 
-此目录用于快速制作 Minecraft 魔法、能量和粒子视觉效果的**纯程序化原型**。预览入口为 `main.frag`，目标运行环境是 VSCode 的 glsl-canvas，而不是 Minecraft 正式渲染管线。
+此目录用于快速制作 Minecraft 魔法、能量和粒子视觉效果的**纯程序化原型**。每个效果目录中的 `main.frag` 都是独立入口，目标运行环境是 VSCode 的 glsl-canvas，而不是 Minecraft 正式渲染管线。
 
 ## 开始使用
 
 1. 在 VSCode 扩展市场安装 **GLSL Canvas**（扩展 ID：`circledev.glsl-canvas`）。工作区也会显示推荐安装提示。
-2. 用 VSCode 打开 `shaderDev/main.frag`。
+2. 用 VSCode 打开某个效果目录中的 `main.frag`，例如 `shaderDev/BladeRift/main.frag`。
 3. 打开命令面板（`Ctrl+Shift+P`），运行 **Show GLSL Canvas**。
-4. 保存文件后观察预览；移动鼠标可扰动符文中心、亮度和旋转参数。
+4. 保存文件后观察预览；只有显式声明并使用 `u_mouse` 的作品支持鼠标交互。
 
 ## Uniform 约定
 
-入口使用 glsl-canvas 提供的以下 uniform：
+入口按需要使用 glsl-canvas 提供的以下 uniform：
 
 ```glsl
 uniform float u_time;       // 自预览开始后的秒数
@@ -40,11 +40,22 @@ uniform vec2 u_mouse;       // 鼠标像素坐标
 - 避免整数位运算、动态数组、导数和较新 GLSL 内建函数。
 - 某些移动端 WebGL 1 实现可能不支持片元阶段 `highp`；如目标设备编译失败，可在仅接受精度下降时改为 `mediump`。
 
-## `lib` 函数库
+## 几何与动画约束
 
-`lib/common.glsl`、`lib/color.glsl` 和 `lib/noise.glsl` 是带 include guard 的备用函数库，分别提供常用数学、颜色与噪声函数。`main.frag` **默认没有 include 它们且完全自包含**，确保 glsl-canvas 无需预处理器即可直接运行。
+以下约束是新建和修改效果时的默认规则。具体作品可以有意偏离，但必须在自身 README 和关键公式旁说明原因。
 
-使用库函数时，推荐将需要的函数复制到实验 shader。若使用支持 `#include` 的额外预处理器，需自行确认相对路径语法、include guard 支持情况以及函数名是否与入口重复；原生 WebGL 1 和原版 GLSL ES 1.00 不提供标准 `#include`。
+- 线段、射线和贝塞尔路径必须显式声明起点与终点。即使目标是画面中心，也应传入 `target = vec2(0.0)`，不能通过省略贝塞尔终点项、默认节点或未命中分支隐式回落到原点。
+- 从球体、传送门或其它实体表面发出的光束必须同时裁剪根部和头部。计算域应满足 `rootDistance <= distance <= headDistance`，不能从局部原点开始采样后依赖前景图形遮挡错误部分。
+- 线状几何必须具有有限轴向范围。辉光、噪声和色差只能调制有限形状，不能把 `abs(y)`、角距离或半平面遮罩单独当作完整线段。
+- 生命周期遮罩与空间形状分开计算。默认使用有限的头尾窗口、中心向两端展开或整体淡入；`p.x <= front` 一类单侧累计 reveal 只有在设计明确要求时才使用。
+- 所有阶段都要独立验收开始、中点、结束前一帧和切换后一帧。重点检查默认端点、尚未出生的路径、已经经过的尾迹以及宽屏画布边缘，不能只检查完整展开后的静态画面。
+- 发光尾迹必须在几何或网格边缘前降到丢弃阈值以下。扩大绘制区域不能替代根部、头部和生命周期裁剪。
+
+`BladeRift` 的 Spawn 明确采用从局部左端向右端推进的单侧累计 reveal，因此中途会有一段从起点延伸到中心的裂痕。这是该作品的特例，不应作为其它线状效果的默认生成方式。
+
+## 自包含约定
+
+当前没有公共 `main.frag` 或 `lib/*.glsl`。每个入口保持自包含，确保 glsl-canvas 无需预处理器即可直接运行。复用函数时应连同输入、输出和空间约束一起复制，不能只复制距离公式而遗漏端点或生命周期遮罩；原生 WebGL 1 和原版 GLSL ES 1.00 不提供标准 `#include`。
 
 ## 迁移到 Minecraft
 
@@ -60,4 +71,10 @@ uniform vec2 u_mouse;       // 鼠标像素坐标
 
 ## 独立作品
 
-- [`VoidRift`](VoidRift/README.md)：交错菱形十字裂痕、折射色散冲击波与深邃中央传送门；同时提供 GLSL Canvas 入口和零依赖响应式 WebGL 1 网页预览器。
+- [`AstraLightning`](AstraLightning/main.frag)：固定节点构成的闪电折线原型。
+- [`BladeRift`](BladeRift/README.md)：单侧生成的有限空间裂痕；该 Spawn 方式是有意特例。
+- [`BFGPlasma`](BFGPlasma/README.md)：球形等离子弹丸、尾迹与随机目标光束。
+- [`EchoTimer`](EchoTimer/README.md)：附着于实体轮廓的虚空侵蚀效果。
+- [`EnergyExplosive`](EnergyExplosive/README.md)：汇聚、爆发、冲击波和粒子溅射。
+- [`SuperNova`](SuperNova/main.frag)：多色粒子流汇聚后形成体积超新星。
+- [`VoidRifter`](VoidRifter/main.frag)：交错菱形十字裂痕与中央传送门。

@@ -145,15 +145,9 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                             .withStyle(ChatFormatting.GRAY));
                 }
 
-                // 显示详细描述（如果有）
-                if (Screen.hasControlDown() && slashArts.getDescColumn() > 0) {
-                    for (int i = 0; i < slashArts.getDescColumn(); i++) {
-                        String key1 = slashArts.getDescriptionId() + ".desc_" + i;
-                        Component finalText1 = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key1)),
-                                Minecraft.getInstance().level == null ? 0
-                                        : Minecraft.getInstance().level.getGameTime());
-                        tooltip.add(finalText1);
-                    }
+                // 显示详细描述（自动检测行数，无需手动维护）
+                if (Screen.hasControlDown()) {
+                    this.appendDescLines(tooltip, slashArts.getDescriptionId() + ".desc_");
                 }
             } else {
                 // 处理非 FDSlashArts 类型（原版或其他模组的 SA）
@@ -195,44 +189,33 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                                                 : ChatFormatting.DARK_GRAY) })
                         .withStyle(ChatFormatting.GRAY));
                 if (se.getNamespace().equals(FantasyDesire.MODID) && Screen.hasShiftDown()) {
-                    for (int i = 0; i < FDSpecialEffectBase.getDescColumn(se); i++) {
-                        String key = "se.fantasydesire." + se.getPath() + ".desc_" + i;
-                        String localized = I18n.get(key);
-                        TextParser parser = new TextParser();
-                        List<TextNode> roots = parser.parseMultipleTrees(localized);
-                        long tick = 0;
-                        if (Minecraft.getInstance().level != null) {
-                            tick = Minecraft.getInstance().level.getGameTime();
-                        }
-                        Component finalText = TextRenderer.render(roots, tick);
-                        tooltip.add(finalText);
-                    }
+                    this.appendDescLines(tooltip, "se.fantasydesire." + se.getPath() + ".desc_");
                 }
             });
         }
     }
 
+    /**
+     * 自动检测并渲染以 baseKey 为前缀的连续描述行（desc_0、desc_1……），
+     * 直到找不到对应翻译为止，无需手动维护行数。
+     */
+    @OnlyIn(Dist.CLIENT)
+    private void appendDescLines(List<Component> tooltip, String baseKey) {
+        int i = 0;
+        String key;
+        while (I18n.exists(key = baseKey + i)) {
+            Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)),
+                    Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
+            tooltip.add(finalText);
+            i++;
+        }
+    }
+
     @OnlyIn(Dist.CLIENT)
     private void appendSpecialLore(List<Component> tooltip, ItemStack stack) {
-        stack.getCapability(FDBLADESTATE).ifPresent((s) -> {
-            int loreCount = s.getSpecialLore();
-            if (loreCount > 0) {
-                stack.getCapability(BLADESTATE).ifPresent((b) -> {
-                    String locName = b.getTranslationKey();
-                    for (int i = 0; i < loreCount; i++) {
-                        String key = locName + ".desc" + i;
-                        String localized = I18n.get(key);
-                        TextParser parser = new TextParser();
-                        List<TextNode> roots = parser.parseMultipleTrees(localized);
-                        long tick = 0;
-                        if (Minecraft.getInstance().level != null) {
-                            tick = Minecraft.getInstance().level.getGameTime();
-                        }
-                        Component finalText = TextRenderer.render(roots, tick);
-                        tooltip.add(finalText);
-                    }
-                });
-            }
+        // 行数由语言键自动检测，无需手动维护
+        stack.getCapability(BLADESTATE).ifPresent((b) -> {
+            this.appendDescLines(tooltip, b.getTranslationKey() + ".desc");
         });
     }
 

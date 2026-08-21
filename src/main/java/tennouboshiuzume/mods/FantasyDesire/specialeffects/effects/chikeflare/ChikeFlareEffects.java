@@ -25,6 +25,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSpearPhantomSword;
@@ -37,27 +38,11 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ChikeFlareEffects {
-    // 配置项目
-    // 灵魂之盾
-    private static final float COUNTER_CHANCE_MIN = 5.0f;
-    private static final float COUNTER_CHANCE_MAX = 95.0f;
-    private static final float COUNTER_CHANCE_CAP_RATIO = 0.75f;
-    private static final float COUNTER_FAIL_DAMAGE_CAP = 5.0f;
-    private static final int COUNTER_FAIL_CHARGE_CAP = 60;
-    private static final float COUNTER_FAIL_OVERFLOW_TO_CHARGE = 1.0f;
-    private static final int COUNTER_FIXED_CHARGE = 6;
-    private static final int COUNTER_SUCCESS_CHARGE_CAP = 60;
-
-    // 不屈之魂
-    private static final float IMMORTAL_REVIVE_CHARGE_RATIO = 0.20f;
-    private static final int IMMORTAL_REVIVE_SOUL_COST = 1000;
-
-    // 暴君一击
-    private static final float TYRANT_TRIGGER_RATIO = 0.95f;
-    private static final float TYRANT_CONSUME_RATIO = 0.20f;
-    private static final float TYRANT_HEALTH_PERCENT = 0.08f;
-    private static final float TYRANT_CHARGE_DAMAGE_SCALE = 0.25f;
-    private static final double TYRANT_PHANTOM_DAMAGE = 1.0D;
+    // 数值全部来自 FDConfig（服务端同步配置），使用处实时读取，不缓存
+    private static final FDConfig.SoulShield SOUL_SHIELD = FDConfig.SOUL_SHIELD;
+    private static final FDConfig.ImmortalSoul IMMORTAL_SOUL = FDConfig.IMMORTAL_SOUL;
+    private static final FDConfig.TyrantStrike TYRANT_STRIKE = FDConfig.TYRANT_STRIKE;
+    private static final FDConfig.CometElytra COMET_ELYTRA = FDConfig.COMET_ELYTRA;
 
     // 灵魂之盾 攻击阶段触发
     @SubscribeEvent
@@ -78,10 +63,10 @@ public class ChikeFlareEffects {
         IFantasySlashBladeState fdState = ctx.fantasyState;
         RandomSource random = player.getRandom();
         float chargeRatio = CapabilityUtils.getSpecialChargePercentage(fdState);
-        float counterProgress = Mth.clamp(chargeRatio / COUNTER_CHANCE_CAP_RATIO, 0.0f, 1.0f);
-        float counterChance = COUNTER_CHANCE_MIN
-                + counterProgress * (COUNTER_CHANCE_MAX - COUNTER_CHANCE_MIN);
-        CapabilityUtils.addSpecialCharge(fdState, COUNTER_FIXED_CHARGE);
+        float counterProgress = Mth.clamp(chargeRatio / SOUL_SHIELD.counterChanceCapRatio(), 0.0f, 1.0f);
+        float counterChance = SOUL_SHIELD.counterChanceMin()
+                + counterProgress * (SOUL_SHIELD.counterChanceMax() - SOUL_SHIELD.counterChanceMin());
+        CapabilityUtils.addSpecialCharge(fdState, SOUL_SHIELD.counterFixedCharge());
         if (!MathUtils.RandomCheck(counterChance))
             return;
         Vec3 VecToAttacker = VecMathUtils.calculateDirectionVec(player, attacker);
@@ -89,10 +74,10 @@ public class ChikeFlareEffects {
         // 自动反击
         player.playSound(SoundEvents.SHIELD_BLOCK, 0.5F, 2.0F);
         AddonSlashUtils.doAddonFDSlash(player, random.nextInt(180), YP[0], YP[1], 0x00FFFF, 0, VecToAttacker,
-                false, false, 0.33f * event.getAmount(), KnockBacks.cancel, 1.5f, 60,
+                false, false, SOUL_SHIELD.counterSuccessDamageRatio() * event.getAmount(), KnockBacks.cancel, 1.5f, 60,
                 FDDamageSource.DIMENSION.location().toString());
         int chargeAmount = (int) (event.getAmount());
-        CapabilityUtils.addSpecialCharge(fdState, Math.min(chargeAmount, COUNTER_SUCCESS_CHARGE_CAP));
+        CapabilityUtils.addSpecialCharge(fdState, Math.min(chargeAmount, SOUL_SHIELD.counterSuccessChargeCap()));
         event.setCanceled(true);
     }
 
@@ -116,14 +101,14 @@ public class ChikeFlareEffects {
         IFantasySlashBladeState fdState = ctx.fantasyState;
         float incomingDamage = event.getAmount();
         // 最终伤害大于5
-        if (incomingDamage <= COUNTER_FAIL_DAMAGE_CAP)
+        if (incomingDamage <= SOUL_SHIELD.counterFailDamageCap())
             return;
-        float overflow = incomingDamage - COUNTER_FAIL_DAMAGE_CAP;
-        int chargeAmount = Mth.ceil(overflow * COUNTER_FAIL_OVERFLOW_TO_CHARGE);
-        chargeAmount = Mth.clamp(chargeAmount, 0, COUNTER_FAIL_CHARGE_CAP);
+        float overflow = incomingDamage - SOUL_SHIELD.counterFailDamageCap();
+        int chargeAmount = Mth.ceil(overflow * SOUL_SHIELD.counterFailOverflowToCharge());
+        chargeAmount = Mth.clamp(chargeAmount, 0, SOUL_SHIELD.counterFailChargeCap());
         CapabilityUtils.addSpecialCharge(fdState, chargeAmount);
         // 减缓防反失败后的伤害
-        event.setAmount(COUNTER_FAIL_DAMAGE_CAP);
+        event.setAmount(SOUL_SHIELD.counterFailDamageCap());
     }
 
     // 不屈之魂
@@ -143,18 +128,20 @@ public class ChikeFlareEffects {
         ISlashBladeState state = ctx.state;
         IFantasySlashBladeState fdState = ctx.fantasyState;
         float baseattack = state.getBaseAttackModifier();
-        if (!CapabilityUtils.tryConsumeProudSoul(state, IMMORTAL_REVIVE_SOUL_COST, player, null)) {
+        if (!CapabilityUtils.tryConsumeProudSoul(state, IMMORTAL_SOUL.reviveSoulCost(), player, null)) {
             return;
         }
         // 永久提升拔刀剑0.67攻击力，最大耐久+5，回复50%血量，清除所有Debuff，获得6秒再生5级和抗性5级
-        state.setBaseAttackModifier(baseattack + 0.67f);
-        state.setMaxDamage(state.getMaxDamage() + 9);
+        state.setBaseAttackModifier(baseattack + IMMORTAL_SOUL.baseAttackBonus());
+        state.setMaxDamage(state.getMaxDamage() + IMMORTAL_SOUL.maxDamageBonus());
         CapabilityUtils.addSpecialCharge(fdState,
-                Mth.ceil(fdState.getMaxSpecialCharge() * IMMORTAL_REVIVE_CHARGE_RATIO));
-        player.setHealth(player.getMaxHealth() / 2.0F);
+                Mth.ceil(fdState.getMaxSpecialCharge() * IMMORTAL_SOUL.reviveChargeRatio()));
+        player.setHealth(player.getMaxHealth() * IMMORTAL_SOUL.healthRatio());
         player.removeAllEffects();
-        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 20 * 6, 4));
-        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, 20 * 6, 4));
+        player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, IMMORTAL_SOUL.regenDuration(),
+                IMMORTAL_SOUL.regenAmplifier()));
+        player.addEffect(new MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, IMMORTAL_SOUL.resistDuration(),
+                IMMORTAL_SOUL.resistAmplifier()));
         event.setCanceled(true);
     }
 
@@ -179,15 +166,16 @@ public class ChikeFlareEffects {
             return;
         ISlashBladeState state = ctx.state;
         IFantasySlashBladeState fdState = ctx.fantasyState;
-        if (CapabilityUtils.getSpecialChargePercentage(fdState) < TYRANT_TRIGGER_RATIO && ctxCheat == null)
+        if (CapabilityUtils.getSpecialChargePercentage(fdState) < TYRANT_STRIKE.triggerRatio() && ctxCheat == null)
             return;
-        int consumeAmount = Mth.ceil(fdState.getMaxSpecialCharge() * TYRANT_CONSUME_RATIO);
+        int consumeAmount = Mth.ceil(fdState.getMaxSpecialCharge() * TYRANT_STRIKE.consumeRatio());
         if (!CapabilityUtils.tryConsumeSpecialCharge(fdState, consumeAmount) && ctxCheat == null)
             return;
         LivingEntity target = event.getTarget();
         RandomSource random = target.getRandom();
-        float damage = target.getMaxHealth() * TYRANT_HEALTH_PERCENT + consumeAmount * TYRANT_CHARGE_DAMAGE_SCALE;
-        spawnTyrantStrikePhantomSword(player, target, state, random, damage + TYRANT_PHANTOM_DAMAGE);
+        float damage = target.getMaxHealth() * TYRANT_STRIKE.healthPercent()
+                + consumeAmount * TYRANT_STRIKE.chargeDamageScale();
+        spawnTyrantStrikePhantomSword(player, target, state, random, damage + TYRANT_STRIKE.phantomDamage());
     }
 
     // SA联动 彗星猛击
@@ -207,9 +195,10 @@ public class ChikeFlareEffects {
                 .match();
         float weaponDamage = 0;
         if (ctx != null) {
-            weaponDamage = (ctx.state.getBaseAttackModifier() + ctx.state.getAttackAmplifier()) * 10f;
+            weaponDamage = (ctx.state.getBaseAttackModifier() + ctx.state.getAttackAmplifier())
+                    * COMET_ELYTRA.clashWeaponDamageMult();
         }
-        float explosionRadius = 15.0f;
+        float explosionRadius = COMET_ELYTRA.clashExplosionRadius();
         ServerLevel serverLevel = (ServerLevel) entity.level();
         for (int i = 0; i < 30; i++) {
             double r = Math.sqrt(serverLevel.random.nextDouble()) * explosionRadius;
@@ -221,10 +210,11 @@ public class ChikeFlareEffects {
         // 使该范围内敌人受到体力值上限10%+ 本次撞击伤害 + weaponDamage的次元伤害
         List<LivingEntity> enemies = FDTargetSelector.getNearbyLivingEntities(entity, explosionRadius, false, null);
         for (LivingEntity target : enemies) {
-            float damage = target.getMaxHealth() * 0.1f + event.getAmount() + weaponDamage;
+            float damage = target.getMaxHealth() * COMET_ELYTRA.clashHealthPercent() + event.getAmount()
+                    + weaponDamage;
             target.hurt(FDDamageSource.entityDamageSource(serverLevel, FDDamageSource.DIMENSION, entity), damage);
             spawnTyrantStrikePhantomSword(entity, target, ctx.state, target.getRandom(),
-                    target.getMaxHealth() * 0.1f + event.getAmount() + weaponDamage);
+                    target.getMaxHealth() * COMET_ELYTRA.clashHealthPercent() + event.getAmount() + weaponDamage);
         }
         serverLevel.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 2, 1);
         FlatSpreadingRingParticleOptions particleOptions = new FlatSpreadingRingParticleOptions(

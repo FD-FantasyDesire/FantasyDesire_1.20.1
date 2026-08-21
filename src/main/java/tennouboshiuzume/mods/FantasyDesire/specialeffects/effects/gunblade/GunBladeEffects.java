@@ -16,6 +16,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDEnergyBullet;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityRefinedMissile;
@@ -34,6 +35,11 @@ import java.util.Random;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class GunBladeEffects {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.TripleBullet TRIPLE_BULLET = FDConfig.TRIPLE_BULLET;
+    private static final FDConfig.EnergyBullet ENERGY_BULLET = FDConfig.ENERGY_BULLET;
+    private static final FDConfig.ExplosiveBullet EXPLOSIVE_BULLET = FDConfig.EXPLOSIVE_BULLET;
+
     // 填弹上膛
     // 非玩家无法使用，Human Use Tools
     @SubscribeEvent
@@ -73,8 +79,8 @@ public class GunBladeEffects {
                 .requireSE(FDSpecialEffectsRegistry.ThunderBullet)
                 .match() != null;
 
-        int cost = TripleOn && !EnergyOn ? 1 : 6;
-        int soulcost = 36;
+        int cost = TripleOn && !EnergyOn ? TRIPLE_BULLET.ammoCost() : ENERGY_BULLET.ammoCost();
+        int soulcost = TRIPLE_BULLET.reloadSoulCost();
         // 简单装填检测
         if (ammo < cost) {
             // 符合装填条件时，取消斩击进入装填冷却
@@ -95,7 +101,7 @@ public class GunBladeEffects {
         if (EnergyOn && !TripleOn) {
             shootEnergyBullet(player, blade, state, ratio,
                     ThunderOn, random);
-            player.getCooldowns().addCooldown(blade.getItem(), 10);
+            player.getCooldowns().addCooldown(blade.getItem(), ENERGY_BULLET.cooldown());
         }
         event.setCanceled(true);
     }
@@ -110,33 +116,37 @@ public class GunBladeEffects {
 
         if (!(player.level() instanceof ServerLevel))
             return;
-        int volleyCount = explosive ? 1 : 3;
+        int volleyCount = explosive ? EXPLOSIVE_BULLET.volleyCount() : TRIPLE_BULLET.volleyCount();
         int inaccuracy = explosive ? 3 : 15;
         int tailNodes = explosive ? 48 : 8;
-        float seekAngle = explosive ? 6 : 18;
-        float sweepRangeMult = explosive ? 15 : 5;
-        float speed = explosive ? 0.33f : 1f;
-        int delay = explosive ? 300 : 100;
+        float seekAngle = explosive ? EXPLOSIVE_BULLET.seekAngle() : TRIPLE_BULLET.seekAngle();
+        float sweepRangeMult = explosive ? EXPLOSIVE_BULLET.sweepRangeMult()
+                : TRIPLE_BULLET.sweepRangeMult();
+        float speed = explosive ? EXPLOSIVE_BULLET.speed() : TRIPLE_BULLET.speed();
+        int delay = explosive ? EXPLOSIVE_BULLET.delay() : TRIPLE_BULLET.delay();
 
         int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
-        float lockDistance = (explosive ? 35 : 15) + sweepLevel * sweepRangeMult;
+        float lockDistance = (explosive ? EXPLOSIVE_BULLET.lockBase() : TRIPLE_BULLET.lockBase())
+                + sweepLevel * sweepRangeMult;
         // 1. 获取基础数值
         float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
         // 前100次重铸能带来显著提升，之后每次重铸稳定增加 0.1 伤害。
         int refine = state.getRefine();
         // 线性保底增长 + 平方根前期收益增长
-        float refineBonus = (float) (refine * 0.1f + Math.sqrt(refine) * 1.5f);
+        float refineBonus = (float) (refine * TRIPLE_BULLET.refineLinear()
+                + Math.sqrt(refine) * TRIPLE_BULLET.refineSqrt());
         // 1 + (附魔等级 * 0.1) -> 力量5提供额外50%的总基础伤害乘区
         int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
-        float enchantMultiplier = 1.0f + (enchantLevel * 0.15f);
+        float enchantMultiplier = 1.0f + (enchantLevel * TRIPLE_BULLET.enchantMultPerLevel());
         float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ratio);
         List<LivingEntity> targets = FDTargetSelector.getTargetsInSight(
                 player, lockDistance, 30, true, null);
 
         targets.sort(Comparator.comparingDouble(e -> e.distanceToSqr(player)));
         int color = state.getColorCode();
-        float expRadius = explosive ? 2 + enchantLevel : 0;
-        finalDamage *= explosive ? 5 : 1;
+        float expRadius = explosive ? EXPLOSIVE_BULLET.expRadiusBase() + enchantLevel
+                : 0;
+        finalDamage *= explosive ? EXPLOSIVE_BULLET.damageMult() : 1;
         for (int i = 0; i < volleyCount; i++) {
 
             EntityFDPhantomSword ss = explosive
@@ -174,29 +184,30 @@ public class GunBladeEffects {
         // 前100次重铸能带来显著提升，之后每次重铸稳定增加 0.2 伤害。
         int refine = state.getRefine();
         // 线性保底增长 + 平方根前期收益增长
-        float refineBonus = (float) (refine * 0.2f + Math.sqrt(refine) * 1.5f);
+        float refineBonus = (float) (refine * ENERGY_BULLET.refineLinear()
+                + Math.sqrt(refine) * ENERGY_BULLET.refineSqrt());
         // 1 + (附魔等级 * 0.15) -> 力量5提供额外75%的总基础伤害乘区
         int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
-        float enchantMultiplier = 1.0f + (enchantLevel * 0.15f);
+        float enchantMultiplier = 1.0f + (enchantLevel * ENERGY_BULLET.enchantMultPerLevel());
         float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ratio);
-        int pelletCount = 8;
+        int pelletCount = ENERGY_BULLET.pelletCount();
         for (int i = 0; i < pelletCount; i++) {
             EntityFDEnergyBullet bullet = new EntityFDEnergyBullet(FDEntitys.FDEnergyBullet.get(), player.level());
             bullet.setIsCritical(false);
             bullet.setOwner(player);
             bullet.setColor(state.getColorCode());
             bullet.setRoll(random.nextInt(180));
-            bullet.setDamage(finalDamage); // 分摊伤害，但略微提升总伤
+            bullet.setDamage(finalDamage);
             // bullet.setNoClip(true);
-            bullet.setSpeed(3f);
+            bullet.setSpeed(ENERGY_BULLET.speed());
             bullet.setGroundLifespan(5);
             bullet.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
             bullet.setMovingMode(EntityFDPhantomSword.MovingMode.NORMAL);
             bullet.setDelay(10);
             bullet.setDelayTicks(0);
             bullet.setMultipleHit(true);
-            bullet.setPierce((byte) 3); // 可以穿透3个目标
-            bullet.setExpRadius(thunder ? 6 : 0);
+            bullet.setPierce((byte) ENERGY_BULLET.pierce()); // 可以穿透3个目标
+            bullet.setExpRadius(thunder ? ENERGY_BULLET.thunderExpRadius() : 0);
             bullet.setFireSound(SoundEvents.SHULKER_SHOOT, 1, 2f);
             bullet.setHasTail(true);
             bullet.setScale(0.5f);
@@ -303,7 +314,7 @@ public class GunBladeEffects {
         if (!CapabilityUtils.tryConsumeProudSoul(state, soulcost, player, blade)) {
             return false;
         }
-        player.getCooldowns().addCooldown(blade.getItem(), 60);
+        player.getCooldowns().addCooldown(blade.getItem(), TRIPLE_BULLET.reloadCooldown());
         CapabilityUtils.setSpecialCharge(fdState, fdState.getMaxSpecialCharge());
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PISTON_CONTRACT,
                 SoundSource.PLAYERS, 0.5f, 2f);

@@ -16,6 +16,7 @@ import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
@@ -30,6 +31,9 @@ import java.util.List;
 
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class StarlessNightEffects {
+    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
+    private static final FDConfig.VoidStrikeSe VOID_STRIKE_SE = FDConfig.VOID_STRIKE_SE;
+    private static final FDConfig.EchoingStrike ECHOING_STRIKE = FDConfig.ECHOING_STRIKE;
     private static final String TRANSLATION_KEY = "item.fantasydesire.starless_night";
 
     // 虚空强袭
@@ -127,12 +131,12 @@ public class StarlessNightEffects {
             return;
         MobEffect voidStrike = FDPotionEffects.VOID_STRIKE.get();
         MobEffectInstance current = entity.getEffect(voidStrike);
-        int duration = 200;
+        int duration = VOID_STRIKE_SE.duration();
         int amplifier = stacks - 1;
         if (current != null) {
             amplifier = current.getAmplifier() + stacks;
         }
-        amplifier = Math.min(amplifier, 49);
+        amplifier = Math.min(amplifier, VOID_STRIKE_SE.ampCap());
         entity.forceAddEffect(new MobEffectInstance(voidStrike, duration, amplifier), null);
     }
 
@@ -142,13 +146,13 @@ public class StarlessNightEffects {
 
     // 回响打击效果
     private static void handleEchoingStrike(Player player, LivingEntity primaryTarget, float baseDamage) {
-        if (player.getRandom().nextFloat() >= 0.25f) {
+        if (player.getRandom().nextFloat() >= ECHOING_STRIKE.chainChance()) {
             return;
         }
         List<LivingEntity> nearbyEnemies = FDTargetSelector.getLivingEntitiesInRadius(
                 player,
                 primaryTarget.position(),
-                16.0,
+                ECHOING_STRIKE.chainRadius(),
                 true,
                 null);
         List<LivingEntity> potentialTargets = new ArrayList<>();
@@ -167,7 +171,7 @@ public class StarlessNightEffects {
         });
         LivingEntity currentTarget = primaryTarget;
         Vec3 prevTargetPos = primaryTarget.position().add(0, primaryTarget.getBbHeight() / 2, 0);
-        for (int chainCount = 0; chainCount < 3; chainCount++) {
+        for (int chainCount = 0; chainCount < ECHOING_STRIKE.chainCount(); chainCount++) {
             LivingEntity nextTarget = null;
             for (LivingEntity target : potentialTargets) {
                 if (target.isAlive() && target.getId() != currentTarget.getId()) {
@@ -180,7 +184,7 @@ public class StarlessNightEffects {
             }
             resetInvulnerable(nextTarget);
             DamageSource damageSource = player.damageSources().magic();
-            nextTarget.hurt(damageSource, baseDamage * 0.1f);
+            nextTarget.hurt(damageSource, baseDamage * ECHOING_STRIKE.chainDamageRatio());
             resetInvulnerable(nextTarget);
             Vec3 nextTargetPos = nextTarget.position().add(0, nextTarget.getBbHeight() / 2, 0);
             if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {

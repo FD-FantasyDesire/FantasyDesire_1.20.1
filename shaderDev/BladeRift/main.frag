@@ -161,6 +161,13 @@ void main() {
     float emissiveFront = 1.0 - smoothstep(revealEnd + 0.075, revealEnd + 0.22, q.x);
     float emissiveReveal = mix(1.0, emissiveFront, spawnOnly);
     float emissiveMask = emissiveReveal * active * EMISSIVE_STRENGTH;
+    float glowAxialStart = RIFT_LENGTH + 0.16;
+    float glowAxialEnd = RIFT_LENGTH + 0.22;
+    float glowNormalStart = RIFT_WIDTH * 7.0;
+    float glowNormalEnd = RIFT_WIDTH * 11.0;
+    float glowClip = (1.0 - smoothstep(glowAxialStart, glowAxialEnd, abs(q.x)))
+        * (1.0 - smoothstep(glowNormalStart, glowNormalEnd, abs(q.y)));
+    emissiveMask *= glowClip;
     float outsideDistance = max(riftDistance, 0.0);
     float nearGlow = exp(-outsideDistance * 25.0) * emissiveMask;
     float farGlow = exp(-outsideDistance * 7.0) * emissiveMask;

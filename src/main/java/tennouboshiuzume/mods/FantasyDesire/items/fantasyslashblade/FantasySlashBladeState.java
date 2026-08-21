@@ -7,9 +7,6 @@ import net.minecraft.world.item.ItemStack;
 public class FantasySlashBladeState implements IFantasySlashBladeState {
     protected int SpecialCharge = 0;
     protected int MaxSpecialCharge = 0;
-    protected int SpecialLore = 0;
-    protected int SpecialEffectLore = 0;
-    protected int SpecialAttackLore = 0;
     protected String SpecialType = "Null";
     protected String SpecialChargeName = "Null";
     protected String SpecialAttackEffect = "Null";
@@ -26,18 +23,6 @@ public class FantasySlashBladeState implements IFantasySlashBladeState {
 
     public int getMaxSpecialCharge() {
         return this.MaxSpecialCharge;
-    }
-
-    public int getSpecialLore() {
-        return this.SpecialLore;
-    }
-
-    public int getSpecialAttackLore() {
-        return this.SpecialAttackLore;
-    }
-
-    public int getSpecialEffectLore() {
-        return this.SpecialEffectLore;
     }
 
     public String getSpecialType() {
@@ -58,18 +43,6 @@ public class FantasySlashBladeState implements IFantasySlashBladeState {
 
     public void setMaxSpecialCharge(int maxSpecialCharge) {
         this.MaxSpecialCharge = maxSpecialCharge;
-    }
-
-    public void setSpecialLore(int specialLore) {
-        this.SpecialLore = specialLore;
-    }
-
-    public void setSpecialAttackLore(int specialAttackLore) {
-        this.SpecialAttackLore = specialAttackLore;
-    }
-
-    public void setSpecialEffectLore(int specialEffectLore) {
-        this.SpecialEffectLore = specialEffectLore;
     }
 
     public void setSpecialType(String specialType) {

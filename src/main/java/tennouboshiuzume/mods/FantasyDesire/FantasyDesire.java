@@ -15,14 +15,18 @@ import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition;
 import tennouboshiuzume.mods.FantasyDesire.init.*;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.CapabilityFantasySlashBlade;
+import tennouboshiuzume.mods.FantasyDesire.network.FDNetwork;
 
 @Mod(FantasyDesire.MODID)
 @SuppressWarnings("removal")
@@ -35,6 +39,7 @@ public class FantasyDesire {
     }
 
     public FantasyDesire() {
+        ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, FDConfig.SPEC);
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
         FDEntitys.register(eventBus);
         FDParticles.PARTICLES.register(eventBus);
@@ -43,6 +48,7 @@ public class FantasyDesire {
         FDSpecialEffectsRegistry.SPECIAL_EFFECT.register(eventBus);
         FDPotionEffects.register(eventBus);
         FDAttributes.register(eventBus);
+        FDNetwork.register();
         FDTab.register(eventBus);
         FDRecipeSerializerRegistry.register(eventBus);
         FDItemsRegistry.register(eventBus);

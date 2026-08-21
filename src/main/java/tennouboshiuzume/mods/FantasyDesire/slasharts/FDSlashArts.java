@@ -7,21 +7,15 @@ import net.minecraft.world.entity.LivingEntity;
 import java.util.function.Function;
 
 public class FDSlashArts extends SlashArts {
-    private final int descColumn;
     private final boolean hasAltName;
 
-    public FDSlashArts(Function<LivingEntity, ResourceLocation> state, int desColumn) {
-        this(state, desColumn, false);
+    public FDSlashArts(Function<LivingEntity, ResourceLocation> state) {
+        this(state, false);
     }
 
-    public FDSlashArts(Function<LivingEntity, ResourceLocation> state, int desColumn, boolean hasAltName) {
+    public FDSlashArts(Function<LivingEntity, ResourceLocation> state, boolean hasAltName) {
         super(state);
-        this.descColumn = desColumn;
         this.hasAltName = hasAltName;
-    }
-
-    public int getDescColumn() {
-        return this.descColumn;
     }
 
     public boolean hasAltName() {

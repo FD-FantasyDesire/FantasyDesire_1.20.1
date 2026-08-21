@@ -27,6 +27,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
+import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 import tennouboshiuzume.mods.FantasyDesire.potioneffect.FrostStormEffect;
 
@@ -141,7 +142,7 @@ public final class FrostStormFieldRenderer {
             }
 
             // 属性修改器检测：服务端每 tick 同步的半径/强度（绕开 MobEffect 对非玩家实体同步失败）
-            float radius = FDAttributes.getStormRadius(living);
+            float radius = Math.min(FDAttributes.getStormRadius(living), FDConfig.FROST_STORM.radiusCap());
             if (radius <= 0.01F || FDAttributes.getStormStrength(living) <= 0.01F) {
                 continue;
             }
