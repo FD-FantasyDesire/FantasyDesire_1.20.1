@@ -1,0 +1,17 @@
+{
+  "fantasy": {},
+  "name": "fantasydesire:test_blade",
+  "properties": {
+    "attack_base": 1.0,
+    "max_damage": 256,
+    "sword_type": [
+      "bewitched"
+    ]
+  },
+  "render": {
+    "carry_type": "rninja",
+    "model": "fantasydesire:models/crucible.obj",
+    "summon_sword_color": 65535,
+    "texture": "fantasydesire:models/crucible.png"
+  }
+}

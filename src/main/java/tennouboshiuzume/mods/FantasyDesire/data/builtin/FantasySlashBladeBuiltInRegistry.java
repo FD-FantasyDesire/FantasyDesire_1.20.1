@@ -34,6 +34,7 @@ public class FantasySlashBladeBuiltInRegistry {
         public static final ResourceKey<FantasySlashBladeDefinition> ArdorBlossomStar = register("ardor_blossom_star");
         public static final ResourceKey<FantasySlashBladeDefinition> StarlessNight = register("starless_night");
         public static final ResourceKey<FantasySlashBladeDefinition> Crucible = register("crucible");
+        public static final ResourceKey<FantasySlashBladeDefinition> TestBlade = register("test_blade");
         public static final ResourceKey<FantasySlashBladeDefinition> GireiKen = register("gireiken");
 
         public static void registerAll(BootstapContext<FantasySlashBladeDefinition> bootstrap) {
@@ -447,13 +448,30 @@ public class FantasySlashBladeBuiltInRegistry {
                                                                 .specialType("crucible")
                                                                 .specialAttackEffect("eternity")
                                                                 .build(),
-                                                List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.SMITE),
-                                                                10),
+                                                 List.of(new EnchantmentDefinition(getEnchantmentID(Enchantments.SMITE),
+                                                                 10),
                                                                 new EnchantmentDefinition(getEnchantmentID(
                                                                                 Enchantments.UNBREAKING), 5),
                                                                 new EnchantmentDefinition(
                                                                                 getEnchantmentID(Enchantments.MENDING),
-                                                                                1))));
+                                                                 1))));
+                // 富文本渲染测试刀，复用裁决剑模型与纹理。
+                bootstrap.register(TestBlade,
+                                new FantasySlashBladeDefinition(FantasyDesire.prefix("test_blade"),
+                                                RenderDefinition.Builder.newInstance()
+                                                                .effectColor(0x00FFFF)
+                                                                .textureName(FantasyDesire
+                                                                                .prefix("models/crucible.png"))
+                                                                .modelName(FantasyDesire.prefix("models/crucible.obj"))
+                                                                .standbyRenderType(CarryType.RNINJA)
+                                                                .build(),
+                                                PropertiesDefinition.Builder.newInstance()
+                                                                .baseAttackModifier(1.0F)
+                                                                .defaultSwordType(List.of(SwordType.BEWITCHED))
+                                                                .maxDamage(256)
+                                                                .build(),
+                                                FantasyDefinition.Builder.newInstance().build(),
+                                                List.of()));
                 // 魔女仪礼剑 已暂时禁用,待新模型
                 // bootstrap.register(GireiKen,
                 // new FantasySlashBladeDefinition(FantasyDesire.prefix("gireiken"),

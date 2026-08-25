@@ -27,6 +27,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -39,6 +40,8 @@ import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.FrostCrownLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.VoidFlameOutlineLayer;
+import tennouboshiuzume.mods.FantasyDesire.client.text.RichClientTooltipComponent;
+import tennouboshiuzume.mods.FantasyDesire.client.text.RichTooltipComponent;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDItemsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
@@ -47,6 +50,11 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
 @Mod.EventBusSubscriber(modid = "fantasydesire", value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 @OnlyIn(Dist.CLIENT)
 public class ClientHandler {
+    @SubscribeEvent
+    public static void onRegisterTooltipFactories(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(RichTooltipComponent.class, RichClientTooltipComponent::new);
+    }
+
     @SubscribeEvent
     public static void doClientStuff(final FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(BladeModelManager.getInstance());

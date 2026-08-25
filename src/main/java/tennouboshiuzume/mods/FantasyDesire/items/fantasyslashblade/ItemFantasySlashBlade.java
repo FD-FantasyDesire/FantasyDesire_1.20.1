@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Tier;
@@ -24,11 +25,9 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.client.text.RichTextClient;
 import tennouboshiuzume.mods.FantasyDesire.slasharts.FDSlashArts;
 import tennouboshiuzume.mods.FantasyDesire.specialeffects.FDSpecialEffectBase;
-import tennouboshiuzume.mods.FantasyDesire.textutils.TextNode;
-import tennouboshiuzume.mods.FantasyDesire.textutils.TextParser;
-import tennouboshiuzume.mods.FantasyDesire.textutils.TextRenderer;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
 import javax.annotation.Nullable;
@@ -49,18 +48,8 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
 
     @Override
     public Component getName(ItemStack stack) {
-        // 富文本解析
         String key = this.getDescriptionId(stack);
-        // 从语言系统获取已翻译文本
-        String localized = I18n.get(key);
-        TextParser parser = new TextParser();
-        List<TextNode> roots = parser.parseMultipleTrees(localized);
-        long tick = 0;
-        if (Minecraft.getInstance().level != null) {
-            tick = Minecraft.getInstance().level.getGameTime();
-        }
-        Component finalText = TextRenderer.render(roots, tick);
-        return finalText;
+        return RichTextClient.fallbackTranslatable(key);
     }
 
     @Override
@@ -132,17 +121,13 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 if (slashArts.hasAltName()) {
                     // 有 altname 的情况
                     String key = slashArts.getDescriptionId() + ".alt";
-                    Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)),
-                            Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
-                    tooltip.add(Component.translatable("slashblade.tooltip.slash_art", finalText)
-                            .withStyle(ChatFormatting.GRAY));
+                    tooltip.add(RichTextClient.formatted(key + "@slash_art", "slashblade.tooltip.slash_art",
+                            Style.EMPTY.applyFormat(ChatFormatting.GRAY), RichTextClient.rawTranslation(key)));
                 } else {
                     // 没有 altname 的情况，使用基本描述
                     String key = slashArts.getDescriptionId();
-                    Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)),
-                            Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
-                    tooltip.add(Component.translatable("slashblade.tooltip.slash_art", finalText)
-                            .withStyle(ChatFormatting.GRAY));
+                    tooltip.add(RichTextClient.formatted(key + "@slash_art", "slashblade.tooltip.slash_art",
+                            Style.EMPTY.applyFormat(ChatFormatting.GRAY), RichTextClient.rawTranslation(key)));
                 }
 
                 // 显示详细描述（自动检测行数，无需手动维护）
@@ -172,14 +157,16 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
                 if (se.getNamespace().equals(FantasyDesire.MODID) && FDSpecialEffectBase.hasAltName(se)
                         && SpecialEffect.isEffective(se, player.experienceLevel)) {
                     String key = "se.fantasydesire." + se.getPath() + ".alt";
-                    String localized = I18n.get(key);
-                    TextParser parser = new TextParser();
-                    List<TextNode> roots = parser.parseMultipleTrees(localized);
-                    long tick = 0;
-                    if (Minecraft.getInstance().level != null) {
-                        tick = Minecraft.getInstance().level.getGameTime();
+                    String level = showingLevel ? String.valueOf(SpecialEffect.getRequestLevel(se)) : "";
+                    String levelColor = SpecialEffect.isEffective(se, player.experienceLevel) ? "#FF5555" : "#555555";
+                    String richLevel = "<style color=\"" + levelColor + "\">" + level + "</style>";
+                    tooltip.add(RichTextClient.formatted(key + "@special_effect",
+                            "slashblade.tooltip.special_effect", Style.EMPTY.applyFormat(ChatFormatting.GRAY),
+                            RichTextClient.rawTranslation(key), richLevel));
+                    if (Screen.hasShiftDown()) {
+                        this.appendDescLines(tooltip, "se.fantasydesire." + se.getPath() + ".desc_");
                     }
-                    seComp = TextRenderer.render(roots, tick);
+                    return;
                 }
                 tooltip.add(Component.translatable("slashblade.tooltip.special_effect",
                         new Object[] { seComp,
@@ -204,9 +191,7 @@ public class ItemFantasySlashBlade extends ItemSlashBlade {
         int i = 0;
         String key;
         while (I18n.exists(key = baseKey + i)) {
-            Component finalText = TextRenderer.render(new TextParser().parseMultipleTrees(I18n.get(key)),
-                    Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getGameTime());
-            tooltip.add(finalText);
+            tooltip.add(RichTextClient.translatable(key));
             i++;
         }
     }

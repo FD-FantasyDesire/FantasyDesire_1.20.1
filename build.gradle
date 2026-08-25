@@ -179,7 +179,7 @@ dependencies {
 
     implementation fg.deobf("curse.maven:freecam-557076:4643128")
 
-
+    implementation fg.deobf("curse.maven:modernui-352491:6956345")
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

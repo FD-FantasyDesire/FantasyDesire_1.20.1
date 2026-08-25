@@ -47,9 +47,10 @@ float targetSilhouette(vec2 uv) {
             ? maskSample.a : 0.0;
 }
 
-bool traceSilhouette(vec2 uv, vec2 direction, out float hitDistance, out vec2 hitUv) {
+bool traceSilhouette(vec2 uv, vec2 direction, float distanceLimit,
+        out float hitDistance, out vec2 hitUv) {
     vec2 pixel = 1.0 / max(ScreenSize, vec2(1.0));
-    float searchDistance = EffectRadius * 1.35 + 4.0;
+    float searchDistance = min(EffectRadius * 1.35 + 4.0, distanceLimit);
     float previousDistance = 0.0;
 
     for (int stepIndex = 1; stepIndex <= 20; ++stepIndex) {
@@ -92,19 +93,19 @@ void main() {
     vec2 nearestUv = texCoord0;
     vec2 outwardDirection = baseDirection;
 
+    // 仅朝效果中心追踪会漏掉手臂下缘等凹轮廓；环形搜索取最近遮罩命中，
+    // 使轮廓距离和火焰外向方向不再随观察俯仰角翻转或消失。
     float candidateDistance;
     vec2 candidateUv;
-    if (traceSilhouette(texCoord0, baseDirection, candidateDistance, candidateUv)) {
-        outlineDistance = candidateDistance;
-        nearestUv = candidateUv;
-    } else if (traceSilhouette(texCoord0, rotateVector(baseDirection, 0.28), candidateDistance, candidateUv)) {
-        outlineDistance = candidateDistance;
-        nearestUv = candidateUv;
-        outwardDirection = rotateVector(baseDirection, 0.28);
-    } else if (traceSilhouette(texCoord0, rotateVector(baseDirection, -0.28), candidateDistance, candidateUv)) {
-        outlineDistance = candidateDistance;
-        nearestUv = candidateUv;
-        outwardDirection = rotateVector(baseDirection, -0.28);
+    for (int directionIndex = 0; directionIndex < 12; ++directionIndex) {
+        float directionAngle = float(directionIndex) * 0.5235987756;
+        vec2 candidateDirection = rotateVector(baseDirection, directionAngle);
+        if (traceSilhouette(texCoord0, candidateDirection, outlineDistance,
+                candidateDistance, candidateUv) && candidateDistance < outlineDistance) {
+            outlineDistance = candidateDistance;
+            nearestUv = candidateUv;
+            outwardDirection = candidateDirection;
+        }
     }
 
     if (outlineDistance > EffectRadius * 1.35 + 3.5) {

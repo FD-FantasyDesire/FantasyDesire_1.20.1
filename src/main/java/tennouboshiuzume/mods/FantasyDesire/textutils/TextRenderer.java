@@ -2,50 +2,24 @@ package tennouboshiuzume.mods.FantasyDesire.textutils;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import tennouboshiuzume.mods.FantasyDesire.textutils.anim.*;
+import net.minecraft.network.chat.TextColor;
 
-import java.util.List;
-
-public class TextRenderer {
-    public static MutableComponent render(List<TextNode> roots, long tick) {
-        MutableComponent result = Component.literal("");
-        for (TextNode root : roots) {
-            result.append(renderNode(root, tick, null));
-        }
-        return result;
+/** 将新文档降级为原版 Component，供非自定义渲染场景使用。 */
+public final class TextRenderer {
+    private TextRenderer() {
     }
 
-    private static MutableComponent renderNode(TextNode node, long tick, StyleNode parentStyle) {
-        MutableComponent result = Component.literal("");
-
-        StyleNode currentStyle = parentStyle;
-        if (node instanceof StyleNode styleNode) {
-            currentStyle = styleNode;
-        }
-
-        if (node instanceof TextLeaf leaf) {
-            // 直接拼接叶子文本
-            result.append(leaf.base);
-        } else {
-            // 遍历子节点
-            for (TextNode child : node.children) {
-                result.append(renderNode(child, tick, currentStyle));
+    public static MutableComponent render(RichTextDocument document, double globalTicks, double ageTicks) {
+        MutableComponent result = Component.empty();
+        for (RichTextDocument.Glyph glyph : document.glyphs()) {
+            GlyphVisual visual = TextEffectEngine.evaluateMain(glyph, globalTicks, ageTicks);
+            if (!visual.visible()) {
+                continue;
             }
+            MutableComponent character = Component.literal(new String(Character.toChars(glyph.codePoint())));
+            character.setStyle(visual.style().withColor(TextColor.fromRgb(visual.color())));
+            result.append(character);
         }
-
-        // 应用动画
-        if (currentStyle != null) {
-            ITextAnim anim = switch (currentStyle.type.toLowerCase()) {
-                case "rainbow" -> new RainbowAnim();
-                case "wavebold" -> new WaveBoldAnim();
-                case "waveslide" -> new WaveSlideAnim();
-                case "staticgradient" -> new StaticGradientAnim();
-                case "dynamicgradient" -> new DynamicGradientAnim();
-                default -> (c, t, s, col) -> c; // 默认不动画
-            };
-            result = anim.apply(result, tick, currentStyle.speed, currentStyle.colors);
-        }
-
         return result;
     }
 }
