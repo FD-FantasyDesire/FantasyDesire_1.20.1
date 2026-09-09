@@ -3,6 +3,7 @@ package tennouboshiuzume.mods.FantasyDesire.client.particle;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
+import tennouboshiuzume.mods.FantasyDesire.particle.BladeRiftParticleOptions;
 
 public class BladeRiftParticleProvider implements ParticleProvider<BladeRiftParticleOptions> {
     @Override

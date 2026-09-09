@@ -173,7 +173,7 @@ public class EchoDamageHelper {
                 if (centerEntity.level() instanceof ServerLevel serverLevel) {
                     double yPos = centerEntity.getY() + centerEntity.getBbHeight() / 4;
                     tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils.sendForceParticles(serverLevel,
-                            new tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleOptions(
+                            new tennouboshiuzume.mods.FantasyDesire.particle.FlatSpreadingRingParticleOptions(
                                     0x5500AA, (float) radius, 0.5f, 5),
                             centerEntity.getX(), yPos, centerEntity.getZ(),
                             1, 0, 0, 0, 0, 64.0);

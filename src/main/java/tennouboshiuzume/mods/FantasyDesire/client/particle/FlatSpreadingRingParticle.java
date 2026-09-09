@@ -14,6 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
+import tennouboshiuzume.mods.FantasyDesire.particle.FlatSpreadingRingParticleOptions;
 
 @OnlyIn(Dist.CLIENT)
 public class FlatSpreadingRingParticle extends Particle {
@@ -37,6 +38,7 @@ public class FlatSpreadingRingParticle extends Particle {
         public void end(Tesselator tesselator) {
             tesselator.end();
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
             RenderSystem.enableCull();
             RenderSystem.depthMask(true);
         }

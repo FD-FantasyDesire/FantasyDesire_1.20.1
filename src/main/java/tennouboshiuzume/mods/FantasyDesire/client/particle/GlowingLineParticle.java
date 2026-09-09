@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import tennouboshiuzume.mods.FantasyDesire.particle.GlowingLineParticleOptions;
 
 @OnlyIn(Dist.CLIENT)
 public class GlowingLineParticle extends Particle {
@@ -25,6 +26,8 @@ public class GlowingLineParticle extends Particle {
         @Override
         public void begin(BufferBuilder bufferBuilder, TextureManager textureManager) {
             RenderSystem.disableCull();
+            RenderSystem.enableDepthTest();
+            RenderSystem.depthMask(false);
             RenderSystem.enableBlend();
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
@@ -35,6 +38,8 @@ public class GlowingLineParticle extends Particle {
         public void end(Tesselator tesselator) {
             tesselator.end();
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
+            RenderSystem.depthMask(true);
             RenderSystem.enableCull();
         }
 

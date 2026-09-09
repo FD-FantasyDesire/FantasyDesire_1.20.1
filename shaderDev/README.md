@@ -73,8 +73,9 @@ uniform vec2 u_mouse;       // 鼠标像素坐标
 
 - [`AstraLightning`](AstraLightning/main.frag)：固定节点构成的闪电折线原型。
 - [`BladeRift`](BladeRift/README.md)：单侧生成的有限空间裂痕；该 Spawn 方式是有意特例。
-- [`BFGPlasma`](BFGPlasma/README.md)：球形等离子弹丸、尾迹与随机目标光束。
 - [`EchoTimer`](EchoTimer/README.md)：附着于实体轮廓的虚空侵蚀效果。
-- [`EnergyExplosive`](EnergyExplosive/README.md)：汇聚、爆发、冲击波和粒子溅射。
 - [`SuperNova`](SuperNova/main.frag)：多色粒子流汇聚后形成体积超新星。
+- [`SuperNovaConvergence`](SuperNovaConvergence/README.md)：同色粒子对称汇入旋转星核，按可设倒计时爆发的三维星云预制。
 - [`VoidRifter`](VoidRifter/main.frag)：交错菱形十字裂痕与中央传送门。
+
+`SuperNovaConvergence` 另提供共用着色器源文件的本地审查页，支持暂停、逐帧、切换随机种子和环绕视角；启动方式及实际渲染动画见其 README。

@@ -19,7 +19,7 @@
   ],
   "result": {
     "item": "slashblade:proudsoul_crystal",
-    "nbt": "{SpecialEffectType:\"fantasydesire:explosive_bullet\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.thunder_bullet\"}']}}"
+    "nbt": "{SpecialEffectType:\"fantasydesire:explosive_bullet\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.explosive_bullet\"}']}}"
   },
   "show_notification": true
 }

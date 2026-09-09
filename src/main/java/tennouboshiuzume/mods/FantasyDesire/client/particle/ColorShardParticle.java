@@ -11,6 +11,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import tennouboshiuzume.mods.FantasyDesire.particle.ColorShardParticleOptions;
 
 @OnlyIn(Dist.CLIENT)
 public class ColorShardParticle extends Particle {

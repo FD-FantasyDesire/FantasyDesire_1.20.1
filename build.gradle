@@ -157,6 +157,10 @@ repositories {
     // }
 }
 
+def isDataGeneration = gradle.startParameter.taskNames.any {
+    it == 'runData' || it.endsWith(':runData')
+}
+
 dependencies {
     // Specify the version of Minecraft to use.
     // Any artifact can be supplied so long as it has a "userdev" classifier artifact and is a compatible patcher artifact.
@@ -179,7 +183,10 @@ dependencies {
 
     implementation fg.deobf("curse.maven:freecam-557076:4643128")
 
-    implementation fg.deobf("curse.maven:modernui-352491:6956345")
+    // ModernUI 在 datagen 环境中会尝试访问尚未创建的客户端窗口。
+    if (!isDataGeneration) {
+        implementation fg.deobf("curse.maven:modernui-352491:6956345")
+    }
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

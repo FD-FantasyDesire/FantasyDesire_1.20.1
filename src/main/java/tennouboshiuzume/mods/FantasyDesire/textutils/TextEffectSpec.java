@@ -7,7 +7,8 @@ import java.util.List;
  */
 public sealed interface TextEffectSpec permits TextEffectSpec.Gradient, TextEffectSpec.Rainbow,
         TextEffectSpec.WaveBold, TextEffectSpec.WaveSlide, TextEffectSpec.Shadow,
-        TextEffectSpec.Shake, TextEffectSpec.Wave, TextEffectSpec.Typewriter {
+        TextEffectSpec.Outline, TextEffectSpec.Shake, TextEffectSpec.Glitch,
+        TextEffectSpec.Wave, TextEffectSpec.Typewriter {
 
     record Gradient(List<Integer> colors, float period, boolean animated) implements TextEffectSpec {
         public Gradient {
@@ -27,7 +28,14 @@ public sealed interface TextEffectSpec permits TextEffectSpec.Gradient, TextEffe
     record Shadow(int color, float offsetX, float offsetY) implements TextEffectSpec {
     }
 
+    record Outline(int color, float offsetX, float offsetY) implements TextEffectSpec {
+    }
+
     record Shake(float amplitudeX, float amplitudeY, float period, int seed) implements TextEffectSpec {
+    }
+
+    record Glitch(float amplitude, float sliceHeight, float period, float chance, int seed)
+            implements TextEffectSpec {
     }
 
     record Wave(float amplitude, float wavelength, float period) implements TextEffectSpec {

@@ -34,3 +34,8 @@ src/generated/resources/.cache/
 # Files from Forge MDK
 forge*changelog.txt
 
+# some shader else 
+shaderDev/SuperNovaConvergence
+
+# no ready for public yet (我很确定没写完，可视化glsl真难)
+richTextEditor

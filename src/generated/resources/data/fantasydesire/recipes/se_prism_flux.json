@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "C": {
+      "item": "slashblade:proudsoul_crystal"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "pattern": [
+    "GGG",
+    "GCG",
+    "OOO"
+  ],
+  "result": {
+    "item": "slashblade:proudsoul_crystal",
+    "nbt": "{SpecialEffectType:\"fantasydesire:prism_flux\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.prism_flux\"}']}}"
+  },
+  "show_notification": true
+}

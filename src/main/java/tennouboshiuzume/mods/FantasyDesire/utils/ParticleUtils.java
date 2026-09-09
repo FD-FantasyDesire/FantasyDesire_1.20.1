@@ -5,14 +5,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.BladeRiftParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.BladeRiftParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.GlowingLineParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.SpreadingRingParticleOptions;
 
 import java.util.Random;
 
 public class ParticleUtils {
-    // 强制向范围内玩家发送粒子数据包 仅用于结构化数据特效粒子
+    // 强制向范围内玩家发送结构化粒子数据包，避免客户端限流破坏分段特效。
     public static <T extends ParticleOptions> int sendForceParticles(ServerLevel level, T particle, double x, double y,
             double z, int count, double deltaX, double deltaY, double deltaZ, double speed, double radius) {
         net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket packet = new net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket(
@@ -30,8 +30,8 @@ public class ParticleUtils {
     // 生成环形运动的粒子
     public static void generateRingParticles(ParticleOptions particleType, Level level, double x, double y, double z,
             double radius, int numParticles) {
-        if (!level.isClientSide()) {
-            int randomAngle = new Random().nextInt(360 / numParticles);
+        if (!level.isClientSide() && numParticles > 0) {
+            double randomAngle = new Random().nextDouble() * Mth.TWO_PI;
             for (int i = 0; i < numParticles; i++) {
                 double angle = 2 * Mth.PI * i / numParticles + randomAngle;
                 double offsetX = radius * Math.cos(angle);
@@ -51,7 +51,8 @@ public class ParticleUtils {
     public static void LightBoltParticles(Level level, Vec3 start, Vec3 end, int color, float thickness, int lifetime,
             float alpha, boolean fade, double randomness, int maxSegments) {
         if (level instanceof ServerLevel serverLevel) {
-            spawnSegment(serverLevel, start, end, color, thickness, lifetime, alpha, fade, randomness, maxSegments);
+            spawnSegment(serverLevel, start, end, color, thickness, lifetime, alpha, fade, randomness,
+                    Mth.clamp(maxSegments, 1, 32));
         }
     }
 
@@ -87,7 +88,7 @@ public class ParticleUtils {
             float alpha, boolean fade, double randomness, int maxSegments, float ringRadius) {
         if (level instanceof ServerLevel serverLevel) {
             spawnSegmentAstra(serverLevel, start, end, color, thickness, lifetime, alpha, fade, randomness,
-                    maxSegments, ringRadius);
+                    Mth.clamp(maxSegments, 1, 32), ringRadius);
         }
     }
 

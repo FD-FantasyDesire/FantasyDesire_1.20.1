@@ -5,7 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.SpreadingRingParticleOptions;
 
 // 具有星型闪光的幻影魂剑
 public class EntityFDSoulPhantomSword extends EntityFDPhantomSword {

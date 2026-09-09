@@ -12,8 +12,14 @@ public final class RainbowRenderer extends TextEffectRenderer<TextEffectSpec.Rai
     @Override
     protected void renderTyped(TextEffectSpec.Rainbow spec, RichTextDocument.EffectRef ref,
             GlyphVisual visual, TextEffectContext context) {
-        float position = ref.localIndex() / Math.max(1.0F, spec.spread());
-        float hue = AnimMath.wrap(position + (float) (context.globalTicks() / spec.period()));
-        visual.setColor(AnimMath.hsvToRgb(hue, 1.0F, 1.0F));
+        float position = (ref.localIndex() + 0.5F) / Math.max(1.0F, ref.length());
+        visual.setColor(colorAt(spec, position, ref.length(), context.globalTicks()));
+    }
+
+    public int colorAt(TextEffectSpec.Rainbow spec, float position, int scopeLength, double globalTicks) {
+        float glyphPosition = position * Math.max(1, scopeLength);
+        float hue = AnimMath.wrap(glyphPosition / Math.max(1.0F, spec.spread())
+                + (float) (globalTicks / spec.period()));
+        return AnimMath.hsvToRgb(hue, 1.0F, 1.0F);
     }
 }

@@ -15,6 +15,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import tennouboshiuzume.mods.FantasyDesire.particle.SpreadingRingParticleOptions;
 
 @OnlyIn(Dist.CLIENT)
 public class SpreadingRingParticle extends Particle {
@@ -38,6 +39,7 @@ public class SpreadingRingParticle extends Particle {
         public void end(Tesselator tesselator) {
             tesselator.end();
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
             RenderSystem.enableCull();
             RenderSystem.depthMask(true);
         }

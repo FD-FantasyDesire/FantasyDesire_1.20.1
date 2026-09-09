@@ -198,10 +198,20 @@ public final class TextParser {
                     parseArgb(sourceId, attributes.getOrDefault("color", "#A0000000"), 0xA0000000),
                     finiteFloat(sourceId, attributes, "offset-x", 1.0F),
                     finiteFloat(sourceId, attributes, "offset-y", 1.0F));
+            case "outline" -> new TextEffectSpec.Outline(
+                    parseArgb(sourceId, attributes.getOrDefault("color", "#A0000000"), 0xA0000000),
+                    finiteFloat(sourceId, attributes, "offset-x", 1.0F),
+                    finiteFloat(sourceId, attributes, "offset-y", 1.0F));
             case "shake" -> new TextEffectSpec.Shake(
                     nonNegativeFloat(sourceId, attributes, "amplitude-x", 0.5F),
                     nonNegativeFloat(sourceId, attributes, "amplitude-y", 0.5F),
                     positiveFloat(sourceId, attributes, "period", 2.0F),
+                    intValue(sourceId, attributes, "seed", 0));
+            case "glitch" -> new TextEffectSpec.Glitch(
+                    nonNegativeFloat(sourceId, attributes, "amplitude", 2.0F),
+                    positiveFloat(sourceId, attributes, "slice-height", 1.0F),
+                    positiveFloat(sourceId, attributes, "period", 2.0F),
+                    unitFloat(sourceId, attributes, "chance", 0.2F),
                     intValue(sourceId, attributes, "seed", 0));
             case "wave" -> new TextEffectSpec.Wave(
                     nonNegativeFloat(sourceId, attributes, "amplitude", 1.5F),
@@ -302,6 +312,10 @@ public final class TextParser {
 
     private float nonNegativeFloat(String sourceId, Map<String, String> attributes, String key, float fallback) {
         return Math.max(0.0F, finiteFloat(sourceId, attributes, key, fallback));
+    }
+
+    private float unitFloat(String sourceId, Map<String, String> attributes, String key, float fallback) {
+        return Math.max(0.0F, Math.min(1.0F, finiteFloat(sourceId, attributes, key, fallback)));
     }
 
     private float finiteFloat(String sourceId, Map<String, String> attributes, String key, float fallback) {

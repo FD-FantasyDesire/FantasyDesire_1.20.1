@@ -208,8 +208,8 @@ public class EntityFDSlashEffect extends EntitySlashEffect {
                             new ResourceLocation(typeStr));
                     customSource = FDDamageSource.getEntityDamageSource(this.level(), damageTypeKey, shooter);
                 }
-                hits = FDAttackManager.areaAttack(shooter, this.getAction().action, this.position(),
-                        4.0 * this.getScale(), ratio,
+                hits = FDAttackManager.areaAttackScaled(shooter, this.getAction().action, this.position(),
+                        this.getLookAngle(), this.getScale(), ratio,
                         forceHit, false, true,
                         getAlreadyHits(), customSource);
             } else {

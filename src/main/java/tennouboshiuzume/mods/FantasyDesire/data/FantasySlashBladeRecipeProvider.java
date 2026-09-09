@@ -308,7 +308,7 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                 NbtShapedRecipeBuilder.nbtShaped(RecipeCategory.COMBAT, ItemUtils.CustomEffectShardWithLore(
                                 new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get()),
                                 FDSpecialEffectsRegistry.ExplosiveBullet.get(),
-                                "jei.fantasydesire.crafting.se.thunder_bullet"))
+                                "jei.fantasydesire.crafting.se.explosive_bullet"))
                                 .pattern(" TP")
                                 .pattern("TCT")
                                 .pattern("PT ")
@@ -334,6 +334,39 @@ public class FantasySlashBladeRecipeProvider extends RecipeProvider implements I
                                                 has(SlashBladeItems.SLASHBLADE.get()))
                                 .save(consumer, FantasyDesire.prefix("se_void_transform"));
 
+                NbtShapedRecipeBuilder.nbtShaped(RecipeCategory.COMBAT, ItemUtils.CustomEffectShardWithLore(
+                                new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get()),
+                                FDSpecialEffectsRegistry.RainbowFlux.get(),
+                                "jei.fantasydesire.crafting.se.rainbow_flux"))
+                                .pattern("ROY")
+                                .pattern("GCW")
+                                .pattern("BVP")
+                                .define('C', SlashBladeItems.PROUDSOUL_CRYSTAL.get())
+                                .define('R', Items.RED_DYE)
+                                .define('O', Items.ORANGE_DYE)
+                                .define('Y', Items.YELLOW_DYE)
+                                .define('W', Items.LIME_DYE)
+                                .define('G', Items.GREEN_DYE)
+                                .define('B', Items.BLUE_DYE)
+                                .define('V', Items.PURPLE_DYE)
+                                .define('P', Items.PINK_DYE)
+                                .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
+                                                has(SlashBladeItems.SLASHBLADE.get()))
+                                .save(consumer, FantasyDesire.prefix("se_rainbow_flux"));
+
+                NbtShapedRecipeBuilder.nbtShaped(RecipeCategory.COMBAT, ItemUtils.CustomEffectShardWithLore(
+                                new ItemStack(SlashBladeItems.PROUDSOUL_CRYSTAL.get()),
+                                FDSpecialEffectsRegistry.PrismFlux.get(),
+                                "jei.fantasydesire.crafting.se.prism_flux"))
+                                .pattern("GGG")
+                                .pattern("GCG")
+                                .pattern("OOO")
+                                .define('C', SlashBladeItems.PROUDSOUL_CRYSTAL.get())
+                                .define('G', Items.GLASS)
+                                .define('O', Items.OBSIDIAN)
+                                .unlockedBy(getHasName(SlashBladeItems.SLASHBLADE.get()),
+                                                has(SlashBladeItems.SLASHBLADE.get()))
+                                .save(consumer, FantasyDesire.prefix("se_prism_flux"));
         }
 
         private static ResourceLocation getEnchantmentID(Enchantment enchantment) {

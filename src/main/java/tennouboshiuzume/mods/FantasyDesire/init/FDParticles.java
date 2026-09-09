@@ -7,11 +7,11 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.ColorShardParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.BladeRiftParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.GlowingLineParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.ColorShardParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.BladeRiftParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.FlatSpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.GlowingLineParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.SpreadingRingParticleOptions;
 
 public class FDParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister

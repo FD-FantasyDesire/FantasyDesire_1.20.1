@@ -10,8 +10,8 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.FlatSpreadingRingParticleOptions;
-import tennouboshiuzume.mods.FantasyDesire.client.particle.SpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.FlatSpreadingRingParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.SpreadingRingParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 import tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils;
 

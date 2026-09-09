@@ -23,8 +23,8 @@ public class EntityEnderSlashEffect extends EntityFDSlashEffect {
             List<Entity> hits;
             if (!getIndirect() && getShooter() instanceof LivingEntity shooter) {
                 float ratio = (float) getDamage() * (getIsCritical() ? 1.1f : 1.0f);
-                hits = FDAttackManager.areaAttack(shooter, this.getAction().action, this.position(),
-                        4.0 * this.getScale(), ratio,
+                hits = FDAttackManager.areaAttackScaled(shooter, this.getAction().action, this.position(),
+                        this.getLookAngle(), this.getScale(), ratio,
                         forceHit, false, true,
                         getAlreadyHits(), FDDamageSource.getEntityDamageSource(shooter.level(),FDDamageSource.ECHO,shooter));
             } else {

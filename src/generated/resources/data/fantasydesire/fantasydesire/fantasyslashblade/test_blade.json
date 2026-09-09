@@ -10,8 +10,6 @@
   },
   "render": {
     "carry_type": "rninja",
-    "model": "fantasydesire:models/crucible.obj",
-    "summon_sword_color": 65535,
-    "texture": "fantasydesire:models/crucible.png"
+    "summon_sword_color": 65535
   }
 }

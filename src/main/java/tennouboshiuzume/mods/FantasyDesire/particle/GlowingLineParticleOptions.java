@@ -1,4 +1,4 @@
-package tennouboshiuzume.mods.FantasyDesire.client.particle;
+package tennouboshiuzume.mods.FantasyDesire.particle;
 
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;

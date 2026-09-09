@@ -4,21 +4,23 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import tennouboshiuzume.mods.FantasyDesire.textutils.TextEffectSpec;
 import tennouboshiuzume.mods.FantasyDesire.textutils.anim.TextEffectRenderers;
 
-/** 在保留原版字体图集和 UV 的前提下，按顶点屏幕 X 坐标写入整段渐变颜色。 */
-final class GradientVertexConsumer implements VertexConsumer {
+/** 按顶点屏幕 X 坐标写入整段连续颜色，同时保留原版字体图集和 UV。 */
+final class ContinuousColorVertexConsumer implements VertexConsumer {
     private final VertexConsumer delegate;
-    private final TextEffectSpec.Gradient gradient;
+    private final TextEffectSpec effect;
     private final float startX;
     private final float width;
+    private final int scopeLength;
     private final double globalTicks;
     private double vertexX;
 
-    GradientVertexConsumer(VertexConsumer delegate, TextEffectSpec.Gradient gradient,
-            float startX, float endX, double globalTicks) {
+    ContinuousColorVertexConsumer(VertexConsumer delegate, TextEffectSpec effect,
+            float startX, float endX, int scopeLength, double globalTicks) {
         this.delegate = delegate;
-        this.gradient = gradient;
+        this.effect = effect;
         this.startX = startX;
         this.width = Math.max(0.001F, endX - startX);
+        this.scopeLength = Math.max(1, scopeLength);
         this.globalTicks = globalTicks;
     }
 
@@ -32,7 +34,7 @@ final class GradientVertexConsumer implements VertexConsumer {
     @Override
     public VertexConsumer color(int red, int green, int blue, int alpha) {
         float position = ((float) vertexX - startX) / width;
-        int color = TextEffectRenderers.gradientColor(gradient, position, globalTicks);
+        int color = TextEffectRenderers.continuousColor(effect, position, scopeLength, globalTicks);
         delegate.color((color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF, alpha);
         return this;
     }

@@ -26,8 +26,10 @@ public class FDAttackManager extends AttackManager {
     public static List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit,
             float comboRatio, boolean forceHit, boolean resetHit, boolean mute, List<Entity> exclude,
             @Nullable DamageSource type) {
-        return areaAttack(playerIn, beforeHit, playerIn.position(), TargetSelector.getResolvedReach(playerIn),
-                comboRatio, forceHit, resetHit, mute, exclude, type);
+        double reach = TargetSelector.getResolvedReach(playerIn);
+        AABB aabb = TargetSelector.getResolvedAxisAligned(playerIn.getBoundingBox(), playerIn.getLookAngle(), reach);
+        return areaAttack(playerIn, beforeHit, playerIn.position(), aabb, reach, comboRatio, forceHit, resetHit, mute,
+                exclude, type);
     }
 
     public static List<Entity> areaAttackWithSource(LivingEntity playerIn, Consumer<LivingEntity> beforeHit,
@@ -45,33 +47,36 @@ public class FDAttackManager extends AttackManager {
     public static List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit,
             double radius, float comboRatio, boolean forceHit, boolean resetHit, boolean mute, List<Entity> exclude,
             @Nullable DamageSource type) {
-        return areaAttack(playerIn, beforeHit, playerIn.position(), radius, comboRatio, forceHit, resetHit, mute,
+        AABB aabb = TargetSelector.getResolvedAxisAligned(playerIn.getBoundingBox(), playerIn.getLookAngle(), radius);
+        return areaAttack(playerIn, beforeHit, playerIn.position(), aabb, radius, comboRatio, forceHit, resetHit, mute,
                 exclude, type);
     }
 
-    public static List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit,
-            Vec3 center, double radius, float comboRatio, boolean forceHit, boolean resetHit, boolean mute,
-            List<Entity> exclude,
-            @Nullable DamageSource type) {
+    public static List<Entity> areaAttackScaled(LivingEntity playerIn, Consumer<LivingEntity> beforeHit,
+            Vec3 center, Vec3 direction, double scale, float comboRatio, boolean forceHit, boolean resetHit,
+            boolean mute, List<Entity> exclude, @Nullable DamageSource type) {
+        double reach = TargetSelector.getResolvedReach(playerIn);
+        double scaledReach = reach * scale;
+        AABB aabb = playerIn.getBoundingBox();
+        if (direction.lengthSqr() > 1.0E-7) {
+            aabb = aabb.move(direction.normalize().scale(reach * 0.5D)).inflate(scaledReach);
+        } else {
+            aabb = aabb.inflate(scaledReach * 2.0D);
+        }
+        return areaAttack(playerIn, beforeHit, center, aabb.inflate(1.0D), scaledReach, comboRatio, forceHit,
+                resetHit, mute, exclude, type);
+    }
+
+    private static List<Entity> areaAttack(LivingEntity playerIn, Consumer<LivingEntity> beforeHit, Vec3 soundPos,
+            AABB aabb, double reach, float comboRatio, boolean forceHit, boolean resetHit, boolean mute,
+            List<Entity> exclude, @Nullable DamageSource type) {
         List<Entity> founds = Lists.newArrayList();
         if (!playerIn.level().isClientSide()) {
-            AABB aabb = new AABB(center.x - radius, center.y - radius, center.z - radius,
-                    center.x + radius, center.y + radius, center.z + radius);
-
-            founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.level(), playerIn, aabb, radius);
+            founds = TargetSelector.getTargettableEntitiesWithinAABB(playerIn.level(), playerIn, aabb, reach);
 
             if (exclude != null) {
                 founds.removeAll(exclude);
             }
-            List<Entity> sphericalFounds = Lists.newArrayList();
-            double radiusSqr = radius * radius;
-            for (Entity entity : founds) {
-                if (entity.distanceToSqr(center) <= radiusSqr) {
-                    sphericalFounds.add(entity);
-                }
-            }
-            founds = sphericalFounds;
-
             for (Entity entity : founds) {
                 if (entity instanceof LivingEntity living) {
                     beforeHit.accept(living);
@@ -85,7 +90,7 @@ public class FDAttackManager extends AttackManager {
         }
 
         if (!mute) {
-            playerIn.level().playSound(null, center.x, center.y, center.z,
+            playerIn.level().playSound(null, soundPos.x, soundPos.y, soundPos.z,
                     SoundEvents.PLAYER_ATTACK_SWEEP, SoundSource.PLAYERS, 0.5F,
                     0.4F / (playerIn.getRandom().nextFloat() * 0.4F + 0.8F));
         }

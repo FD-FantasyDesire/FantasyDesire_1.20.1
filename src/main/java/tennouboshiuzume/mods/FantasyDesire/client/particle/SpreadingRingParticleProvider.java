@@ -4,6 +4,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import org.jetbrains.annotations.Nullable;
+import tennouboshiuzume.mods.FantasyDesire.particle.SpreadingRingParticleOptions;
 
 public class SpreadingRingParticleProvider implements ParticleProvider<SpreadingRingParticleOptions> {
 

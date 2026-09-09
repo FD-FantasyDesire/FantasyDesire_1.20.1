@@ -1,0 +1,43 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": {
+      "item": "minecraft:blue_dye"
+    },
+    "C": {
+      "item": "slashblade:proudsoul_crystal"
+    },
+    "G": {
+      "item": "minecraft:green_dye"
+    },
+    "O": {
+      "item": "minecraft:orange_dye"
+    },
+    "P": {
+      "item": "minecraft:pink_dye"
+    },
+    "R": {
+      "item": "minecraft:red_dye"
+    },
+    "V": {
+      "item": "minecraft:purple_dye"
+    },
+    "W": {
+      "item": "minecraft:lime_dye"
+    },
+    "Y": {
+      "item": "minecraft:yellow_dye"
+    }
+  },
+  "pattern": [
+    "ROY",
+    "GCW",
+    "BVP"
+  ],
+  "result": {
+    "item": "slashblade:proudsoul_crystal",
+    "nbt": "{SpecialEffectType:\"fantasydesire:rainbow_flux\",display:{Lore:['{\"translate\":\"jei.fantasydesire.crafting.se.rainbow_flux\"}']}}"
+  },
+  "show_notification": true
+}

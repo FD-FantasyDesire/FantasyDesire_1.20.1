@@ -140,7 +140,7 @@ public class ClientHandler {
         event.registerSpecial(FDParticles.SPREADING_RING.get(), new SpreadingRingParticleProvider());
         event.registerSpecial(FDParticles.FLAT_SPREADING_RING.get(), new FlatSpreadingRingParticleProvider());
         event.registerSpecial(FDParticles.COLOR_SHARD.get(), new ColorShardParticle.Provider());
-        event.registerSpecial(FDParticles.ENDER_SHARD.get(), new EnderShardParticle.Provider(null));
+        event.registerSpecial(FDParticles.ENDER_SHARD.get(), new EnderShardParticle.Provider());
         event.registerSpecial(FDParticles.BLADE_RIFT.get(), new BladeRiftParticleProvider());
     }
 }

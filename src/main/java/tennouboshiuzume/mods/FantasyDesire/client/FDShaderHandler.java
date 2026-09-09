@@ -40,6 +40,7 @@ public class FDShaderHandler {
 
     /** BFG 敌人连接桥着色器是否成功加载 */
     private static boolean bfgBridgeShaderLoaded = false;
+    private static boolean bladeRiftShaderLoaded = false;
 
     /** 寒霜风暴球形能量场着色器是否成功加载 */
     private static boolean frostFieldShaderLoaded = false;
@@ -89,6 +90,10 @@ public class FDShaderHandler {
 
     public static boolean isBfgBridgeShaderLoaded() {
         return bfgBridgeShaderLoaded && bfgBridgeShader != null;
+    }
+
+    public static boolean isBladeRiftShaderLoaded() {
+        return bladeRiftShaderLoaded && bladeRiftShader != null;
     }
 
     public static boolean isFrostFieldShaderLoaded() {
@@ -165,10 +170,14 @@ public class FDShaderHandler {
         try {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_blade_rift"), DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, loaded -> bladeRiftShader = loaded);
+            event.registerShader(shader, loaded -> {
+                bladeRiftShader = loaded;
+                bladeRiftShaderLoaded = true;
+            });
         } catch (IOException e) {
             System.err.println("[FantasyDesire] Failed to register BladeRift shader: " + e.getMessage());
             bladeRiftShader = null;
+            bladeRiftShaderLoaded = false;
         }
 
         try {

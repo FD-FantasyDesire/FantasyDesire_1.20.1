@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
+import tennouboshiuzume.mods.FantasyDesire.particle.BladeRiftParticleOptions;
 
 /** A single world-space, camera-facing BladeRift ribbon. */
 public class BladeRiftParticle extends Particle {
@@ -48,7 +49,7 @@ public class BladeRiftParticle extends Particle {
             @Override
             public void begin(BufferBuilder buffer, TextureManager textures) {
                 ShaderInstance shader = FDShaderHandler.getBladeRiftShader();
-                if (shader != null) {
+                if (FDShaderHandler.isBladeRiftShaderLoaded() && shader != null) {
                     RenderSystem.disableCull();
                     RenderSystem.enableBlend();
                     RenderSystem.depthMask(false);
@@ -100,7 +101,7 @@ public class BladeRiftParticle extends Particle {
 
     @Override
     public void render(VertexConsumer out, Camera camera, float partialTick) {
-        if (FDShaderHandler.getBladeRiftShader() == null)
+        if (!FDShaderHandler.isBladeRiftShaderLoaded())
             return;
         Vec3 axis = end.subtract(start);
         if (axis.lengthSqr() < 1.0E-8)
