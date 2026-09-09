@@ -21,6 +21,7 @@ import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 public class OverColdEffects {
     // 数值来自 FDConfig（服务端同步配置），使用处实时读取
     private static final FDConfig.ColdLeak COLD_LEAK = FDConfig.COLD_LEAK;
+
     // 冰川进化序列 进化事件
     @SubscribeEvent
     public static void OnAddProudSoul(SlashBladeEvent.AddProudSoulEvent event) {
@@ -70,6 +71,7 @@ public class OverColdEffects {
         }
     }
 
+    // 寒流外溢
     @SubscribeEvent
     public static void OnHit(SlashBladeEvent.HitEvent event) {
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(event.getBlade(), event.getUser())

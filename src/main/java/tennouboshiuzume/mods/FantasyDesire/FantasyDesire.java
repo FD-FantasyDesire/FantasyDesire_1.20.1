@@ -2,7 +2,6 @@ package tennouboshiuzume.mods.FantasyDesire;
 
 import com.google.common.base.CaseFormat;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -10,7 +9,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -79,13 +77,16 @@ public class FantasyDesire {
 
     public static Registry<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(Level level) {
         if (level.isClientSide())
-            return getClientSlashBladeRegistry();
+            return net.minecraftforge.fml.DistExecutor.unsafeCallWhenOn(
+                    net.minecraftforge.api.distmarker.Dist.CLIENT,
+                    () -> tennouboshiuzume.mods.FantasyDesire.client.FDClientRegistryAccess::getRegistry);
         return level.registryAccess().registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
     }
 
     public static Registry<FantasySlashBladeDefinition> getClientSlashBladeRegistry() {
-        return Minecraft.getInstance().getConnection().registryAccess()
-                .registryOrThrow(FantasySlashBladeDefinition.REGISTRY_KEY);
+        return net.minecraftforge.fml.DistExecutor.unsafeCallWhenOn(
+                net.minecraftforge.api.distmarker.Dist.CLIENT,
+                () -> tennouboshiuzume.mods.FantasyDesire.client.FDClientRegistryAccess::getRegistry);
     }
 
     public static HolderLookup.RegistryLookup<FantasySlashBladeDefinition> getFantasySlashBladeDefinitionRegistry(

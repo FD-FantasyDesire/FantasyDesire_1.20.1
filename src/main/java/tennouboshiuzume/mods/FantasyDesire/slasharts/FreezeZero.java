@@ -2,8 +2,12 @@ package tennouboshiuzume.mods.FantasyDesire.slasharts;
 
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
+import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
+import tennouboshiuzume.mods.FantasyDesire.potioneffect.FrostStormEffect;
 import tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.overcold.OverColdEffects;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 
@@ -30,12 +34,30 @@ public class FreezeZero {
         String specialType = ctx.fantasyState.getSpecialType();
         MobEffectInstance current = entity.getEffect(FDPotionEffects.FROST_STORM.get());
         int evolutionTier = OverColdEffects.getEvolutionTier(specialType);
+        setStormStrengthBase(entity, evolutionTier);
         // 检查玩家是否已经处于风暴状态，至少一级进化之后，才能使其叠加增长
         if (current == null) {
             StartStorm(entity, evolutionTier);
         } else {
             StackStorm(entity, evolutionTier, current);
         }
+    }
+
+    // 进化等级提供施放时的强度加值
+    private static void setStormStrengthBase(LivingEntity entity, int evolutionTier) {
+        AttributeInstance attribute = entity.getAttribute(FDAttributes.FROST_STORM_STRENGTH.get());
+        if (attribute == null) {
+            return;
+        }
+        double minimumAmount = Math.max(0, evolutionTier);
+        AttributeModifier current = attribute.getModifier(FrostStormEffect.STRENGTH_MODIFIER_UUID);
+        double currentAmount = current == null ? 0.0D : current.getAmount();
+        if (current != null && currentAmount >= minimumAmount) {
+            return;
+        }
+        attribute.removeModifier(FrostStormEffect.STRENGTH_MODIFIER_UUID);
+        attribute.addTransientModifier(new AttributeModifier(FrostStormEffect.STRENGTH_MODIFIER_UUID,
+                "fd_frost_storm_strength", minimumAmount, AttributeModifier.Operation.ADDITION));
     }
 
     public static void StartStorm(LivingEntity entity, int evolutionTier) {

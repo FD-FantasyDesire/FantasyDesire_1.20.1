@@ -17,7 +17,7 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
  *
  * 寒霜风暴（FROST_STORM）半径由原版效果属性机制（MobEffect.addAttributeModifier +
  * getAmount 动态计算）写入，随属性同步包下发客户端供渲染器检测激活。
- * 风暴强度（FROST_STORM_STRENGTH）由其他机制写入。
+ * 风暴强度（FROST_STORM_STRENGTH）以 1 为基值，风暴成长通过加值修改器写入。
  */
 public class FDAttributes {
     public static final DeferredRegister<Attribute> ATTRIBUTES = DeferredRegister.create(Registries.ATTRIBUTE,
@@ -26,9 +26,9 @@ public class FDAttributes {
     /** 寒霜风暴领域半径（0~64） */
     public static final RegistryObject<Attribute> FROST_STORM_RADIUS = ATTRIBUTES.register("frost_storm_radius",
             () -> new RangedAttribute("attribute.fantasydesire.frost_storm_radius", 0.0D, 0.0D, 64.0D).setSyncable(true));
-    /** 寒霜风暴领域强度（0~8） */
+    /** 寒霜风暴领域强度（基值 1，上限 10） */
     public static final RegistryObject<Attribute> FROST_STORM_STRENGTH = ATTRIBUTES.register("frost_storm_strength",
-            () -> new RangedAttribute("attribute.fantasydesire.frost_storm_strength", 0.0D, 0.0D, 8.0D).setSyncable(true));
+            () -> new RangedAttribute("attribute.fantasydesire.frost_storm_strength", 1.0D, 0.0D, 10.0D).setSyncable(true));
     /** 虚空强袭层数，等于效果 AMP + 1（0~50） */
     public static final RegistryObject<Attribute> VOID_STRIKE_STACK = ATTRIBUTES.register("void_strike_stack",
             () -> new RangedAttribute("attribute.fantasydesire.void_strike_stack", 0.0D, 0.0D, 50.0D).setSyncable(true));
@@ -58,7 +58,7 @@ public class FDAttributes {
         return attr == null ? 0.0F : (float) attr.getValue();
     }
 
-    /** 读取实体当前寒霜风暴强度（无修改器时返回 0） */
+    /** 读取实体当前寒霜风暴强度（无修改器时返回属性基值 1） */
     public static float getStormStrength(LivingEntity entity) {
         var attr = entity.getAttribute(FROST_STORM_STRENGTH.get());
         return attr == null ? 0.0F : (float) attr.getValue();

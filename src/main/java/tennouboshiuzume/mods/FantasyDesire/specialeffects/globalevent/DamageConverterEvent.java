@@ -184,7 +184,7 @@ public class DamageConverterEvent {
         float amount = event.getAmount();
         // 攻击者
         Entity attacker = source.getEntity();
-        System.out.println(source);
+        // System.out.println(source);
         if (!(attacker instanceof LivingEntity))
             return;
         LivingEntity attackerLiving = (LivingEntity) attacker;

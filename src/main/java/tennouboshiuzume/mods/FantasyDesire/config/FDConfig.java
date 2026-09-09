@@ -838,20 +838,24 @@ public final class FDConfig {
         public int duration() { return duration.get(); }
     }
 
-    /** 寒霜风暴（FrostStorm）：领域半径与咬噬施加 */
+    /** 寒霜风暴（FrostStorm）：领域、咬噬与持续强度成长 */
     public static class FrostStorm {
         public final ForgeConfigSpec.ConfigValue<Double> radiusBase;
         public final ForgeConfigSpec.ConfigValue<Double> radiusPerAmp;
         public final ForgeConfigSpec.ConfigValue<Double> radiusCap;
         public final ForgeConfigSpec.ConfigValue<Integer> biteDuration;
+        public final ForgeConfigSpec.ConfigValue<Double> strengthGrowthPerSecond;
+        public final ForgeConfigSpec.ConfigValue<Double> strengthCap;
 
         private FrostStorm(ForgeConfigSpec.Builder builder) {
             push(builder, "effect", "frost_storm",
-                    "寒霜风暴（FrostStorm）。领域半径 = clamp(基础 + 等级×每级, 基础, 上限)；范围内敌人持续被施加寒霜咬噬。");
+                    "寒霜风暴（FrostStorm）。领域半径 = clamp(基础 + 等级×每级, 基础, 上限)；范围内敌人持续被施加寒霜咬噬；强度从 1 开始，每秒成长 0.05，并通过加值属性修改器影响幻影剑伤害（上限 10）。");
             radiusBase = builder.defineInRange("radius_base", 4.0D, 0.0D, 64.0D);
             radiusPerAmp = builder.defineInRange("radius_per_amp", 3.0D, 0.0D, 64.0D);
             radiusCap = builder.defineInRange("radius_cap", 16.0D, 0.0D, 64.0D);
             biteDuration = builder.defineInRange("bite_duration", 100, 0, Integer.MAX_VALUE);
+            strengthGrowthPerSecond = builder.defineInRange("strength_growth_per_second", 0.05D, 0.0D, 10.0D);
+            strengthCap = builder.defineInRange("strength_cap", 10.0D, 1.0D, 10.0D);
             builder.pop(3);
         }
 
@@ -862,6 +866,10 @@ public final class FDConfig {
         public float radiusCap() { return radiusCap.get().floatValue(); }
 
         public int biteDuration() { return biteDuration.get(); }
+
+        public float strengthGrowthPerSecond() { return strengthGrowthPerSecond.get().floatValue(); }
+
+        public float strengthCap() { return strengthCap.get().floatValue(); }
     }
 
     /** 次元崩解（DimensionBreak）：持续削减最大生命 */

@@ -61,10 +61,10 @@ public class FantasySlashBladeIngredient extends Ingredient {
                                             tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition.REGISTRY_KEY)
                                     .get(name);
                         } else if (net.minecraftforge.fml.loading.FMLEnvironment.dist == net.minecraftforge.api.distmarker.Dist.CLIENT) {
-                            def = net.minecraft.client.Minecraft.getInstance().getConnection().registryAccess()
-                                    .registryOrThrow(
-                                            tennouboshiuzume.mods.FantasyDesire.data.FantasySlashBladeDefinition.REGISTRY_KEY)
-                                    .get(name);
+                            var registry = net.minecraftforge.fml.DistExecutor.unsafeCallWhenOn(
+                                    net.minecraftforge.api.distmarker.Dist.CLIENT,
+                                    () -> tennouboshiuzume.mods.FantasyDesire.client.FDClientRegistryAccess::getRegistry);
+                            def = registry.get(name);
                         }
                     } catch (Exception e) {
                     }

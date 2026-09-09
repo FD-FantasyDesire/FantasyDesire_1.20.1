@@ -9,16 +9,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
-import tennouboshiuzume.mods.FantasyDesire.slasharts.FreezeZero;
 import tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.overcold.OverColdEffects;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
 import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
@@ -31,8 +26,9 @@ public class FrostStormEffect extends MobEffect {
     private static final FDConfig.FrostStorm FROST_STORM = FDConfig.FROST_STORM;
     /** 半径属性修改器 UUID（客户端渲染器凭此检测激活） */
     public static final UUID RADIUS_MODIFIER_UUID = UUID.fromString("f3a9c7d1-4f2b-4e8a-9c1d-5b7e3a2f6b40");
-    /** 强度属性修改器 UUID（强度系数尚未设计，当前写入占位值 1.0） */
+    /** 强度属性修改器 UUID */
     public static final UUID STRENGTH_MODIFIER_UUID = UUID.fromString("8e5d2b9a-6c4f-4a1e-b8d3-7f0a9e2c5d60");
+    private static final float INITIAL_STORM_STRENGTH = 1.0F;
 
     public FrostStormEffect() {
         super(MobEffectCategory.HARMFUL, 0x99FFFF);
@@ -42,10 +38,6 @@ public class FrostStormEffect extends MobEffect {
         float base = FROST_STORM.radiusBase();
         float radius = base + Math.max(amplifier, 0) * FROST_STORM.radiusPerAmp();
         return Math.min(radius, FROST_STORM.radiusCap());
-    }
-
-    public static Vec3 getFieldCenter(LivingEntity entity) {
-        return getFieldCenter(entity, 1.0F);
     }
 
     public static Vec3 getFieldCenter(LivingEntity entity, float partialTick) {
@@ -60,8 +52,9 @@ public class FrostStormEffect extends MobEffect {
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide && entity.level() instanceof ServerLevel serverLevel) {
-            // 每 tick 把 半径/强度 写入自定义属性修改器，随属性包同步到客户端供渲染器检测
-            syncStormAttributes(entity, amplifier);
+            // 强度从 1 开始，风暴持续期间随时间增长，并同步到属性供伤害与客户端读取。
+            float strength = growStormStrength(entity);
+            syncStormAttributes(entity, amplifier, strength);
             double r = getFieldRadius(amplifier);
             double yPos = entity.getY() + entity.getBbHeight() + Math.min(4 + amplifier, 8);
             // 冰封风暴边缘视觉粒子
@@ -104,7 +97,7 @@ public class FrostStormEffect extends MobEffect {
                 }
                 double range = r;
                 List<LivingEntity> enemies = FDTargetSelector.getNearbyLivingEntities(
-                        entity, getFieldCenter(entity), range, true, null);
+                        entity, getFieldCenter(entity, 1.0F), range, true, null);
                 int swordCount = 1 + amplifier / 2;
                 for (int s = 0; s < swordCount; s++) {
                     Vec3 spawnPos;
@@ -139,7 +132,9 @@ public class FrostStormEffect extends MobEffect {
                     EntityFDPhantomSword ss = new EntityFDPhantomSword(FDEntitys.FDPhantomSword.get(), entity.level());
                     ss.setOwner(entity);
                     ss.setIsCritical(false);
-                    ss.setDamage(3.0 + amplifier * 5.0);
+                    // 属性最终值包含风暴成长和其他加值修改器。
+                    double effectiveStrength = FDAttributes.getStormStrength(entity);
+                    ss.setDamage((2.0 + amplifier * 2.0) * effectiveStrength);
                     ss.setScale(0.66f);
                     ss.setSpeed(2.0f);
                     ss.setDelay(20);
@@ -185,13 +180,12 @@ public class FrostStormEffect extends MobEffect {
     /**
      * 服务端：把当前效果的半径/强度写入实体自定义属性修改器（值不变时跳过，避免每 tick 发同步包）。
      * 客户端渲染器据此检测激活并获取半径（见 FrostStormFieldRenderer）。
-     * 强度系数尚未设计，暂以占位值 1.0 写入，保证渲染器能检测到激活。
      */
-    public static void syncStormAttributes(LivingEntity entity, int amplifier) {
+    public static void syncStormAttributes(LivingEntity entity, int amplifier, float strength) {
         AttributeInstance radiusAttr = entity.getAttribute(FDAttributes.FROST_STORM_RADIUS.get());
         AttributeInstance strengthAttr = entity.getAttribute(FDAttributes.FROST_STORM_STRENGTH.get());
         if (radiusAttr == null || strengthAttr == null) {
-            debugLog(entity, "storm attributes missing, sync skipped");
+
             return;
         }
         float radius = getFieldRadius(amplifier);
@@ -200,22 +194,39 @@ public class FrostStormEffect extends MobEffect {
             radiusAttr.removeModifier(RADIUS_MODIFIER_UUID);
             radiusAttr.addTransientModifier(new AttributeModifier(RADIUS_MODIFIER_UUID,
                     "fd_frost_storm_radius", radius, AttributeModifier.Operation.ADDITION));
-            debugLog(entity, "synced storm radius=" + radius + " (amplifier=" + amplifier + ")");
+
         }
+        // 属性基值为 1，修改器只记录药水持续期间产生的成长量。
+        double growthAmount = Math.max(0.0D, strength - INITIAL_STORM_STRENGTH);
         AttributeModifier strengthMod = strengthAttr.getModifier(STRENGTH_MODIFIER_UUID);
-        if (strengthMod == null || strengthMod.getAmount() != 1.0) {
+        if (strengthMod == null || strengthMod.getAmount() != growthAmount) {
             strengthAttr.removeModifier(STRENGTH_MODIFIER_UUID);
             strengthAttr.addTransientModifier(new AttributeModifier(STRENGTH_MODIFIER_UUID,
-                    "fd_frost_storm_strength", 1.0, AttributeModifier.Operation.ADDITION));
-            debugLog(entity, "synced storm strength=1.0");
+                    "fd_frost_storm_strength", growthAmount, AttributeModifier.Operation.ADDITION));
+
         }
     }
 
-    /** 效果移除/过期时清理属性修改器，避免客户端残留渲染 */
-    public static void clearStormAttributes(LivingEntity entity) {
-        if (entity == null) {
-            return;
+    /** 首次获得风暴时强度为 1，之后每 tick 增长，达到配置上限后保持。 */
+    private static float growStormStrength(LivingEntity entity) {
+        AttributeInstance strengthAttr = entity.getAttribute(FDAttributes.FROST_STORM_STRENGTH.get());
+        double currentGrowth = 0.0D;
+        if (strengthAttr != null) {
+            AttributeModifier modifier = strengthAttr.getModifier(STRENGTH_MODIFIER_UUID);
+            if (modifier != null) {
+                currentGrowth = modifier.getAmount();
+            }
         }
+        float cap = Math.max(FROST_STORM.strengthCap(), INITIAL_STORM_STRENGTH);
+        return (float) Math.min(INITIAL_STORM_STRENGTH + currentGrowth
+                + FROST_STORM.strengthGrowthPerSecond() / 20.0F, cap);
+    }
+
+    /** 效果移除/过期时清理属性修改器，避免客户端残留渲染 */
+    @Override
+    public void removeAttributeModifiers(LivingEntity entity,
+            net.minecraft.world.entity.ai.attributes.AttributeMap attributeMap, int amplifier) {
+        super.removeAttributeModifiers(entity, attributeMap, amplifier);
         AttributeInstance radiusAttr = entity.getAttribute(FDAttributes.FROST_STORM_RADIUS.get());
         if (radiusAttr != null) {
             radiusAttr.removeModifier(RADIUS_MODIFIER_UUID);
@@ -226,34 +237,4 @@ public class FrostStormEffect extends MobEffect {
         }
     }
 
-    // ===== 效果移除/过期清理 =====
-    @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-    public static class FrostStormEffectEvents {
-        @SubscribeEvent
-        public static void onEffectRemoved(MobEffectEvent.Remove event) {
-            clearStormAttributes(event.getEntity());
-        }
-
-        @SubscribeEvent
-        public static void onEffectExpired(MobEffectEvent.Expired event) {
-            clearStormAttributes(event.getEntity());
-        }
-    }
-
-    // ===== 调试日志（每实体限流 2 秒输出一次） =====
-    private static final boolean DEBUG_LOG = true;
-    private static final java.util.Map<Integer, Long> DEBUG_THROTTLE = new java.util.HashMap<>();
-
-    private static void debugLog(LivingEntity entity, String message) {
-        if (!DEBUG_LOG) {
-            return;
-        }
-        long now = System.currentTimeMillis();
-        Long last = DEBUG_THROTTLE.get(entity.getId());
-        if (last != null && now - last < 2000) {
-            return;
-        }
-        DEBUG_THROTTLE.put(entity.getId(), now);
-        System.out.println("[FantasyDesire][FrostStorm] " + entity + ": " + message);
-    }
 }
