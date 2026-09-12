@@ -12,9 +12,6 @@ import mods.flammpfeil.slashblade.entity.BladeStandEntity;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import mods.flammpfeil.slashblade.item.ItemSlashBlade;
 import mods.flammpfeil.slashblade.util.KnockBacks;
-import net.mehvahdjukaar.moonlight.api.events.forge.LightningStruckBlockEvent;
-import net.minecraft.advancements.critereon.LightningStrikeTrigger;
-import net.minecraft.client.particle.Particle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -24,13 +21,10 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.BeaconBlock;
-import net.minecraft.world.level.block.entity.BeaconBlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -241,47 +235,6 @@ public class PureSnowEffects {
             if (ctx != null) {
                 attacker.addEffect(new MobEffectInstance(FDPotionEffects.RAINBOW_SEVEN_EDGE.get(), 20 * 3, 0, false,
                         false));
-            }
-        }
-    }
-
-    // 雷击合成
-    // 为什么闪电攻击不选择ItemFrame及其扩展类，，，
-    @SubscribeEvent
-    public static void bladeStandThunderStrike(LightningStruckBlockEvent event) {
-        AABB area = event.getEntity().getBoundingBox().inflate(1.0);
-        List<BladeStandEntity> stands = event.getLevel().getEntitiesOfClass(BladeStandEntity.class, area);
-        if (stands.isEmpty())
-            return;
-        for (BladeStandEntity stand : stands) {
-            ItemStack blade = stand.getItem();
-            ISlashBladeState state = CapabilityUtils.getBladeState(blade);
-            if (!state.hasSpecialEffect(FDSpecialEffectsRegistry.RainbowFlux.getId()))
-                return;
-            BlockPos beaconPos = stand.blockPosition().below();
-            BlockState blockState = stand.level().getBlockState(beaconPos);
-            if (!(blockState.getBlock() instanceof BeaconBlock))
-                return;
-            ItemStack targetBlade = FantasyDesire.getBladeAsRegistry(
-                    stand.level(),
-                    FantasySlashBladeBuiltInRegistry.PureSnow);
-            ISlashBladeState targetState = CapabilityUtils.getBladeState(targetBlade);
-            if (state.getTranslationKey().equals(targetState.getTranslationKey()))
-                return;
-            stand.setItem(ItemUtils.dataBakeBlade(blade, targetBlade));
-            for (int i = 0; i < 27; i++) {
-                Vec3 base = new Vec3(0, 0, 8);
-                Vec3 start = stand.position().add(0, stand.getBbHeight() / 2, 0);
-                Vec3 end = base.yRot((float) Math.toRadians(RandomUtils.nextInt(0, 360)))
-                        .xRot((float) Math.toRadians(RandomUtils.nextInt(0, 360))).add(start);
-                ParticleUtils.LightBoltParticles(stand.level(), start, end,
-                        ColorUtils.getSmoothTransitionColor(i, 27, false),
-                        0.1f, 60, 1f, true, 0.8, 8);
-            }
-            if ((stand.level() instanceof ServerLevel serverLevel)) {
-                serverLevel.setWeatherParameters(
-                        6000, 0,
-                        false, false);
             }
         }
     }

@@ -189,6 +189,9 @@ public class ChikeFlareEffects {
             return;
         if (entity.level().isClientSide())
             return;
+        // 保留撞击伤害作为猛击倍率，但不承受该次坠落或撞墙伤害。
+        float impactDamage = event.getAmount();
+        event.setCanceled(true);
         CapabilityUtils.BladeContext ctx = CapabilityUtils.SEConditionMatcher.of(entity)
                 .allowBothHands()
                 .requireTranslation("item.fantasydesire.chikeflare")
@@ -210,11 +213,13 @@ public class ChikeFlareEffects {
         // 使该范围内敌人受到体力值上限10%+ 本次撞击伤害 + weaponDamage的次元伤害
         List<LivingEntity> enemies = FDTargetSelector.getNearbyLivingEntities(entity, explosionRadius, false, null);
         for (LivingEntity target : enemies) {
-            float damage = target.getMaxHealth() * COMET_ELYTRA.clashHealthPercent() + event.getAmount()
+            float damage = target.getMaxHealth() * COMET_ELYTRA.clashHealthPercent() + impactDamage
                     + weaponDamage;
             target.hurt(FDDamageSource.entityDamageSource(serverLevel, FDDamageSource.DIMENSION, entity), damage);
-            spawnTyrantStrikePhantomSword(entity, target, ctx.state, target.getRandom(),
-                    target.getMaxHealth() * COMET_ELYTRA.clashHealthPercent() + event.getAmount() + weaponDamage);
+            if (ctx != null) {
+                spawnTyrantStrikePhantomSword(entity, target, ctx.state, target.getRandom(),
+                        target.getMaxHealth() * COMET_ELYTRA.clashHealthPercent() + impactDamage + weaponDamage);
+            }
         }
         serverLevel.playSound(null, entity.blockPosition(), SoundEvents.GENERIC_EXPLODE, SoundSource.PLAYERS, 2, 1);
         FlatSpreadingRingParticleOptions particleOptions = new FlatSpreadingRingParticleOptions(

@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -39,6 +40,7 @@ public class FantasyDesire {
     public FantasyDesire() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, FDConfig.SPEC);
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
+        eventBus.addListener(this::commonSetup);
         FDEntitys.register(eventBus);
         FDParticles.PARTICLES.register(eventBus);
         FDCombo.FD_COMBO_STATES.register(eventBus);

@@ -177,8 +177,6 @@ dependencies {
 
     implementation fg.deobf("curse.maven:SJAP-310187:6846059")
 
-    implementation fg.deobf("curse.maven:MoonLight-499980:6380635")
-
     implementation fg.deobf("curse.maven:Dummy-225738:6237015")
 
     implementation fg.deobf("curse.maven:freecam-557076:4643128")
@@ -234,7 +232,7 @@ tasks.named('processResources', ProcessResources).configure {
 
 // Example for how to get properties into the manifest for reading at runtime.
 tasks.named('jar', Jar).configure {
-    archiveFileName = "${mod_id}-260910 R1 Preview.jar"
+    archiveFileName.set("${mod_id}-260910 R1 Preview.jar")
     manifest {
         attributes([
                 'Specification-Title'     : mod_id,
