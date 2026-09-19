@@ -4,6 +4,7 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper;
 
 public class EchoTimerEffect extends MobEffect {
     public EchoTimerEffect() {
@@ -34,6 +35,6 @@ public class EchoTimerEffect extends MobEffect {
             return;
         }
 
-        tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper.detonateSingle(pLivingEntity);
+        EchoDamageHelper.detonateSingle(pLivingEntity);
     }
 }

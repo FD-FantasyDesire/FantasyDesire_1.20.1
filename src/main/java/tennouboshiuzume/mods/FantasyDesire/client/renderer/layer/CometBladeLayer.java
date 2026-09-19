@@ -72,6 +72,7 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
         // Obrit：灵魂护盾
         // Outer：不屈之魂
         // 使用鞘翅飞行时，转化为彗星剑翼
+        // 看到这行注释的人，去X上关注小林大樹并严肃观看《狩龙人拉格纳》，银彗星真的太酷了
         if (hasTyrant) {
             renderMainBlade(poseStack, buffer, packedLight, player, ageInTicks);
         }
@@ -102,23 +103,16 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             int packedLight,
             AbstractClientPlayer player,
             float ageInTicks) {
-
         poseStack.pushPose();
-
         poseStack.translate(0.0D, 0.35D, 0.45D);
         if (player.isFallFlying()) {
             poseStack.translate(0.0D, 0.75D, -0.2D);
         }
-
         poseStack.mulPose(Axis.XP.rotationDegrees(90f));
-
         poseStack.mulPose(Axis.YP.rotationDegrees(180f));
-
         applyBladeScale(poseStack, 0.0075f);
         applyBladeColor(0x88AAFF);
-
         renderModel(poseStack, buffer, packedLight);
-
         poseStack.popPose();
     }
 
@@ -214,21 +208,13 @@ public class CometBladeLayer extends RenderLayer<AbstractClientPlayer, PlayerMod
             float angle = baseAngle + time;
             float offsetX = Mth.cos((float) Math.toRadians(angle)) * radius;
             float offsetY = -Mth.sin((float) Math.toRadians(angle)) * radius;
-
             poseStack.translate(offsetY, offsetX, 0);
-
             poseStack.mulPose(Axis.XP.rotationDegrees(90f));
-
             poseStack.mulPose(Axis.YP.rotationDegrees(angle));
-
             poseStack.mulPose(Axis.ZP.rotationDegrees(angle * 4.0f));
-
             applyBladeScale(poseStack, 0.0075f * 0.5f);
-
             applyBladeColor(0xFFFF00);
-
             renderModel(poseStack, buffer, packedLight);
-
             poseStack.popPose();
         }
     }

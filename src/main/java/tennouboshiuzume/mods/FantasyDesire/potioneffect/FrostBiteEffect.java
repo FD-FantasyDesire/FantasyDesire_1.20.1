@@ -21,30 +21,26 @@ public class FrostBiteEffect extends MobEffect {
                 AttributeModifier.Operation.MULTIPLY_TOTAL);
     }
 
-    /** 原版机制：效果附加/升级时按 amplifier 动态计算减速量（升级会自动刷新数值） */
     @Override
     public double getAttributeModifierValue(int amplifier, AttributeModifier modifier) {
-        return Math.max(-0.2 * amplifier, -1.0);
+        return Math.max(-0.2D * (amplifier + 1), -1.0D);
     }
 
     @Override
     public void applyEffectTick(LivingEntity entity, int amplifier) {
-        entity.setDeltaMovement(0, -0.02 * amplifier, 0);
+        entity.setDeltaMovement(0, -0.2 * (amplifier + 1), 0);
         entity.level().addParticle(ParticleTypes.SNOWFLAKE, entity.getX(), entity.getY() + entity.getBbHeight() / 2,
                 entity.getZ(), 0, 0, 0);
-        entity.hurtMarked = true;
     }
 
     @Override
     public void addAttributeModifiers(LivingEntity entity, AttributeMap attributes, int amplifier) {
         super.addAttributeModifiers(entity, attributes, amplifier);
-        entity.setNoGravity(true);
     }
 
     @Override
     public void removeAttributeModifiers(LivingEntity entity, AttributeMap pAttributeMap, int pAmplifier) {
         super.removeAttributeModifiers(entity, pAttributeMap, pAmplifier);
-        entity.setNoGravity(false);
     }
 
     @Override

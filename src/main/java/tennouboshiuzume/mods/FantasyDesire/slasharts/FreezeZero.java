@@ -68,12 +68,24 @@ public class FreezeZero {
     }
 
     public static void StackStorm(LivingEntity entity, int evolutionTier, MobEffectInstance current) {
+        // 原版刷新效果会先移除再重加属性修改器，保存风暴自身的强度，避免累计成长被清零。
+        AttributeInstance strengthAttribute = entity.getAttribute(FDAttributes.FROST_STORM_STRENGTH.get());
+        AttributeModifier strengthModifier = strengthAttribute == null ? null
+                : strengthAttribute.getModifier(FrostStormEffect.STRENGTH_MODIFIER_UUID);
+        float stormStrength = 1.0F + (strengthModifier == null ? 0.0F : (float) strengthModifier.getAmount());
+
         int durationExtension = Math.max(
                 (int) (20 * evolutionTier * FREEZE_ZERO.stackExtensionPerTierSec()),
                 FREEZE_ZERO.stackExtensionMinTick());
         int newAmplifier = Math.min(current.getAmplifier() + 1, FREEZE_ZERO.ampCap());
         int newDuration = current.getDuration() + durationExtension;
-        entity.addEffect(new MobEffectInstance(FDPotionEffects.FROST_STORM.get(), newDuration, newAmplifier, false,
-                false, true));
+        if (entity.addEffect(new MobEffectInstance(FDPotionEffects.FROST_STORM.get(), newDuration, newAmplifier, false,
+                false, true))) {
+            // 在本次施放内恢复属性，避免客户端收到半径为零的中间状态；等级以效果合并后的实际值为准。
+            MobEffectInstance updated = entity.getEffect(FDPotionEffects.FROST_STORM.get());
+            if (updated != null) {
+                FrostStormEffect.syncStormAttributes(entity, updated.getAmplifier(), stormStrength);
+            }
+        }
     }
 }

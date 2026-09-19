@@ -4,6 +4,8 @@ BladeRift 是一个独立的 GLSL Canvas 单 pass 空间裂痕斩击：暗色星
 
 ## 运行环境
 
+当前作品采用[基础预览约定](../README.md)，以下描述对应现有入口；需要场景纹理或其他能力时可按总规范扩展。
+
 - 预览目标：VSCode **GLSL Canvas**（扩展 ID：`circledev.glsl-canvas`）。
 - 打开 [`main.frag`](main.frag) 后运行 **Show GLSL Canvas**。
 - 面向 WebGL 1 / GLSL ES 1.00：无 `#version`、`#include` 或纹理，使用 `gl_FragColor`。
@@ -50,4 +52,4 @@ uniform vec2 u_resolution;  // 画布像素尺寸
 - FBM 为固定 5 层，循环边界为编译期常量；Spawn 使用单侧局部横轴 reveal。
 - 无位运算、动态数组、导数、纹理函数或现代输出语法；分辨率及所有分母有安全下限。
 - `GL_FRAGMENT_PRECISION_HIGH` 不可用时回退到 `mediump`；低精度设备可能损失细线与星点细节。
-- `gl_FragColor` 预览最终受 0–1 显示范围限制，末尾指数 tone mapping 只保留 HDR 感的亮度层级，不能真正输出 >1。生产 HDR 合成应移除 tone mapping，输出线性高亮到浮点 HDR 目标，再由后处理 Bloom；核心色与外侧能量色是主要 Bloom 光源。
+- 当前预览通过末尾指数 tone mapping 将颜色映射到 0–1 范围。HDR 保存能力取决于渲染目标格式；生产 HDR 合成需按实际管线移除预览 tone mapping，输出线性高亮到浮点目标，并另行实现所需 Bloom，不能仅靠输出大于 1 的颜色获得泛光。

@@ -3,6 +3,7 @@ package tennouboshiuzume.mods.FantasyDesire.specialeffects.effects.starlessnight
 import mods.flammpfeil.slashblade.event.BladeMotionEvent;
 import mods.flammpfeil.slashblade.event.SlashBladeEvent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -17,6 +18,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
+import tennouboshiuzume.mods.FantasyDesire.potioneffect.VoidStrikeEffect;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
@@ -136,7 +138,7 @@ public class StarlessNightEffects {
         if (current != null) {
             amplifier = current.getAmplifier() + stacks;
         }
-        amplifier = Math.min(amplifier, VOID_STRIKE_SE.ampCap());
+        amplifier = Math.min(amplifier, VoidStrikeEffect.MAX_STACKS - 1);
         entity.forceAddEffect(new MobEffectInstance(voidStrike, duration, amplifier), null);
     }
 
@@ -170,31 +172,63 @@ public class StarlessNightEffects {
             return Integer.compare(aLayers, bLayers);
         });
         LivingEntity currentTarget = primaryTarget;
-        Vec3 prevTargetPos = primaryTarget.position().add(0, primaryTarget.getBbHeight() / 2, 0);
+        Vec3 prevTargetPos = primaryTarget.position()
+                .add(0, primaryTarget.getBbHeight() / 2, 0);
+
         for (int chainCount = 0; chainCount < ECHOING_STRIKE.chainCount(); chainCount++) {
+
             LivingEntity nextTarget = null;
+
             for (LivingEntity target : potentialTargets) {
                 if (target.isAlive() && target.getId() != currentTarget.getId()) {
                     nextTarget = target;
                     break;
                 }
             }
+
             if (nextTarget == null) {
                 break;
             }
+
+            // 关键：选中后立即移除，防止后续链回头
+            potentialTargets.remove(nextTarget);
+
             resetInvulnerable(nextTarget);
+
             DamageSource damageSource = player.damageSources().magic();
-            nextTarget.hurt(damageSource, baseDamage * ECHOING_STRIKE.chainDamageRatio());
+
+            nextTarget.hurt(
+                    damageSource,
+                    baseDamage * ECHOING_STRIKE.chainDamageRatio());
+
             resetInvulnerable(nextTarget);
-            Vec3 nextTargetPos = nextTarget.position().add(0, nextTarget.getBbHeight() / 2, 0);
-            if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+
+            Vec3 nextTargetPos = nextTarget.position()
+                    .add(0, nextTarget.getBbHeight() / 2, 0);
+
+            if (player.level() instanceof ServerLevel serverLevel) {
                 int lineColor = 0x8000ff;
                 int baseLifetime = 20;
+
                 double distance = prevTargetPos.distanceTo(nextTargetPos);
-                ParticleUtils.AstraLightningParticles(player.level(), prevTargetPos, nextTargetPos, lineColor, 0.05f,
-                        baseLifetime, 1.0f, true, 0.7d, (int) distance, -0.2f);
+
+                ParticleUtils.AstraLightningParticles(
+                        player.level(),
+                        prevTargetPos,
+                        nextTargetPos,
+                        lineColor,
+                        0.05f,
+                        baseLifetime,
+                        1.0f,
+                        true,
+                        0.7d,
+                        Math.max(2, (int) distance / 2 + 1),
+                        0.5f,
+                        serverLevel.random.nextLong());
             }
+
             stackVoidStrike(nextTarget);
+
             currentTarget = nextTarget;
             prevTargetPos = nextTargetPos;
         }
@@ -202,6 +236,6 @@ public class StarlessNightEffects {
 
     // 获取实体的虚空强袭层数
     private static int getVoidStrikeLayers(LivingEntity entity) {
-        return tennouboshiuzume.mods.FantasyDesire.potioneffect.VoidStrikeEffect.getVoidStrikeLayers(entity);
+        return VoidStrikeEffect.getVoidStrikeLayers(entity);
     }
 }

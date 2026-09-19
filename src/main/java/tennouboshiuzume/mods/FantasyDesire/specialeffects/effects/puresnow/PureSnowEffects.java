@@ -55,6 +55,7 @@ public class PureSnowEffects {
     // 数值来自 FDConfig（服务端同步配置），使用处实时读取
     private static final FDConfig.RainbowFlux RAINBOW_FLUX = FDConfig.RAINBOW_FLUX;
     private static final FDConfig.ColorFlux COLOR_FLUX = FDConfig.COLOR_FLUX;
+    private static final float HIT_EFFECT_RADIUS_CHARGE_SCALE = 0.3F;
     private static final String TRANSLATION_KEY = "item.fantasydesire.pure_snow";
 
     // 虹光通量
@@ -206,7 +207,7 @@ public class PureSnowEffects {
             }
         }
         if (player.hasEffect(FDPotionEffects.RAINBOW_SEVEN_EDGE.get())) {
-            HitEffect(target, (float) (1 + COLOR_FLUX.hitEffectRadiusChargeScale() * fdState.getSpecialCharge()),
+            HitEffect(target, 1 + HIT_EFFECT_RADIUS_CHARGE_SCALE * fdState.getSpecialCharge(),
                     state.getColorCode());
         }
     }

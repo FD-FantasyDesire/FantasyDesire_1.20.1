@@ -5,6 +5,7 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper;
 
 @Mod.EventBusSubscriber
 public class EchoDeathEventHandler {
@@ -14,6 +15,6 @@ public class EchoDeathEventHandler {
         if (entity.level().isClientSide) {
             return;
         }
-        tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper.detonateArea(entity, 5.0D);
+        EchoDamageHelper.detonateArea(entity, 5.0D);
     }
 }

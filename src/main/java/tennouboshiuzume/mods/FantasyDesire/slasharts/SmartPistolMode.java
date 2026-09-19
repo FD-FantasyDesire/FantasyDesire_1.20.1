@@ -19,11 +19,23 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDSlashArtRegistry;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
 import tennouboshiuzume.mods.FantasyDesire.utils.CapabilityUtils;
+import tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector;
 
 public class SmartPistolMode {
     // 数值来自 FDConfig（服务端同步配置），使用处实时读取
     private static final FDConfig.OverCharge OVER_CHARGE = FDConfig.OVER_CHARGE;
-    private static final FDConfig.ChargeShot CHARGE_SHOT = FDConfig.CHARGE_SHOT;
+    private static final FDConfig.TripleBullet TRIPLE_BULLET = FDConfig.TRIPLE_BULLET;
+    private static final FDConfig.ExplosiveBullet EXPLOSIVE_BULLET = FDConfig.EXPLOSIVE_BULLET;
+    private static final float NORMAL_BULLET_EXPLOSION_RADIUS = 0.0F;
+    // 齐发自身的伤害与弹速固定，锁距和爆裂弹头参数继续复用弹种配置。
+    private static final float CHARGE_SHOT_DAMAGE_RATIO = 3.0F;
+    private static final float CHARGE_SHOT_ENCHANT_MULT_PER_LEVEL = 0.10F;
+    private static final float CHARGE_SHOT_SPEED = 1.0F;
+    private static final float CHARGE_SHOT_EXPLOSIVE_SPEED = 0.33F;
+    private static final float BFG_REFINE_LINEAR = 0.1F;
+    private static final float BFG_ENCHANT_MULT_PER_LEVEL = 0.25F;
+    /** 非宙霆模式的额外伤害倍率；宙霆模式保持 1 倍并启用连锁。 */
+    private static final float BFG_NON_THUNDER_DAMAGE_MULT = 1.5F;
 
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
@@ -57,11 +69,11 @@ public class SmartPistolMode {
                 .match() != null;
         float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
         int refine = state.getRefine();
-        float refineBonus = (float) (refine * OVER_CHARGE.bfgRefineLinear() + Math.sqrt(refine) * 1.5f);
+        float refineBonus = (float) (refine * BFG_REFINE_LINEAR + Math.sqrt(refine) * 1.5f);
         int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
-        float enchantMultiplier = 1.0f + (enchantLevel * OVER_CHARGE.bfgEnchantMult());
+        float enchantMultiplier = 1.0f + (enchantLevel * BFG_ENCHANT_MULT_PER_LEVEL);
         float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ammo
-                * (thunderOn ? 1.0f : OVER_CHARGE.bfgThunderRatio()));
+                * (thunderOn ? 1.0f : BFG_NON_THUNDER_DAMAGE_MULT));
 
         EntityFDBFG ss = new EntityFDBFG(FDEntitys.FDBFG.get(), player.level());
         ss.setIsCritical(false);
@@ -102,33 +114,33 @@ public class SmartPistolMode {
             return;
 
         int volleyCount = explosiveOn ? ammo : ammo * 3;
-        double ratio = CHARGE_SHOT.dumpRatio();
+        double ratio = CHARGE_SHOT_DAMAGE_RATIO;
 
         float baseDamage = state.getBaseAttackModifier() + state.getAttackAmplifier();
         int refine = state.getRefine();
         float refineBonus = (float) (refine * 0.1f + Math.sqrt(refine) * 1.5f);
         int enchantLevel = blade.getEnchantmentLevel(Enchantments.POWER_ARROWS);
-        float enchantMultiplier = 1.0f + (enchantLevel * CHARGE_SHOT.dumpEnchantMult());
+        float enchantMultiplier = 1.0f + (enchantLevel * CHARGE_SHOT_ENCHANT_MULT_PER_LEVEL);
         float finalDamage = (float) ((baseDamage + refineBonus) * enchantMultiplier * ratio);
 
         int sweepLevel = blade.getEnchantmentLevel(Enchantments.SWEEPING_EDGE);
-        float sweepRangeMult = explosiveOn ? CHARGE_SHOT.dumpSweepMultExplosive()
-                : CHARGE_SHOT.dumpSweepMult();
-        float lockDistance = (explosiveOn ? CHARGE_SHOT.dumpLockBaseExplosive()
-                : CHARGE_SHOT.dumpLockBase()) + sweepLevel * sweepRangeMult;
+        float sweepRangeMult = explosiveOn ? EXPLOSIVE_BULLET.sweepRangeMult()
+                : TRIPLE_BULLET.sweepRangeMult();
+        float lockDistance = (explosiveOn ? EXPLOSIVE_BULLET.lockBase()
+                : TRIPLE_BULLET.lockBase()) + sweepLevel * sweepRangeMult;
 
-        java.util.List<LivingEntity> targets = tennouboshiuzume.mods.FantasyDesire.utils.FDTargetSelector
+        java.util.List<LivingEntity> targets = FDTargetSelector
                 .getTargetsInSight(
                         player, lockDistance, 30, true, null);
         targets.sort(java.util.Comparator.comparingDouble(e -> e.distanceToSqr(player)));
 
         int color = state.getColorCode();
         float expRadius = explosiveOn
-                ? CHARGE_SHOT.dumpExpRadiusExplosiveBase() + enchantLevel
-                : CHARGE_SHOT.dumpExpRadiusBase();
-        finalDamage *= explosiveOn ? CHARGE_SHOT.dumpExplosiveMult() : 1;
+                ? EXPLOSIVE_BULLET.expRadiusBase() + enchantLevel
+                : NORMAL_BULLET_EXPLOSION_RADIUS;
+        finalDamage *= explosiveOn ? EXPLOSIVE_BULLET.damageMult() : 1;
 
-        float speed = explosiveOn ? CHARGE_SHOT.dumpSpeedExplosive() : CHARGE_SHOT.dumpSpeed();
+        float speed = explosiveOn ? CHARGE_SHOT_EXPLOSIVE_SPEED : CHARGE_SHOT_SPEED;
         int tailNodes = explosiveOn ? 48 : 8;
 
         double phi = Math.PI * (3.0 - Math.sqrt(5.0));

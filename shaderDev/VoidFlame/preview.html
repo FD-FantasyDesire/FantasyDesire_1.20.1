@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>虚空侵蚀 · 表面着色预览</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#0b0b13;color:#e4ddef;font:14px system-ui,"Microsoft YaHei",sans-serif}main{max-width:1380px;margin:auto;padding:28px}header{display:flex;align-items:baseline;gap:20px}h1{font-size:24px;font-weight:600;margin:0 0 10px}p{color:#a49cb4;line-height:1.8;margin:0 0 20px}.layout{display:grid;grid-template-columns:1fr 280px;gap:20px}canvas{width:100%;height:620px;background:#12131d;border:1px solid #30273c;border-radius:12px;touch-action:none}aside{padding:24px;background:#15121e;border:1px solid #30273c;border-radius:12px}label{display:block;margin-bottom:28px;color:#bfb1d2}input[type=range]{display:block;width:100%;margin-top:15px;accent-color:#a55cf1}output{float:right;color:#e8d9ff;font-variant-numeric:tabular-nums}button{border:1px solid #644384;color:#efdcff;background:#2a193d;padding:10px 14px;border-radius:6px;cursor:pointer;margin:0 4px 10px 0}button:hover{background:#422657}.hint{font-size:12px;line-height:1.8;color:#978aa7}.legend{display:flex;gap:24px;margin:15px 0;color:#baaccb}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#5500aa;margin-right:8px}.echo{background:#aa55ff}#status{font-size:12px;color:#9c8ead;margin-top:12px;white-space:pre-wrap}@media(max-width:850px){.layout{grid-template-columns:1fr}canvas{height:500px}aside{padding:20px}header{display:block}}
+</style>
+<main>
+<header><h1>虚空侵蚀</h1><span class="hint">实体表面 · 回响积蓄</span></header>
+<p>紫黑斑块吞没材质，回响沿裂隙积蓄并向上涌动。拖动画面可环绕观察。</p>
+<div class="layout"><section><canvas id="view" aria-label="虚空侵蚀三维模型预览"></canvas><div class="legend"><span><i class="dot"></i>侵蚀覆盖率随虚空强袭层数增长</span><span><i class="dot echo"></i>裂隙密度随回响伤害增长</span></div><div class="hint">使用正式片元逻辑与演示方块模型；游戏内实体、盔甲及透明物体的合成需单独验收。</div></section>
+<aside>
+<label>虚空强袭 <output id="stacksValue">20 层</output><input id="stacks" type="range" min="0" max="50" value="20"></label>
+<label>回响记账 <output id="damageValue">120</output><input id="damage" type="range" min="0" max="2000" step="1" value="120"></label>
+<label>观察角度 <output id="angleValue">25°</output><input id="angle" type="range" min="-180" max="180" value="25"></label>
+<button id="hit">叠加 40 伤害</button><button id="clear">清空回响</button><br>
+<button id="pause">暂停动画</button><button id="seed">更换种子</button>
+<div style="margin-top:16px"><button data-preset="0,0">无效果</button><button data-preset="1,10">初次侵蚀</button><button data-preset="20,120">积蓄中</button><button data-preset="50,1000">深度侵蚀</button><button data-preset="50,0">仅虚空</button><button data-preset="0,1000">仅回响</button></div>
+<p class="hint" style="margin-top:18px">叠加按钮触发一次传播脉冲；清空回响后，紫黑侵蚀仍由虚空强袭独立控制。</p><div id="status">正在加载着色器…</div>
+</aside></div></main>
+<script src="preview.js"></script>
+</html>

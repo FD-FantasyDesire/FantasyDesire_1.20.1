@@ -21,6 +21,7 @@ import tennouboshiuzume.mods.FantasyDesire.utils.ColorUtils;
 import java.util.Random;
 
 public class RainbowStar {
+    private static final int SWORD_COUNT = 21;
     // 数值来自 FDConfig（服务端同步配置），使用处实时读取
     private static final FDConfig.RainbowStar RAINBOW_STAR = FDConfig.RAINBOW_STAR;
     private static final FDConfig.RainbowSevenEdge RAINBOW_SEVEN_EDGE = FDConfig.RAINBOW_SEVEN_EDGE;
@@ -47,7 +48,7 @@ public class RainbowStar {
                 // 检查玩家是否潜行
                 boolean isSneaking = player.isShiftKeyDown();
 
-                for (int i = 0; i < RAINBOW_STAR.swordCount(); i++) {
+                for (int i = 0; i < SWORD_COUNT; i++) {
                     float yaw, pitch;
                     Vec3 pos;
 
@@ -108,7 +109,7 @@ public class RainbowStar {
                     ss.setStandbyYawPitch(yaw, pitch);
                     ss.setYRot(yaw);
                     ss.setXRot(pitch);
-                    ss.setColor(ColorUtils.getSmoothTransitionColor(i, 21, true));
+                    ss.setColor(ColorUtils.getSmoothTransitionColor(i, SWORD_COUNT, true));
                     ss.setDamage(magicDamage);
                     ss.setRoll(random.nextInt(360));
                     ss.setScale(2f);

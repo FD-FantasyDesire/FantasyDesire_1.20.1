@@ -31,7 +31,7 @@ public class FrostStormEffect extends MobEffect {
     private static final float INITIAL_STORM_STRENGTH = 1.0F;
 
     public FrostStormEffect() {
-        super(MobEffectCategory.HARMFUL, 0x99FFFF);
+        super(MobEffectCategory.BENEFICIAL, 0x99FFFF);
     }
 
     public static float getFieldRadius(int amplifier) {

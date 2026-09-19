@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Random;
 
 public class CrimsonStrike {
+    private static final int HUNT_SWORD_COUNT = 24;
     // 数值来自 FDConfig（服务端同步配置），使用处实时读取
     private static final FDConfig.CrimsonStrikeSa CRIMSON_STRIKE_SA = FDConfig.CRIMSON_STRIKE_SA;
 
@@ -51,7 +52,7 @@ public class CrimsonStrike {
         if (state == null)
             return;
         // 发射 EntityFDHuntSword 聚怪
-        int count = CRIMSON_STRIKE_SA.huntSwordCount();
+        int count = HUNT_SWORD_COUNT;
         double radius = 1.5;
         List<LivingEntity> targets = FDTargetSelector.getLivingEntitiesInRadius(player, player.position(),
                 CRIMSON_STRIKE_SA.huntTargetRange(), true,

@@ -11,12 +11,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
+import tennouboshiuzume.mods.FantasyDesire.potioneffect.VoidStrikeEffect;
 
 /**
  * 自定义属性注册表。
  *
- * 寒霜风暴（FROST_STORM）半径由原版效果属性机制（MobEffect.addAttributeModifier +
- * getAmount 动态计算）写入，随属性同步包下发客户端供渲染器检测激活。
+ * 寒霜风暴半径与虚空强袭层数由各自效果维护临时加值修改器，
+ * 随属性同步包下发客户端，并在效果移除时清理。
  * 风暴强度（FROST_STORM_STRENGTH）以 1 为基值，风暴成长通过加值修改器写入。
  */
 public class FDAttributes {
@@ -31,7 +32,8 @@ public class FDAttributes {
             () -> new RangedAttribute("attribute.fantasydesire.frost_storm_strength", 1.0D, 0.0D, 10.0D).setSyncable(true));
     /** 虚空强袭层数，等于效果 AMP + 1（0~50） */
     public static final RegistryObject<Attribute> VOID_STRIKE_STACK = ATTRIBUTES.register("void_strike_stack",
-            () -> new RangedAttribute("attribute.fantasydesire.void_strike_stack", 0.0D, 0.0D, 50.0D).setSyncable(true));
+            () -> new RangedAttribute("attribute.fantasydesire.void_strike_stack", 0.0D, 0.0D,
+                    VoidStrikeEffect.MAX_STACKS).setSyncable(true));
     /** 目标身上所有攻击者的 Echo 伤害计数合计值 */
     public static final RegistryObject<Attribute> TOTAL_ECHO_DAMAGE = ATTRIBUTES.register("total_echo_damage",
             () -> new RangedAttribute("attribute.fantasydesire.total_echo_damage", 0.0D, 0.0D, 1.0E9D).setSyncable(true));
@@ -72,27 +74,6 @@ public class FDAttributes {
     public static float getTotalEchoDamage(LivingEntity entity) {
         var attr = entity.getAttribute(TOTAL_ECHO_DAMAGE.get());
         return attr == null ? 0.0F : (float) attr.getValue();
-    }
-
-    public static void syncVoidStrikeStack(LivingEntity entity, double stack, java.util.UUID modifierId) {
-        var attr = entity.getAttribute(VOID_STRIKE_STACK.get());
-        if (attr == null) {
-            return;
-        }
-        var old = attr.getModifier(modifierId);
-        if (old == null || old.getAmount() != stack) {
-            attr.removeModifier(modifierId);
-            attr.addTransientModifier(new net.minecraft.world.entity.ai.attributes.AttributeModifier(
-                    modifierId, "fd_void_strike_stack", stack,
-                    net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADDITION));
-        }
-    }
-
-    public static void clearVoidStrikeStack(LivingEntity entity, java.util.UUID modifierId) {
-        var attr = entity.getAttribute(VOID_STRIKE_STACK.get());
-        if (attr != null) {
-            attr.removeModifier(modifierId);
-        }
     }
 
     public static void syncTotalEchoDamage(LivingEntity entity, double total, java.util.UUID modifierId) {

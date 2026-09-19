@@ -22,10 +22,4 @@ public class TeleportBlockedEffect extends MobEffect {
     public boolean isDurationEffectTick(int duration, int amplifier) {
         return true;
     }
-
-    public @Nullable ResourceLocation getIcon() {
-        // 这是 HUD 图标（左上角）显示使用的图标
-        return new ResourceLocation(FantasyDesire.MODID, "textures/mob_effect/void_strike.png");
-    }
-
 }

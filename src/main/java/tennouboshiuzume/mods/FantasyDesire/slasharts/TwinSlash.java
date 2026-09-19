@@ -36,6 +36,17 @@ import static mods.flammpfeil.slashblade.ability.SlayerStyleArts.*;
 ;
 
 public class TwinSlash {
+    /** 瞬步落点沿目标朝向的偏移距离，单位：格。 */
+    private static final double TELEPORT_DISTANCE = 2.0D;
+    public static final float MOOD_RISE_DAMAGE_RATIO = 0.50F;
+    private static final float MOOD_SPIN_DAMAGE_RATIO = 0.30F;
+    /** MOOD 与 DOOM 的终段重锤落共用此伤害倍率。 */
+    public static final float SLAM_DAMAGE_RATIO = 2.875F;
+    /** MOOD 终段追击幻影剑的伤害占施放者最大生命的比例。 */
+    private static final float MOOD_RUNE_DAMAGE_HEALTH_RATIO = 0.25F;
+    public static final float DOOM_SLASH_DAMAGE_RATIO = 0.244F;
+    /** 生命比例高于此值时，允许继续输入 DOOM 循环。 */
+    public static final float DOOM_HEALTH_THRESHOLD = 0.5F;
     // 数值来自 FDConfig（服务端同步配置），使用处实时读取
     private static final FDConfig.TwinSystemL TWIN_SYSTEM_L = FDConfig.TWIN_SYSTEM_L;
     private static final FDConfig.TwinSystemR TWIN_SYSTEM_R = FDConfig.TWIN_SYSTEM_R;
@@ -120,7 +131,7 @@ public class TwinSlash {
             return;
         ISlashBladeState state = CapabilityUtils.getBladeState(blade);
         AddonSlashUtils.doAddonSlash(player, roll, player.getYRot() + Yrot, Xrot, state.getColorCode(), offset,
-                Vec3.ZERO, false, false, TWIN_SYSTEM_L.spinRatio(), KnockBacks.cancel);
+                Vec3.ZERO, false, false, MOOD_SPIN_DAMAGE_RATIO, KnockBacks.cancel);
     }
 
     public static void MoodFinalRuneSword(LivingEntity player, LivingEntity target, ItemStack blade) {
@@ -143,7 +154,7 @@ public class TwinSlash {
             ss.setIsCritical(false);
             ss.setOwner(player);
             ss.setRoll(roll);
-            ss.setDamage(player.getMaxHealth() * TWIN_SYSTEM_R.runeDamageHealthRatio());
+            ss.setDamage(player.getMaxHealth() * MOOD_RUNE_DAMAGE_HEALTH_RATIO);
             ss.setSpeed(1);
             ss.setColor(state.getColorCode());
             ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.WORLD);
@@ -185,7 +196,7 @@ public class TwinSlash {
 
     public static Vec3 calculateTeleportPosition(Entity entityIn, LivingEntity target) {
         return target.position().add(0.0, (double) target.getBbHeight() * 0.1, 0.0)
-                .add(target.getLookAngle().scale(TWIN_SYSTEM_R.teleportDistance()));
+                .add(target.getLookAngle().scale(TELEPORT_DISTANCE));
     }
 
     public static boolean AntiNTR(LivingEntity entity) {

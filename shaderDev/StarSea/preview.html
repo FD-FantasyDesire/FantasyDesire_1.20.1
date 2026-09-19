@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>星海领域 · 地面覆盖原型</title>
+  <style>
+    :root { color-scheme: dark; font: 14px/1.6 system-ui, "Microsoft YaHei", sans-serif; color: #dfe6f7; background: #090d18; }
+    * { box-sizing: border-box; } body { margin: 0; }
+    main { max-width: 1600px; margin: auto; padding: 28px; }
+    header { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
+    .eyebrow { color: #788daf; letter-spacing: .20em; font-size: 11px; }
+    h1 { font-size: 27px; letter-spacing: .12em; font-weight: 500; margin: 5px 0 0; }
+    p { color: #95a3bd; margin: 0; } .layout { display: grid; grid-template-columns: minmax(0, 1fr) 265px; gap: 20px; }
+    canvas { display: block; width: 100%; height: 570px; border: 1px solid #29324b; border-radius: 10px; touch-action: none; cursor: grab; background: #0c1220; }
+    canvas:active { cursor: grabbing; } aside { padding: 20px; background: #101727; border: 1px solid #252f47; border-radius: 10px; }
+    label { display: block; color: #a4b3d0; margin-bottom: 18px; }
+    input[type=range] { display: block; width: 100%; margin: 10px 0 0; accent-color: #9dadec; }
+    output { float: right; color: #e0e8ff; font-variant-numeric: tabular-nums; }
+    button, select { font: inherit; color: #dfe8ff; background: #172239; border: 1px solid #334365; border-radius: 6px; padding: 7px 11px; cursor: pointer; }
+    button:hover { background: #283653; } button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #9ec3ff; outline-offset: 3px; }
+    select { width: 100%; margin-top: 8px; } .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+    .timeline { padding: 18px 0 8px; } .timeline label { margin: 0; }
+    .hint { color: #7e90af; font-size: 12px; } #status { margin-top: 15px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .check { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .viewcontrols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 12px; }
+    @media(max-width: 900px) { main { padding: 18px; } header { display: block; } header p { margin-top: 10px; } .layout { grid-template-columns: 1fr; } canvas { height: 480px; } aside { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 20px; } }
+    @media(max-width: 500px) { canvas { height: 420px; } aside { display: block; } }
+  </style>
+</head>
+<body><main>
+  <header><div><div class="eyebrow">STARSEA / SURFACE FIELD</div><h1>星海领域</h1></div><p>星空漫过地面，潮汐推移边界。拖动环绕，滚轮缩放。</p></header>
+  <div class="layout">
+    <section>
+      <canvas id="view" aria-label="星海地面覆盖预览，拖动环绕观察"></canvas>
+      <div class="buttons"><button id="pause">暂停</button><button id="step">前进一帧</button><button id="restart">重新展开</button><button id="overview">俯视</button><button id="lowview">低角度</button><button id="reset">默认视角</button><button id="save">保存 PNG</button></div>
+      <div class="timeline"><label>时间 <output id="timeValue">6.00 秒</output><input id="time" type="range" min="0" max="60" value="6" step="0.01"></label></div>
+      <div class="viewcontrols"><label>环绕角度 <input id="yaw" type="range" min="-180" max="180" step="0.1" value="28"></label><label>俯仰角度 <input id="pitch" type="range" min="12" max="89" step="0.1" value="54"></label></div>
+      <p class="hint">地面和墙面共同显露同一片星空；人物保留原材质。双击画面恢复默认视角。</p>
+    </section>
+    <aside>
+      <label>领域半径 <output id="radiusValue"></output><input id="radius" type="range" min="2" max="7" step="0.1" value="4.8"></label>
+      <label>边缘起伏 <output id="edgeValue"></output><input id="edge" type="range" min="0" max="0.4" step="0.01" value="0.26"></label>
+      <label>流星频率 <output id="rateValue"></output><input id="rate" type="range" min="0" max="2" step="0.05" value="1.1"></label>
+      <label>随机星云 <output id="nebulaValue"></output><input id="nebula" type="range" min="0" max="2" step="0.01" value="1.2"></label>
+      <label>星云种子 <output id="seedValue"></output><input id="nebulaSeed" type="range" min="0" max="9999" step="1" value="27"></label>
+      <label>地面覆盖 <output id="opacityValue"></output><input id="opacity" type="range" min="0" max="1" step="0.01" value="1"></label>
+      <label>显示方式<select id="debug"><option value="0">完整效果</option><option value="1">覆盖范围</option><option value="2">被实体遮挡的区域</option></select></label>
+      <label>渲染精度<select id="quality"><option value="960">轻量 · 长边 960</option><option value="1440" selected>标准 · 长边 1440</option><option value="1920">精细 · 长边 1920</option></select></label>
+      <label class="check"><input id="entities" type="checkbox" checked>显示人物与遮挡物</label>
+      <label class="check"><input id="steps" type="checkbox" checked>显示台阶地形</label>
+      <label class="check"><input id="walls" type="checkbox" checked>显示墙面与拐角</label>
+      <button id="randomSeed">更换星云景观</button>
+      <div><button id="reload">重新加载着色器</button><p id="status" class="hint" role="status">正在加载…</p></div>
+    </aside>
+  </div>
+</main><script src="preview.js"></script></body>
+</html>

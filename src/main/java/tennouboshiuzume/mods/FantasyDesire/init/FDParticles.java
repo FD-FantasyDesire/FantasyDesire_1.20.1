@@ -8,6 +8,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.particle.ColorShardParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.AstraLightningParticleOptions;
+import tennouboshiuzume.mods.FantasyDesire.particle.AstraStarParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.particle.BladeRiftParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.particle.FlatSpreadingRingParticleOptions;
 import tennouboshiuzume.mods.FantasyDesire.particle.GlowingLineParticleOptions;
@@ -16,6 +18,22 @@ import tennouboshiuzume.mods.FantasyDesire.particle.SpreadingRingParticleOptions
 public class FDParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister
             .create(ForgeRegistries.PARTICLE_TYPES, FantasyDesire.MODID);
+
+    public static final RegistryObject<ParticleType<AstraStarParticleOptions>> ASTRA_STAR = PARTICLES
+            .register("astra_star", () -> new ParticleType<>(false, AstraStarParticleOptions.DESERIALIZER) {
+                @Override
+                public Codec<AstraStarParticleOptions> codec() {
+                    return AstraStarParticleOptions.CODEC;
+                }
+            });
+
+    public static final RegistryObject<ParticleType<AstraLightningParticleOptions>> ASTRA_LIGHTNING = PARTICLES
+            .register("astra_lightning", () -> new ParticleType<>(false, AstraLightningParticleOptions.DESERIALIZER) {
+                @Override
+                public Codec<AstraLightningParticleOptions> codec() {
+                    return AstraLightningParticleOptions.CODEC;
+                }
+            });
 
     public static final RegistryObject<ParticleType<SpreadingRingParticleOptions>> SPREADING_RING = PARTICLES
             .register("spreading_ring", () -> new ParticleType<>(false, SpreadingRingParticleOptions.DESERIALIZER) {

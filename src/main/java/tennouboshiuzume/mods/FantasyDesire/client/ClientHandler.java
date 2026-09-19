@@ -39,7 +39,8 @@ import tennouboshiuzume.mods.FantasyDesire.client.particle.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.entity.*;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.CometBladeLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.FrostCrownLayer;
-import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.VoidFlameOutlineLayer;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.VoidFlameLayer;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.layer.VoidFlameSlimeOuterLayer;
 import tennouboshiuzume.mods.FantasyDesire.client.text.RichClientTooltipComponent;
 import tennouboshiuzume.mods.FantasyDesire.client.text.RichTooltipComponent;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
@@ -113,24 +114,28 @@ public class ClientHandler {
                 PlayerRenderer rendererd = event.getSkin(skin);
                 rendererd.addLayer(new CometBladeLayer(rendererd));
                 rendererd.addLayer(new FrostCrownLayer(rendererd));
-                rendererd.addLayer(new VoidFlameOutlineLayer<>(rendererd));
+                rendererd.addLayer(new VoidFlameLayer<>(rendererd));
             }
         }
 
         for (EntityType<?> entityType : ForgeRegistries.ENTITY_TYPES.getValues()) {
-            addVoidFlameOutlineLayer(event, entityType);
+            addVoidFlameLayer(event, entityType);
         }
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static void addVoidFlameOutlineLayer(EntityRenderersEvent.AddLayers event, EntityType<?> entityType) {
+    private static void addVoidFlameLayer(EntityRenderersEvent.AddLayers event, EntityType<?> entityType) {
         try {
             LivingEntityRenderer renderer = event.getRenderer((EntityType) entityType);
             if (renderer != null) {
-                renderer.addLayer(new VoidFlameOutlineLayer<>(renderer));
+                renderer.addLayer(new VoidFlameLayer<>(renderer));
+                // 按渲染器识别，避免把继承 Slime 的岩浆怪误当作透明史莱姆。
+                if (renderer instanceof net.minecraft.client.renderer.entity.SlimeRenderer slimeRenderer) {
+                    slimeRenderer.addLayer(new VoidFlameSlimeOuterLayer(slimeRenderer, event.getEntityModels()));
+                }
             }
         } catch (ClassCastException ignored) {
-            // 不继承 LivingEntityRenderer 的特殊活体实体暂不通过无 Mixin 方案处理。
+            // 末影龙由 EnderDragonRendererMixin 接入；其他非 LivingEntityRenderer 跳过附着层注册。
         }
     }
 
@@ -142,5 +147,7 @@ public class ClientHandler {
         event.registerSpecial(FDParticles.COLOR_SHARD.get(), new ColorShardParticle.Provider());
         event.registerSpecial(FDParticles.ENDER_SHARD.get(), new EnderShardParticle.Provider());
         event.registerSpecial(FDParticles.BLADE_RIFT.get(), new BladeRiftParticleProvider());
+        event.registerSpecial(FDParticles.ASTRA_LIGHTNING.get(), new AstraLightningParticleProvider());
+        event.registerSpecial(FDParticles.ASTRA_STAR.get(), new AstraStarParticleProvider());
     }
 }

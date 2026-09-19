@@ -38,7 +38,8 @@ import java.util.UUID;
 public class DamageConverterEvent {
     // 数值来自 FDConfig（服务端同步配置），使用处实时读取
     private static final FDConfig.Resolution RESOLUTION = FDConfig.RESOLUTION;
-    private static final FDConfig.EchoDamageType ECHO = FDConfig.ECHO;
+    /** 回响每次命中的即时伤害，其余伤害记账后延迟结算。 */
+    private static final float ECHO_DIRECT_DAMAGE = 0.1F;
     private static final FDConfig.EchoTimer ECHO_TIMER = FDConfig.ECHO_TIMER;
     private static final FDConfig.Eternity ETERNITY = FDConfig.ETERNITY;
     private static final FDConfig.Absorb ABSORB = FDConfig.ABSORB;
@@ -162,15 +163,15 @@ public class DamageConverterEvent {
                     new MobEffectInstance(FDPotionEffects.ECHO_TIMER.get(), ECHO_TIMER.duration(), 0, false,
                             false, false),
                     attacker);
-            if (amount > ECHO.directDamage()) {
-                float storeAmount = amount - ECHO.directDamage();
+            if (amount > ECHO_DIRECT_DAMAGE) {
+                float storeAmount = amount - ECHO_DIRECT_DAMAGE;
                 target.getCapability(tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider.ECHO_DAMAGE)
                         .ifPresent(cap -> {
                             cap.addDamage(attacker.getUUID(), storeAmount);
                             tennouboshiuzume.mods.FantasyDesire.utils.EchoDamageHelper
                                     .syncTotalDamageAttribute(target);
                         });
-                amount = ECHO.directDamage();
+                amount = ECHO_DIRECT_DAMAGE;
             }
         }
         event.setAmount(amount);
@@ -252,14 +253,14 @@ public class DamageConverterEvent {
         event.setAmount(amount);
     }
 
-    // 在玩家死亡时清理
+    // 在死亡时清理
     @SubscribeEvent
     public static void onDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
         clearEternity(entity);
     }
 
-    // 在实体进入世界时清理
+    // 在实体进入世界时清理（我想这应该包括退出重进和切换维度吧？）
     @SubscribeEvent
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof LivingEntity livingEntity) {
@@ -334,5 +335,4 @@ public class DamageConverterEvent {
             event.setResult(Result.ALLOW);
         }
     }
-
 }

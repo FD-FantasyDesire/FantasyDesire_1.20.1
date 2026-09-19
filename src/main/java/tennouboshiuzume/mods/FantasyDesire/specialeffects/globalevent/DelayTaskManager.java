@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-// 待重制 已不使用
+// 待重制 已不使用 为什么forge不提供一个延时代码块功能？导致所有作者都要自己造个轮子
 @Mod.EventBusSubscriber
 public class DelayTaskManager {
     private static final List<Triple<LivingEntity, Integer, Runnable>> TASKS = new ArrayList<>();

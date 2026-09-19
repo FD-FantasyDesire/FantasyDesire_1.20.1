@@ -15,6 +15,7 @@ import tennouboshiuzume.mods.FantasyDesire.capability.EchoDamageProvider;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
+import tennouboshiuzume.mods.FantasyDesire.init.FDParticles;
 
 import java.util.List;
 import java.util.Map;
@@ -172,18 +173,17 @@ public class EchoDamageHelper {
                 centerEntity.playSound(SoundEvents.TRIDENT_RETURN, 1f, 1.5f);
                 if (centerEntity.level() instanceof ServerLevel serverLevel) {
                     double yPos = centerEntity.getY() + centerEntity.getBbHeight() / 4;
-                    tennouboshiuzume.mods.FantasyDesire.utils.ParticleUtils.sendForceParticles(serverLevel,
+                    ParticleUtils.sendForceParticles(serverLevel,
                             new tennouboshiuzume.mods.FantasyDesire.particle.FlatSpreadingRingParticleOptions(
                                     0x5500AA, (float) radius, 0.5f, 5),
                             centerEntity.getX(), yPos, centerEntity.getZ(),
                             1, 0, 0, 0, 0, 64.0);
-
                     for (int i = 0; i < 5; i++) {
                         double vx = (centerEntity.getRandom().nextDouble() - 0.5) * 0.5;
                         double vy = centerEntity.getRandom().nextDouble() * 0.5;
                         double vz = (centerEntity.getRandom().nextDouble() - 0.5) * 0.5;
                         serverLevel.sendParticles(
-                                tennouboshiuzume.mods.FantasyDesire.init.FDParticles.ENDER_SHARD.get(),
+                                FDParticles.ENDER_SHARD.get(),
                                 centerEntity.getX(), yPos, centerEntity.getZ(),
                                 0, vx, vy, vz, 1.0);
                     }

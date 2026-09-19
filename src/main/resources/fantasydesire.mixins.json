@@ -1,0 +1,18 @@
+{
+    "required": true,
+    "minVersion": "0.8.5",
+    "package": "tennouboshiuzume.mods.FantasyDesire.mixin",
+    "compatibilityLevel": "JAVA_17",
+    "refmap": "fantasydesire.refmap.json",
+    "mixins": [
+        "PlayerGlidingMixin",
+        "LivingEntityGlidingMixin"
+    ],
+    "client": [
+        "client.EnderDragonRendererMixin",
+        "client.LocalPlayerGlidingMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

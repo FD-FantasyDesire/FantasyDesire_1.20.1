@@ -47,6 +47,8 @@ public class ChikeFlareEffects {
     // 灵魂之盾 攻击阶段触发
     @SubscribeEvent
     public static void OnBypassAttack(LivingAttackEvent event) {
+        if (event.getSource().is(DamageTypes.GENERIC_KILL))
+            return;
         if (!(event.getEntity() instanceof Player player))
             return;
         if (player.level().isClientSide())
@@ -84,6 +86,8 @@ public class ChikeFlareEffects {
     // 伤害结算触发
     @SubscribeEvent
     public static void OnBypassAttack(LivingDamageEvent event) {
+        if (event.getSource().is(DamageTypes.GENERIC_KILL))
+            return;
         if (!(event.getEntity() instanceof Player player))
             return;
         if (player.level().isClientSide())
@@ -136,7 +140,7 @@ public class ChikeFlareEffects {
         state.setMaxDamage(state.getMaxDamage() + IMMORTAL_SOUL.maxDamageBonus());
         CapabilityUtils.addSpecialCharge(fdState,
                 Mth.ceil(fdState.getMaxSpecialCharge() * IMMORTAL_SOUL.reviveChargeRatio()));
-        player.setHealth(player.getMaxHealth() * IMMORTAL_SOUL.healthRatio());
+        player.heal(player.getMaxHealth() * IMMORTAL_SOUL.healthRatio());
         player.removeAllEffects();
         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, IMMORTAL_SOUL.regenDuration(),
                 IMMORTAL_SOUL.regenAmplifier()));
@@ -178,7 +182,7 @@ public class ChikeFlareEffects {
         spawnTyrantStrikePhantomSword(player, target, state, random, damage + TYRANT_STRIKE.phantomDamage());
     }
 
-    // SA联动 彗星猛击
+    // SA 鞘翅滑翔 联动 彗星猛击
     @SubscribeEvent
     public static void OnElytraClashBlock(LivingHurtEvent event) {
         if (!(event.getEntity() instanceof Player entity))
@@ -203,13 +207,7 @@ public class ChikeFlareEffects {
         }
         float explosionRadius = COMET_ELYTRA.clashExplosionRadius();
         ServerLevel serverLevel = (ServerLevel) entity.level();
-        for (int i = 0; i < 30; i++) {
-            double r = Math.sqrt(serverLevel.random.nextDouble()) * explosionRadius;
-            double theta = serverLevel.random.nextDouble() * 2 * Math.PI;
-            double px = entity.getX() + r * Math.cos(theta);
-            double pz = entity.getZ() + r * Math.sin(theta);
-            serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, px, entity.getY() + 0.1, pz, 1, 0, 0, 0, 0);
-        }
+
         // 使该范围内敌人受到体力值上限10%+ 本次撞击伤害 + weaponDamage的次元伤害
         List<LivingEntity> enemies = FDTargetSelector.getNearbyLivingEntities(entity, explosionRadius, false, null);
         for (LivingEntity target : enemies) {

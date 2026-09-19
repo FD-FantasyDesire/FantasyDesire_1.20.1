@@ -1,0 +1,27 @@
+{
+    "blend": {
+        "func": "add",
+        "srcrgb": "srcalpha",
+        "dstrgb": "1-srcalpha",
+        "srcalpha": "one",
+        "dstalpha": "1-srcalpha"
+    },
+    "vertex": "fantasydesire:fd_void_flame",
+    "fragment": "fantasydesire:fd_void_flame",
+    "attributes": ["Position", "Color", "UV0", "UV1", "UV2", "Normal"],
+    "samplers": [{"name": "Sampler0"}],
+    "uniforms": [
+        {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+        {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+        {"name": "EffectLocalMat", "type": "matrix4x4", "count": 16, "values": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]},
+        {"name": "FogShape", "type": "int", "count": 1, "values": [0]},
+        {"name": "FogStart", "type": "float", "count": 1, "values": [0]},
+        {"name": "FogEnd", "type": "float", "count": 1, "values": [256]},
+        {"name": "EffectTime", "type": "float", "count": 1, "values": [0]},
+        {"name": "EffectSeed", "type": "float", "count": 1, "values": [0]},
+        {"name": "VoidStrength", "type": "float", "count": 1, "values": [0]},
+        {"name": "EchoStrength", "type": "float", "count": 1, "values": [0]},
+        {"name": "EchoPulseAges", "type": "float", "count": 4, "values": [2, 2, 2, 2]},
+        {"name": "EchoPulses", "type": "float", "count": 4, "values": [0, 0, 0, 0]}
+    ]
+}

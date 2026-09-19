@@ -87,9 +87,8 @@ public class OverColdEffects {
             CapabilityUtils.addSpecialCharge(fdState, COLD_LEAK.tier3Charge());
         }
         // 施加/刷新效果
-        int biteAmp = COLD_LEAK.biteAmplifier() < 0 ? evolutionTier : COLD_LEAK.biteAmplifier();
         target.addEffect(
-                new MobEffectInstance(FDPotionEffects.FROST_BITE.get(), COLD_LEAK.biteDuration(), biteAmp));
+                new MobEffectInstance(FDPotionEffects.FROST_BITE.get(), COLD_LEAK.biteDuration(), evolutionTier));
     }
 
     public static int getEvolutionTier(String specialType) {

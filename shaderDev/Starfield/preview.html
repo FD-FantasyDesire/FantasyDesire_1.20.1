@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>星海 · 程序化星空</title>
+  <style>
+    :root { color-scheme: dark; font: 14px/1.6 system-ui, "Microsoft YaHei", sans-serif; background: #080c16; color: #e1e7f4; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1600px; margin: auto; padding: 32px 36px; }
+    header { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+    .eyebrow { color: #7e8fae; letter-spacing: .22em; font-size: 11px; }
+    h1 { margin: 6px 0 0; font-size: 30px; letter-spacing: .12em; font-weight: 500; }
+    p { color: #93a0b8; margin: 0; }
+    canvas { display: block; width: 100%; aspect-ratio: 16 / 9; background: #050810; border: 1px solid #202a3c; border-radius: 10px; touch-action: none; cursor: grab; }
+    canvas:active { cursor: grabbing; }
+    .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; padding: 20px 0; }
+    button, select, .file { background: #121c2d; border: 1px solid #2e3b54; border-radius: 6px; color: #dde7fa; padding: 8px 13px; font: inherit; }
+    button, select, .file { cursor: pointer; }
+    button:hover, .file:hover { background: #202f47; }
+    button:focus-visible, input:focus-visible, select:focus-visible, .file:focus-within { outline: 2px solid #94b9ff; outline-offset: 3px; }
+    label { display: flex; align-items: center; gap: 10px; color: #9eacc5; }
+    input[type=range] { width: 160px; accent-color: #a7bdea; }
+    #time { width: clamp(120px, 20vw, 320px); }
+    output { min-width: 62px; color: #d8e2f5; font-variant-numeric: tabular-nums; }
+    footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding-top: 8px; border-top: 1px solid #202a3c; color: #788aa7; font-size: 12px; }
+    #status { white-space: pre-wrap; }
+    .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    @media(max-width: 760px) { main { padding: 20px 16px; } header { align-items: start; flex-direction: column; } canvas { aspect-ratio: 1; } input[type=range] { width: 110px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header><div><div class="eyebrow">PROCEDURAL NIGHT SKY / 01</div><h1>星海</h1></div><p>银河、尘埃与微光。拖动画面，望向另一片夜空。</p></header>
+    <canvas id="view" aria-label="程序化星空预览，拖动调整视角，也可使用下方视角滑条"></canvas>
+    <div class="toolbar">
+      <button id="pause" type="button">暂停</button>
+      <button id="step" type="button">前进一帧</button>
+      <label>时间 <input id="time" type="range" min="0" max="180" step="0.01" value="0"><output id="timeValue">0.00 秒</output></label>
+      <label>画质 <select id="quality"><option value="960">轻量 · 960</option><option value="1440" selected>标准 · 1440</option><option value="1920">精细 · 1920</option></select></label>
+      <button id="save" type="button">保存画面</button>
+    </div>
+    <div class="toolbar" style="padding-top: 0">
+      <label>水平视角 <input id="panX" type="range" min="-1" max="1" step="0.001" value="0"></label>
+      <label>垂直视角 <input id="panY" type="range" min="-1" max="1" step="0.001" value="0"></label>
+      <button id="reset" type="button">视角归中</button>
+      <button id="reload" type="button">重新加载</button>
+      <label class="file">选择 main.frag<input id="source" type="file" accept=".frag,.glsl,text/plain" aria-label="选择 main.frag 着色器源文件"></label>
+    </div>
+    <footer><span>零纹理 · 三层恒星 · 拖动时间轴暂停 · 双击画面归中</span><span id="status" role="status">正在加载着色器…</span></footer>
+  </main>
+  <script src="preview.js"></script>
+</body>
+</html>

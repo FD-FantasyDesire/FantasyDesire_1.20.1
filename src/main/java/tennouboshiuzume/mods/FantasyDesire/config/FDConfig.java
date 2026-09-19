@@ -2,12 +2,14 @@ package tennouboshiuzume.mods.FantasyDesire.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 
-import java.util.List;
+import static tennouboshiuzume.mods.FantasyDesire.potioneffect.VoidStrikeEffect.MAX_STACKS;
 
 /**
- * 模组数值配置（服务端同步 SERVER 型，服务器为准并下发客户端）。
- * 键名前缀与 lang/注册名一致：se/slash_art/effect/damagetype . fantasydesire . <注册id> . <属性>。
- * 所有值在使用处实时读取（禁止缓存为 static final），改配置后 C 类路径（事件内实时计算）立即生效。
+ * 模组数值配置(服务端同步 SERVER 型，服务器为准并下发客户端)。
+ * 键名前缀与 lang/注册名一致：se/slash_art/effect/damagetype . fantasydesire . <注册id> .
+ * <属性>。
+ * 配置数值在使用处读取，不缓存为 static final；写入弹体或效果实例的值仅对后续创建生效。
+ * SERVER 配置在登录时同步客户端，在线修改不等同于向所有客户端广播热更新。
  */
 public final class FDConfig {
     public static final ForgeConfigSpec SPEC;
@@ -34,7 +36,6 @@ public final class FDConfig {
     public static final TwinSystemR TWIN_SYSTEM_R;
     public static final EchoingVoidSa ECHOING_VOID_SA;
     public static final FreezeZero FREEZE_ZERO;
-    public static final ChargeShot CHARGE_SHOT;
     public static final OverCharge OVER_CHARGE;
 
     // ---- effect.fantasydesire.* ----
@@ -47,7 +48,6 @@ public final class FDConfig {
 
     // ---- damagetype.fantasydesire.* ----
     public static final Resolution RESOLUTION;
-    public static final EchoDamageType ECHO;
     public static final Eternity ETERNITY;
     public static final Absorb ABSORB;
     public static final Lust LUST;
@@ -74,7 +74,6 @@ public final class FDConfig {
         TWIN_SYSTEM_R = new TwinSystemR(builder);
         ECHOING_VOID_SA = new EchoingVoidSa(builder);
         FREEZE_ZERO = new FreezeZero(builder);
-        CHARGE_SHOT = new ChargeShot(builder);
         OVER_CHARGE = new OverCharge(builder);
         VOID_STRIKE_EFFECT = new VoidStrikeEffect(builder);
         ECHO_TIMER = new EchoTimer(builder);
@@ -83,7 +82,6 @@ public final class FDConfig {
         COMET_ELYTRA = new CometElytra(builder);
         RAINBOW_SEVEN_EDGE = new RainbowSevenEdge(builder);
         RESOLUTION = new Resolution(builder);
-        ECHO = new EchoDamageType(builder);
         ETERNITY = new Eternity(builder);
         ABSORB = new Absorb(builder);
         LUST = new Lust(builder);
@@ -94,14 +92,14 @@ public final class FDConfig {
     private FDConfig() {
     }
 
-    /** 进入 <root>.fantasydesire.<id> 配置节（根前缀与 lang 键一致） */
+    /** 进入 <root>.fantasydesire.<id> 配置节(根前缀与 lang 键一致) */
     private static void push(ForgeConfigSpec.Builder builder, String root, String id, String comment) {
         builder.push(root);
         builder.push("fantasydesire");
         builder.comment(comment).push(id);
     }
 
-    /** 灵魂之盾（SoulShield）：受击充能、按充能程度概率反击、失败伤害封顶并转化充能 */
+    /** 灵魂之盾(SoulShield)：受击充能、按充能程度概率反击、失败伤害封顶并转化充能 */
     public static class SoulShield {
         public final ForgeConfigSpec.ConfigValue<Double> counterChanceMin;
         public final ForgeConfigSpec.ConfigValue<Double> counterChanceMax;
@@ -115,7 +113,7 @@ public final class FDConfig {
 
         private SoulShield(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "soul_shield",
-                    "灵魂之盾（SoulShield）。受击时获得灵魂碎片充能，按充能程度概率自动反击；反击失败时最终伤害封顶，溢出伤害转化为充能。");
+                    "灵魂之盾(SoulShield)。受击时获得灵魂碎片充能，按充能程度概率自动反击；反击失败时最终伤害封顶，溢出伤害转化为充能。");
             counterChanceMin = builder.defineInRange("counter_chance_min", 5.0D, 0.0D, 100.0D);
             counterChanceMax = builder.defineInRange("counter_chance_max", 95.0D, 0.0D, 100.0D);
             counterChanceCapRatio = builder.defineInRange("counter_chance_cap_ratio", 0.75D, 0.0D, 1.0D);
@@ -128,26 +126,44 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public float counterChanceMin() { return counterChanceMin.get().floatValue(); }
+        public float counterChanceMin() {
+            return counterChanceMin.get().floatValue();
+        }
 
-        public float counterChanceMax() { return counterChanceMax.get().floatValue(); }
+        public float counterChanceMax() {
+            return counterChanceMax.get().floatValue();
+        }
 
-        public float counterChanceCapRatio() { return counterChanceCapRatio.get().floatValue(); }
+        public float counterChanceCapRatio() {
+            return counterChanceCapRatio.get().floatValue();
+        }
 
-        public int counterFixedCharge() { return counterFixedCharge.get(); }
+        public int counterFixedCharge() {
+            return counterFixedCharge.get();
+        }
 
-        public float counterSuccessDamageRatio() { return counterSuccessDamageRatio.get().floatValue(); }
+        public float counterSuccessDamageRatio() {
+            return counterSuccessDamageRatio.get().floatValue();
+        }
 
-        public int counterSuccessChargeCap() { return counterSuccessChargeCap.get(); }
+        public int counterSuccessChargeCap() {
+            return counterSuccessChargeCap.get();
+        }
 
-        public float counterFailDamageCap() { return counterFailDamageCap.get().floatValue(); }
+        public float counterFailDamageCap() {
+            return counterFailDamageCap.get().floatValue();
+        }
 
-        public int counterFailChargeCap() { return counterFailChargeCap.get(); }
+        public int counterFailChargeCap() {
+            return counterFailChargeCap.get();
+        }
 
-        public float counterFailOverflowToCharge() { return counterFailOverflowToCharge.get().floatValue(); }
+        public float counterFailOverflowToCharge() {
+            return counterFailOverflowToCharge.get().floatValue();
+        }
     }
 
-    /** 不屈之魂（ImmortalSoul）：消耗耀魂免死，永久成长面板并给予恢复效果 */
+    /** 不屈之魂(ImmortalSoul)：消耗耀魂免死，永久成长面板并给予恢复效果 */
     public static class ImmortalSoul {
         public final ForgeConfigSpec.ConfigValue<Integer> reviveSoulCost;
         public final ForgeConfigSpec.ConfigValue<Double> reviveChargeRatio;
@@ -161,7 +177,7 @@ public final class FDConfig {
 
         private ImmortalSoul(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "immortal_soul",
-                    "不屈之魂（ImmortalSoul）。遭受致命伤害时消耗耀魂免于死亡：永久提升面板攻击与最大耐久、回复血量、清除效果并给予再生与抗性。");
+                    "不屈之魂(ImmortalSoul)。遭受致命伤害时消耗耀魂免于死亡：永久提升面板攻击与最大耐久、回复血量、清除效果并给予再生与抗性。");
             reviveSoulCost = builder.defineInRange("revive_soul_cost", 1000, 0, Integer.MAX_VALUE);
             reviveChargeRatio = builder.defineInRange("revive_charge_ratio", 0.20D, 0.0D, 1.0D);
             baseAttackBonus = builder.defineInRange("base_attack_bonus", 0.67D, 0.0D, 1000.0D);
@@ -174,26 +190,44 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public int reviveSoulCost() { return reviveSoulCost.get(); }
+        public int reviveSoulCost() {
+            return reviveSoulCost.get();
+        }
 
-        public float reviveChargeRatio() { return reviveChargeRatio.get().floatValue(); }
+        public float reviveChargeRatio() {
+            return reviveChargeRatio.get().floatValue();
+        }
 
-        public float baseAttackBonus() { return baseAttackBonus.get().floatValue(); }
+        public float baseAttackBonus() {
+            return baseAttackBonus.get().floatValue();
+        }
 
-        public int maxDamageBonus() { return maxDamageBonus.get(); }
+        public int maxDamageBonus() {
+            return maxDamageBonus.get();
+        }
 
-        public float healthRatio() { return healthRatio.get().floatValue(); }
+        public float healthRatio() {
+            return healthRatio.get().floatValue();
+        }
 
-        public int regenDuration() { return regenDuration.get(); }
+        public int regenDuration() {
+            return regenDuration.get();
+        }
 
-        public int regenAmplifier() { return regenAmplifier.get(); }
+        public int regenAmplifier() {
+            return regenAmplifier.get();
+        }
 
-        public int resistDuration() { return resistDuration.get(); }
+        public int resistDuration() {
+            return resistDuration.get();
+        }
 
-        public int resistAmplifier() { return resistAmplifier.get(); }
+        public int resistAmplifier() {
+            return resistAmplifier.get();
+        }
     }
 
-    /** 暴君一击（TyrantStrike）：消耗充能追加目标最大生命百分比的次元伤害 */
+    /** 暴君一击(TyrantStrike)：消耗充能追加目标最大生命百分比的次元伤害 */
     public static class TyrantStrike {
         public final ForgeConfigSpec.ConfigValue<Double> triggerRatio;
         public final ForgeConfigSpec.ConfigValue<Double> consumeRatio;
@@ -203,7 +237,7 @@ public final class FDConfig {
 
         private TyrantStrike(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "tyrant_strike",
-                    "暴君一击（TyrantStrike）。灵魂碎片达到比例时，每次命中消耗最大充能比例，追加目标最大生命百分比 + 消耗量×系数 的次元伤害并召唤幻影长枪。");
+                    "暴君一击(TyrantStrike)。灵魂碎片达到比例时，每次命中消耗最大充能比例，追加目标最大生命百分比 + 消耗量×系数 的次元伤害并召唤幻影长枪。");
             triggerRatio = builder.defineInRange("trigger_ratio", 0.95D, 0.0D, 1.0D);
             consumeRatio = builder.defineInRange("consume_ratio", 0.20D, 0.0D, 1.0D);
             healthPercent = builder.defineInRange("health_percent", 0.08D, 0.0D, 1.0D);
@@ -212,18 +246,28 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public float triggerRatio() { return triggerRatio.get().floatValue(); }
+        public float triggerRatio() {
+            return triggerRatio.get().floatValue();
+        }
 
-        public float consumeRatio() { return consumeRatio.get().floatValue(); }
+        public float consumeRatio() {
+            return consumeRatio.get().floatValue();
+        }
 
-        public float healthPercent() { return healthPercent.get().floatValue(); }
+        public float healthPercent() {
+            return healthPercent.get().floatValue();
+        }
 
-        public float chargeDamageScale() { return chargeDamageScale.get().floatValue(); }
+        public float chargeDamageScale() {
+            return chargeDamageScale.get().floatValue();
+        }
 
-        public double phantomDamage() { return phantomDamage.get(); }
+        public double phantomDamage() {
+            return phantomDamage.get();
+        }
     }
 
-    /** 幻猎（BloodDrain）：发射抓钩幻影剑，附魔横扫之刃扩展锁距与视野角 */
+    /** 幻猎(BloodDrain)：发射抓钩幻影剑，附魔横扫之刃扩展锁距与视野角 */
     public static class BloodDrain {
         public final ForgeConfigSpec.ConfigValue<Double> lockBase;
         public final ForgeConfigSpec.ConfigValue<Double> lockPerSweep;
@@ -233,7 +277,7 @@ public final class FDConfig {
 
         private BloodDrain(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "blood_drain",
-                    "幻猎（BloodDrain）。斩击时对扇形视野内的敌人发射追踪抓钩；锁距与视野角随横扫之刃附魔等级成长，普通命中回复血肉钩。");
+                    "幻猎(BloodDrain)。斩击时对扇形视野内的敌人发射追踪抓钩；锁距与视野角随横扫之刃附魔等级成长，普通命中回复血肉钩。");
             lockBase = builder.defineInRange("lock_base", 15.0D, 1.0D, 512.0D);
             lockPerSweep = builder.defineInRange("lock_per_sweep", 10.0D, 0.0D, 100.0D);
             angleBase = builder.defineInRange("angle_base", 30.0D, 1.0D, 180.0D);
@@ -242,18 +286,28 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public float lockBase() { return lockBase.get().floatValue(); }
+        public float lockBase() {
+            return lockBase.get().floatValue();
+        }
 
-        public float lockPerSweep() { return lockPerSweep.get().floatValue(); }
+        public float lockPerSweep() {
+            return lockPerSweep.get().floatValue();
+        }
 
-        public float angleBase() { return angleBase.get().floatValue(); }
+        public float angleBase() {
+            return angleBase.get().floatValue();
+        }
 
-        public float anglePerSweep() { return anglePerSweep.get().floatValue(); }
+        public float anglePerSweep() {
+            return anglePerSweep.get().floatValue();
+        }
 
-        public int hitCharge() { return hitCharge.get(); }
+        public int hitCharge() {
+            return hitCharge.get();
+        }
     }
 
-    /** WG-Zero 智能弹药系统（TripleBullet）：3 连发智能追踪弹 */
+    /** WG-Zero 智能弹药系统(TripleBullet)：3 连发智能追踪弹 */
     public static class TripleBullet {
         public final ForgeConfigSpec.ConfigValue<Integer> ammoCost;
         public final ForgeConfigSpec.ConfigValue<Double> refineLinear;
@@ -270,48 +324,74 @@ public final class FDConfig {
 
         private TripleBullet(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "triple_bullet",
-                    "WG-Zero 智能弹药系统（TripleBullet）。普通射击模式的弹道与伤害参数；伤害 = (基础攻击+重铸奖励)×(1+力量附魔×系数)，锁距 = 基础 + 横扫之刃×增量。装填与重铸奖励系数为枪刃两模式共用。");
+                    "WG-Zero 智能弹药系统(TripleBullet)。普通射击模式的弹道与伤害参数；伤害 = (基础攻击+重铸奖励)×(1+力量附魔×系数)，锁距 = 基础 + 横扫之刃×增量。装填与重铸奖励系数为枪刃两模式共用。");
             ammoCost = builder.defineInRange("ammo_cost", 1, 0, 64);
             refineLinear = builder.defineInRange("refine_linear", 0.1D, 0.0D, 10.0D);
             refineSqrt = builder.defineInRange("refine_sqrt", 1.5D, 0.0D, 100.0D);
             enchantMultPerLevel = builder.defineInRange("enchant_mult_per_level", 0.15D, 0.0D, 5.0D);
             volleyCount = builder.defineInRange("volley_count", 3, 1, 64);
             seekAngle = builder.defineInRange("seek_angle", 18.0D, 0.0D, 90.0D);
+            builder.comment("每级横扫之刃增加的锁距(格)，普通射击与充能齐发共用。");
             sweepRangeMult = builder.defineInRange("sweep_range_mult", 5.0D, 0.0D, 100.0D);
             speed = builder.defineInRange("speed", 1.0D, 0.05D, 10.0D);
             delay = builder.defineInRange("delay", 100, 0, 1000);
+            builder.comment("基础锁距(格)，普通射击与充能齐发共用。");
             lockBase = builder.defineInRange("lock_base", 15.0D, 1.0D, 512.0D);
             reloadSoulCost = builder.defineInRange("reload_soul_cost", 36, 0, Integer.MAX_VALUE);
             reloadCooldown = builder.defineInRange("reload_cooldown", 60, 0, 1000);
             builder.pop(3);
         }
 
-        public int ammoCost() { return ammoCost.get(); }
+        public int ammoCost() {
+            return ammoCost.get();
+        }
 
-        public float refineLinear() { return refineLinear.get().floatValue(); }
+        public float refineLinear() {
+            return refineLinear.get().floatValue();
+        }
 
-        public float refineSqrt() { return refineSqrt.get().floatValue(); }
+        public float refineSqrt() {
+            return refineSqrt.get().floatValue();
+        }
 
-        public float enchantMultPerLevel() { return enchantMultPerLevel.get().floatValue(); }
+        public float enchantMultPerLevel() {
+            return enchantMultPerLevel.get().floatValue();
+        }
 
-        public int volleyCount() { return volleyCount.get(); }
+        public int volleyCount() {
+            return volleyCount.get();
+        }
 
-        public float seekAngle() { return seekAngle.get().floatValue(); }
+        public float seekAngle() {
+            return seekAngle.get().floatValue();
+        }
 
-        public float sweepRangeMult() { return sweepRangeMult.get().floatValue(); }
+        public float sweepRangeMult() {
+            return sweepRangeMult.get().floatValue();
+        }
 
-        public float speed() { return speed.get().floatValue(); }
+        public float speed() {
+            return speed.get().floatValue();
+        }
 
-        public int delay() { return delay.get(); }
+        public int delay() {
+            return delay.get();
+        }
 
-        public float lockBase() { return lockBase.get().floatValue(); }
+        public float lockBase() {
+            return lockBase.get().floatValue();
+        }
 
-        public int reloadSoulCost() { return reloadSoulCost.get(); }
+        public int reloadSoulCost() {
+            return reloadSoulCost.get();
+        }
 
-        public int reloadCooldown() { return reloadCooldown.get(); }
+        public int reloadCooldown() {
+            return reloadCooldown.get();
+        }
     }
 
-    /** WG-Omega 冲击波发射器（EnergyBullet）：多弹片穿透冲击波 */
+    /** WG-Omega 冲击波发射器(EnergyBullet)：多弹片穿透冲击波 */
     public static class EnergyBullet {
         public final ForgeConfigSpec.ConfigValue<Integer> ammoCost;
         public final ForgeConfigSpec.ConfigValue<Double> refineLinear;
@@ -325,7 +405,7 @@ public final class FDConfig {
 
         private EnergyBullet(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "energy_bullet",
-                    "WG-Omega 冲击波发射器（EnergyBullet）。发射多枚高速穿透能量弹；伤害 = (基础攻击+重铸奖励)×(1+力量附魔×系数)。重铸奖励系数为枪刃两模式共用。");
+                    "WG-Omega 冲击波发射器(EnergyBullet)。发射多枚高速穿透能量弹；伤害 = (基础攻击+重铸奖励)×(1+力量附魔×系数)。重铸奖励系数为枪刃两模式共用。");
             ammoCost = builder.defineInRange("ammo_cost", 6, 0, 64);
             refineLinear = builder.defineInRange("refine_linear", 0.2D, 0.0D, 10.0D);
             refineSqrt = builder.defineInRange("refine_sqrt", 1.5D, 0.0D, 100.0D);
@@ -338,26 +418,44 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public int ammoCost() { return ammoCost.get(); }
+        public int ammoCost() {
+            return ammoCost.get();
+        }
 
-        public float refineLinear() { return refineLinear.get().floatValue(); }
+        public float refineLinear() {
+            return refineLinear.get().floatValue();
+        }
 
-        public float refineSqrt() { return refineSqrt.get().floatValue(); }
+        public float refineSqrt() {
+            return refineSqrt.get().floatValue();
+        }
 
-        public float enchantMultPerLevel() { return enchantMultPerLevel.get().floatValue(); }
+        public float enchantMultPerLevel() {
+            return enchantMultPerLevel.get().floatValue();
+        }
 
-        public int pelletCount() { return pelletCount.get(); }
+        public int pelletCount() {
+            return pelletCount.get();
+        }
 
-        public float speed() { return speed.get().floatValue(); }
+        public float speed() {
+            return speed.get().floatValue();
+        }
 
-        public int pierce() { return pierce.get(); }
+        public int pierce() {
+            return pierce.get();
+        }
 
-        public float thunderExpRadius() { return thunderExpRadius.get().floatValue(); }
+        public float thunderExpRadius() {
+            return thunderExpRadius.get().floatValue();
+        }
 
-        public int cooldown() { return cooldown.get(); }
+        public int cooldown() {
+            return cooldown.get();
+        }
     }
 
-    /** WG-HyperBlast 绝肃爆裂弹头（ExplosiveBullet）：爆裂模式替换智能弹道的各项参数 */
+    /** WG-HyperBlast 绝肃爆裂弹头(ExplosiveBullet)：爆裂模式替换智能弹道的各项参数 */
     public static class ExplosiveBullet {
         public final ForgeConfigSpec.ConfigValue<Integer> volleyCount;
         public final ForgeConfigSpec.ConfigValue<Double> seekAngle;
@@ -370,112 +468,132 @@ public final class FDConfig {
 
         private ExplosiveBullet(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "explosive_bullet",
-                    "WG-HyperBlast 绝肃爆裂弹头（ExplosiveBullet）。装备时替换智能弹药系统的弹道参数（发射数量/追踪角/锁距/弹速/延迟），伤害 ×系数，爆炸半径 = 基础 + 力量附魔等级。");
+                    "WG-HyperBlast 绝肃爆裂弹头(ExplosiveBullet)。装备时替换智能弹药系统的弹道参数(发射数量/追踪角/锁距/弹速/延迟)，伤害 ×系数，爆炸半径 = 基础 + 力量附魔等级。");
             volleyCount = builder.defineInRange("volley_count", 1, 1, 64);
             seekAngle = builder.defineInRange("seek_angle", 6.0D, 0.0D, 90.0D);
+            builder.comment("每级横扫之刃增加的锁距(格)，爆裂弹普通射击与充能齐发共用。");
             sweepRangeMult = builder.defineInRange("sweep_range_mult", 15.0D, 0.0D, 100.0D);
             speed = builder.defineInRange("speed", 0.33D, 0.05D, 10.0D);
             delay = builder.defineInRange("delay", 300, 0, 1000);
+            builder.comment("基础锁距(格)，爆裂弹普通射击与充能齐发共用。");
             lockBase = builder.defineInRange("lock_base", 35.0D, 1.0D, 512.0D);
+            builder.comment("爆裂弹伤害倍率，普通射击与充能齐发共用。");
             damageMult = builder.defineInRange("damage_mult", 5.0D, 0.0D, 100.0D);
+            builder.comment("基础爆炸半径(格)，再加力量附魔等级；普通射击与充能齐发共用。");
             expRadiusBase = builder.defineInRange("exp_radius_base", 2.0D, 0.0D, 64.0D);
             builder.pop(3);
         }
 
-        public int volleyCount() { return volleyCount.get(); }
+        public int volleyCount() {
+            return volleyCount.get();
+        }
 
-        public float seekAngle() { return seekAngle.get().floatValue(); }
+        public float seekAngle() {
+            return seekAngle.get().floatValue();
+        }
 
-        public float sweepRangeMult() { return sweepRangeMult.get().floatValue(); }
+        public float sweepRangeMult() {
+            return sweepRangeMult.get().floatValue();
+        }
 
-        public float speed() { return speed.get().floatValue(); }
+        public float speed() {
+            return speed.get().floatValue();
+        }
 
-        public int delay() { return delay.get(); }
+        public int delay() {
+            return delay.get();
+        }
 
-        public float lockBase() { return lockBase.get().floatValue(); }
+        public float lockBase() {
+            return lockBase.get().floatValue();
+        }
 
-        public float damageMult() { return damageMult.get().floatValue(); }
+        public float damageMult() {
+            return damageMult.get().floatValue();
+        }
 
-        public float expRadiusBase() { return expRadiusBase.get().floatValue(); }
+        public float expRadiusBase() {
+            return expRadiusBase.get().floatValue();
+        }
     }
 
-    /** 寒流外溢（ColdLeak）：命中施加寒霜咬噬，tier3 额外回复进化点 */
+    /** 寒流外溢(ColdLeak)：命中施加寒霜咬噬，tier3 额外回复进化点 */
     public static class ColdLeak {
         public final ForgeConfigSpec.ConfigValue<Integer> biteDuration;
-        public final ForgeConfigSpec.ConfigValue<Integer> biteAmplifier;
         public final ForgeConfigSpec.ConfigValue<Integer> tier3Charge;
 
         private ColdLeak(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "cold_leak",
-                    "寒流外溢（ColdLeak）。命中时施加寒霜咬噬；等级默认跟随进化等级（-1），也可固定为 0~255。tier3 命中额外获得进化点。");
+                    "寒流外溢(ColdLeak)。命中时施加寒霜咬噬，等级始终跟随进化等级。tier3 命中额外获得进化点。");
             biteDuration = builder.defineInRange("bite_duration", 120, 0, Integer.MAX_VALUE);
-            biteAmplifier = builder.defineInRange("bite_amplifier", -1, -1, 255);
             tier3Charge = builder.defineInRange("tier3_charge", 2, 0, 100);
             builder.pop(3);
         }
 
-        public int biteDuration() { return biteDuration.get(); }
+        public int biteDuration() {
+            return biteDuration.get();
+        }
 
-        public int biteAmplifier() { return biteAmplifier.get(); }
-
-        public int tier3Charge() { return tier3Charge.get(); }
+        public int tier3Charge() {
+            return tier3Charge.get();
+        }
     }
 
-    /** 虹光通量（RainbowFlux）：虹羽七刃剑状态下的七倍范围攻击 */
+    /** 虹光通量(RainbowFlux)：虹羽七刃剑状态下的七倍范围攻击 */
     public static class RainbowFlux {
         public final ForgeConfigSpec.ConfigValue<Double> areaDamageMult;
 
         private RainbowFlux(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "rainbow_flux",
-                    "虹光通量（RainbowFlux）。持有「虹羽七刃剑」效果时，将斩击替换为当前罪属性的范围攻击，伤害 = 本次斩击 × 系数。");
+                    "虹光通量(RainbowFlux)。持有「虹羽七刃剑」效果时，将斩击替换为当前罪属性的范围攻击，伤害 = 本次斩击 × 系数。");
             areaDamageMult = builder.defineInRange("area_damage_mult", 7.0D, 0.0D, 100.0D);
             builder.pop(3);
         }
 
-        public float areaDamageMult() { return areaDamageMult.get().floatValue(); }
+        public float areaDamageMult() {
+            return areaDamageMult.get().floatValue();
+        }
     }
 
-    /** 全色汇流（ColorFlux）：满 7 层召唤七色幻影剑 */
+    /** 全色汇流(ColorFlux)：满 7 层召唤七色幻影剑 */
     public static class ColorFlux {
         public final ForgeConfigSpec.ConfigValue<Double> swordDamageBase;
         public final ForgeConfigSpec.ConfigValue<Double> swordDamageAttackRatio;
-        public final ForgeConfigSpec.ConfigValue<Double> hitEffectRadiusChargeScale;
 
         private ColorFlux(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "color_flux",
-                    "全色汇流（ColorFlux）。命中累计充能，满 7 层时召唤 7 把带罪属性的幻影剑，每把伤害 = 基础 + 面板攻击×比例；命中特效半径 = 1 + 充能×系数。");
+                    "全色汇流(ColorFlux)FinalDMG = Base + BladeStat * Ratio * Hardcode Extra Buff");
             swordDamageBase = builder.defineInRange("sword_damage_base", 1.0D, 0.0D, 100.0D);
             swordDamageAttackRatio = builder.defineInRange("sword_damage_attack_ratio", 0.5D, 0.0D, 10.0D);
-            hitEffectRadiusChargeScale = builder.defineInRange("hit_effect_radius_charge_scale", 0.3D, 0.0D, 10.0D);
             builder.pop(3);
         }
 
-        public float swordDamageBase() { return swordDamageBase.get().floatValue(); }
+        public float swordDamageBase() {
+            return swordDamageBase.get().floatValue();
+        }
 
-        public float swordDamageAttackRatio() { return swordDamageAttackRatio.get().floatValue(); }
-
-        public float hitEffectRadiusChargeScale() { return hitEffectRadiusChargeScale.get().floatValue(); }
+        public float swordDamageAttackRatio() {
+            return swordDamageAttackRatio.get().floatValue();
+        }
     }
 
-    /** 虚空强袭（SE VoidStrike）：命中叠加易伤层数 */
+    /** 虚空强袭(SE VoidStrike)：命中叠加易伤层数 */
     public static class VoidStrikeSe {
         public final ForgeConfigSpec.ConfigValue<Integer> duration;
-        public final ForgeConfigSpec.ConfigValue<Integer> ampCap;
 
         private VoidStrikeSe(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "void_strike",
-                    "虚空强袭（VoidStrike）。命中为目标叠加虚空强袭效果；时长与等级上限。增伤乘区见 effect.fantasydesire.void_strike.damage_per_layer。");
+                    "虚空强袭(VoidStrike)");
             duration = builder.defineInRange("duration", 200, 0, Integer.MAX_VALUE);
-            ampCap = builder.defineInRange("amp_cap", 49, 0, 255);
             builder.pop(3);
         }
 
-        public int duration() { return duration.get(); }
-
-        public int ampCap() { return ampCap.get(); }
+        public int duration() {
+            return duration.get();
+        }
     }
 
-    /** 回响打击（EchoingStrike）：回响伤害概率连锁 */
+    /** 回响打击(EchoingStrike)：回响伤害概率连锁 */
     public static class EchoingStrike {
         public final ForgeConfigSpec.ConfigValue<Double> chainChance;
         public final ForgeConfigSpec.ConfigValue<Double> chainRadius;
@@ -484,7 +602,7 @@ public final class FDConfig {
 
         private EchoingStrike(ForgeConfigSpec.Builder builder) {
             push(builder, "se", "echoing_strike",
-                    "回响打击（EchoingStrike）。回响伤害触发时按概率在半径内连锁攻击若干目标，每跳 = 原伤害×比例（魔法伤害，防递归），并为目标叠加虚空强袭。");
+                    "回响打击(Echoing Strike)");
             chainChance = builder.defineInRange("chain_chance", 0.25D, 0.0D, 1.0D);
             chainRadius = builder.defineInRange("chain_radius", 16.0D, 0.0D, 256.0D);
             chainCount = builder.defineInRange("chain_count", 3, 1, 16);
@@ -492,19 +610,25 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public float chainChance() { return chainChance.get().floatValue(); }
+        public float chainChance() {
+            return chainChance.get().floatValue();
+        }
 
-        public float chainRadius() { return chainRadius.get().floatValue(); }
+        public float chainRadius() {
+            return chainRadius.get().floatValue();
+        }
 
-        public int chainCount() { return chainCount.get(); }
+        public int chainCount() {
+            return chainCount.get();
+        }
 
-        public float chainDamageRatio() { return chainDamageRatio.get().floatValue(); }
+        public float chainDamageRatio() {
+            return chainDamageRatio.get().floatValue();
+        }
     }
 
-    /** 翱向未来之翼（WingToTheFuture）：羽翼幻影剑轰炸 */
+    /** 翱向未来之翼(WingToTheFuture)：羽翼幻影剑轰炸 */
     public static class WingToTheFuture {
-        public final ForgeConfigSpec.ConfigValue<Integer> expLevelSqrtOffset;
-        public final ForgeConfigSpec.ConfigValue<Integer> maxFeather;
         public final ForgeConfigSpec.ConfigValue<Double> swordDamageBase;
         public final ForgeConfigSpec.ConfigValue<Double> swordDamageAttackRatio;
         public final ForgeConfigSpec.ConfigValue<Double> targetRange;
@@ -514,9 +638,7 @@ public final class FDConfig {
 
         private WingToTheFuture(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "wing_to_the_future",
-                    "翱向未来之翼（WingToTheFuture）。翼数 = clamp(√经验等级−偏移, 1, 3)，每翼生成若干把羽毛剑，伤害 = 基础 + 面板攻击×比例，追踪并爆炸。");
-            expLevelSqrtOffset = builder.defineInRange("exp_level_sqrt_offset", 5, 0, 100);
-            maxFeather = builder.defineInRange("max_feather", 32, 1, 512);
+                    "SA 翱向未来之翼 (Wing To The Future) FinalDMG = Base + BladeStat * Ratio * Hardcode Extra Buff + Vanilla Explosive Damage");
             swordDamageBase = builder.defineInRange("sword_damage_base", 1.0D, 0.0D, 100.0D);
             swordDamageAttackRatio = builder.defineInRange("sword_damage_attack_ratio", 0.5D, 0.0D, 10.0D);
             targetRange = builder.defineInRange("target_range", 35.0D, 1.0D, 512.0D);
@@ -526,26 +648,32 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public int expLevelSqrtOffset() { return expLevelSqrtOffset.get(); }
+        public float swordDamageBase() {
+            return swordDamageBase.get().floatValue();
+        }
 
-        public int maxFeather() { return maxFeather.get(); }
+        public float swordDamageAttackRatio() {
+            return swordDamageAttackRatio.get().floatValue();
+        }
 
-        public float swordDamageBase() { return swordDamageBase.get().floatValue(); }
+        public float targetRange() {
+            return targetRange.get().floatValue();
+        }
 
-        public float swordDamageAttackRatio() { return swordDamageAttackRatio.get().floatValue(); }
+        public float targetAngle() {
+            return targetAngle.get().floatValue();
+        }
 
-        public float targetRange() { return targetRange.get().floatValue(); }
+        public float expRadius() {
+            return expRadius.get().floatValue();
+        }
 
-        public float targetAngle() { return targetAngle.get().floatValue(); }
-
-        public float expRadius() { return expRadius.get().floatValue(); }
-
-        public float speed() { return speed.get().floatValue(); }
+        public float speed() {
+            return speed.get().floatValue();
+        }
     }
 
-    /** Extermination-深红强袭（SA CrimsonStrike）：聚怪 + 爪刃斩 */
     public static class CrimsonStrikeSa {
-        public final ForgeConfigSpec.ConfigValue<Integer> huntSwordCount;
         public final ForgeConfigSpec.ConfigValue<Double> huntTargetRange;
         public final ForgeConfigSpec.ConfigValue<Double> huntSeekAngle;
         public final ForgeConfigSpec.ConfigValue<Double> clawDamage;
@@ -553,8 +681,7 @@ public final class FDConfig {
 
         private CrimsonStrikeSa(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "crimson_strike",
-                    "Extermination-深红强袭（SA CrimsonStrike）。召唤狩猎之剑聚拢周围敌人，随后三段爪刃斩：每次点击 3 道吸收剑气。");
-            huntSwordCount = builder.defineInRange("hunt_sword_count", 24, 1, 512);
+                    "SA 深红强袭 (CrimsonStrike) FinalDMG = Base + BladeStat * Ratio * Hardcode Extra Buff");
             huntTargetRange = builder.defineInRange("hunt_target_range", 40.0D, 1.0D, 512.0D);
             huntSeekAngle = builder.defineInRange("hunt_seek_angle", 36.0D, 0.0D, 90.0D);
             clawDamage = builder.defineInRange("claw_damage", 4.0D, 0.0D, 1000.0D);
@@ -562,137 +689,114 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public int huntSwordCount() { return huntSwordCount.get(); }
+        public float huntTargetRange() {
+            return huntTargetRange.get().floatValue();
+        }
 
-        public float huntTargetRange() { return huntTargetRange.get().floatValue(); }
+        public float huntSeekAngle() {
+            return huntSeekAngle.get().floatValue();
+        }
 
-        public float huntSeekAngle() { return huntSeekAngle.get().floatValue(); }
+        public float clawDamage() {
+            return clawDamage.get().floatValue();
+        }
 
-        public float clawDamage() { return clawDamage.get().floatValue(); }
-
-        public float clawScale() { return clawScale.get().floatValue(); }
+        public float clawScale() {
+            return clawScale.get().floatValue();
+        }
     }
 
-    /** Imagenation 虹光星雨（RainbowStar）：彩虹幻影剑雨 */
+    /** Imagenation 虹光星雨(RainbowStar)：彩虹幻影剑雨 */
     public static class RainbowStar {
-        public final ForgeConfigSpec.ConfigValue<Integer> swordCount;
         public final ForgeConfigSpec.ConfigValue<Double> swordDamageBase;
         public final ForgeConfigSpec.ConfigValue<Double> swordDamageAttackRatio;
         public final ForgeConfigSpec.ConfigValue<Double> speed;
 
         private RainbowStar(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "rainbow_star",
-                    "Imagenation 虹光星雨（RainbowStar）。召唤从天而降的彩虹幻影剑，每把伤害 = 基础 + 面板攻击×比例。施放后获得「虹羽七刃剑」效果（时长见 effect.fantasydesire.rainbow_seven_edge）。");
-            swordCount = builder.defineInRange("sword_count", 21, 1, 512);
+                    "Imagenation 虹光星雨(RainbowStar)。FinalDMG = Base + BladeStat * Ratio * Hardcode Extra Buff");
             swordDamageBase = builder.defineInRange("sword_damage_base", 1.0D, 0.0D, 100.0D);
             swordDamageAttackRatio = builder.defineInRange("sword_damage_attack_ratio", 0.5D, 0.0D, 10.0D);
             speed = builder.defineInRange("speed", 5.0D, 0.05D, 10.0D);
             builder.pop(3);
         }
 
-        public int swordCount() { return swordCount.get(); }
+        public float swordDamageBase() {
+            return swordDamageBase.get().floatValue();
+        }
 
-        public float swordDamageBase() { return swordDamageBase.get().floatValue(); }
+        public float swordDamageAttackRatio() {
+            return swordDamageAttackRatio.get().floatValue();
+        }
 
-        public float swordDamageAttackRatio() { return swordDamageAttackRatio.get().floatValue(); }
-
-        public float speed() { return speed.get().floatValue(); }
+        public float speed() {
+            return speed.get().floatValue();
+        }
     }
 
-    /** 启动程式：MOOD（TwinSystemL） */
+    /** 启动程式：MOOD(TwinSystemL) */
     public static class TwinSystemL {
         public final ForgeConfigSpec.ConfigValue<Double> rippedRange;
         public final ForgeConfigSpec.ConfigValue<Double> rippedAngle;
-        public final ForgeConfigSpec.ConfigValue<Double> riseRatio;
-        public final ForgeConfigSpec.ConfigValue<Double> spinRatio;
-        public final ForgeConfigSpec.ConfigValue<Double> slamRatio;
 
         private TwinSystemL(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "twin_system_l",
-                    "启动程式：MOOD（TwinSystemL）。瞬步索敌（距离/视野角）→ 跃升斩×2 → 双旋斩×10 → 重锤落×2，倍率均为本次斩击伤害的乘数。");
+                    "启动程式：MOOD (TwinSystemL)");
             rippedRange = builder.defineInRange("ripped_range", 35.0D, 1.0D, 512.0D);
             rippedAngle = builder.defineInRange("ripped_angle", 25.0D, 1.0D, 180.0D);
-            riseRatio = builder.defineInRange("rise_ratio", 0.50D, 0.0D, 100.0D);
-            spinRatio = builder.defineInRange("spin_ratio", 0.30D, 0.0D, 100.0D);
-            slamRatio = builder.defineInRange("slam_ratio", 2.875D, 0.0D, 100.0D);
             builder.pop(3);
         }
 
-        public float rippedRange() { return rippedRange.get().floatValue(); }
+        public float rippedRange() {
+            return rippedRange.get().floatValue();
+        }
 
-        public float rippedAngle() { return rippedAngle.get().floatValue(); }
+        public float rippedAngle() {
+            return rippedAngle.get().floatValue();
+        }
 
-        public float riseRatio() { return riseRatio.get().floatValue(); }
-
-        public float spinRatio() { return spinRatio.get().floatValue(); }
-
-        public float slamRatio() { return slamRatio.get().floatValue(); }
     }
 
-    /** 终结程式：DOOM（TwinSystemR） */
+    /** 终结程式：DOOM(TwinSystemR) */
     public static class TwinSystemR {
         public final ForgeConfigSpec.ConfigValue<Double> dominateRadius;
-        public final ForgeConfigSpec.ConfigValue<Double> teleportDistance;
-        public final ForgeConfigSpec.ConfigValue<Double> runeDamageHealthRatio;
         public final ForgeConfigSpec.ConfigValue<Double> doomSelfDamage;
-        public final ForgeConfigSpec.ConfigValue<Double> doomSlashRatio;
-        public final ForgeConfigSpec.ConfigValue<Double> doomHealthThreshold;
 
         private TwinSystemR(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "twin_system_r",
-                    "终结程式：DOOM（TwinSystemR）。瞬步锁敌后以自伤为代价循环斩击；血量高于阈值时可继续循环；终章幻影剑伤害 = 玩家最大生命×比例。");
+                    "终结程式：DOOM (TwinSystemR)");
             dominateRadius = builder.defineInRange("dominate_radius", 15.0D, 1.0D, 512.0D);
-            teleportDistance = builder.defineInRange("teleport_distance", 2.0D, 0.0D, 100.0D);
-            runeDamageHealthRatio = builder.defineInRange("rune_damage_health_ratio", 0.25D, 0.0D, 1.0D);
             doomSelfDamage = builder.defineInRange("doom_self_damage", 2.0D, 0.0D, 100.0D);
-            doomSlashRatio = builder.defineInRange("doom_slash_ratio", 0.244D, 0.0D, 100.0D);
-            doomHealthThreshold = builder.defineInRange("doom_health_threshold", 0.5D, 0.0D, 1.0D);
             builder.pop(3);
         }
 
-        public float dominateRadius() { return dominateRadius.get().floatValue(); }
+        public float dominateRadius() {
+            return dominateRadius.get().floatValue();
+        }
 
-        public float teleportDistance() { return teleportDistance.get().floatValue(); }
+        public float doomSelfDamage() {
+            return doomSelfDamage.get().floatValue();
+        }
 
-        public float runeDamageHealthRatio() { return runeDamageHealthRatio.get().floatValue(); }
-
-        public float doomSelfDamage() { return doomSelfDamage.get().floatValue(); }
-
-        public float doomSlashRatio() { return doomSlashRatio.get().floatValue(); }
-
-        public float doomHealthThreshold() { return doomHealthThreshold.get().floatValue(); }
     }
 
-    /** 宙极崩毁（EchoingVoid）：叠层 + 多段范围回响斩 */
+    /** 宙极崩毁(EchoingVoid)：叠层 + 多段范围回响斩 */
     public static class EchoingVoidSa {
-        private static final double[] DEFAULT_SLASH_DAMAGES = { 0.1D, 3.0D, 5.0D, 7.0D, 9.0D };
         public final ForgeConfigSpec.ConfigValue<Integer> voidStrikeStacks;
-        public final ForgeConfigSpec.ConfigValue<List<? extends Double>> slashDamages;
 
         private EchoingVoidSa(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "echoing_void",
-                    "宙极崩毁（EchoingVoid）。命中为目标叠加虚空强袭层数；四段范围斩的伤害序列（第 1 段为 0.1 的起手斩，随后 3/5/7/9），列表不足时按默认值补齐。");
-            voidStrikeStacks = builder.defineInRange("void_strike_stacks", 10, 1, 50);
-            slashDamages = builder.defineList("slash_damages",
-                    List.of(DEFAULT_SLASH_DAMAGES[0], DEFAULT_SLASH_DAMAGES[1], DEFAULT_SLASH_DAMAGES[2],
-                            DEFAULT_SLASH_DAMAGES[3], DEFAULT_SLASH_DAMAGES[4]),
-                    obj -> obj instanceof Number);
+                    "宙极崩毁(EchoingVoid)");
+            voidStrikeStacks = builder.defineInRange("void_strike_stacks", 10, 1, MAX_STACKS);
             builder.pop(3);
         }
 
-        public int voidStrikeStacks() { return voidStrikeStacks.get(); }
-
-        /** 第 index 段范围斩伤害（越界回退默认值） */
-        public double slashDamage(int index) {
-            List<? extends Double> list = slashDamages.get();
-            if (index >= 0 && index < list.size()) {
-                return list.get(index);
-            }
-            return DEFAULT_SLASH_DAMAGES[Math.max(0, Math.min(index, DEFAULT_SLASH_DAMAGES.length - 1))];
+        public int voidStrikeStacks() {
+            return voidStrikeStacks.get();
         }
     }
 
-    /** 永冻：零世代（FreezeZero）：风暴展开与叠加 */
+    /** 永冻：零世代(FreezeZero)：风暴展开与叠加 */
     public static class FreezeZero {
         public final ForgeConfigSpec.ConfigValue<Double> baseDurationSec;
         public final ForgeConfigSpec.ConfigValue<Double> baseDurationPerTierSec;
@@ -702,7 +806,7 @@ public final class FDConfig {
 
         private FreezeZero(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "freeze_zero",
-                    "永冻：零世代（FreezeZero）。无风暴时展开：时长 = (基础 + 进化等级×每级) 秒；已有风暴时叠加：延长 = max(进化等级×每级秒数×20, 最小tick)，等级 +1（上限）。");
+                    "永冻：零世代(FreezeZero)");
             baseDurationSec = builder.defineInRange("base_duration_sec", 6.0D, 0.0D, 3600.0D);
             baseDurationPerTierSec = builder.defineInRange("base_duration_per_tier_sec", 3.0D, 0.0D, 3600.0D);
             stackExtensionPerTierSec = builder.defineInRange("stack_extension_per_tier_sec", 3.0D, 0.0D, 3600.0D);
@@ -711,134 +815,76 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public float baseDurationSec() { return baseDurationSec.get().floatValue(); }
-
-        public float baseDurationPerTierSec() { return baseDurationPerTierSec.get().floatValue(); }
-
-        public float stackExtensionPerTierSec() { return stackExtensionPerTierSec.get().floatValue(); }
-
-        public int stackExtensionMinTick() { return stackExtensionMinTick.get(); }
-
-        public int ampCap() { return ampCap.get(); }
-    }
-
-    /** 充能齐发（ChargeShot）：倾泻弹匣所有弹药 */
-    public static class ChargeShot {
-        public final ForgeConfigSpec.ConfigValue<Double> dumpRatio;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpEnchantMult;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpSweepMult;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpSweepMultExplosive;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpLockBase;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpLockBaseExplosive;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpExpRadiusBase;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpExpRadiusExplosiveBase;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpExplosiveMult;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpSpeed;
-        public final ForgeConfigSpec.ConfigValue<Double> dumpSpeedExplosive;
-
-        private ChargeShot(ForgeConfigSpec.Builder builder) {
-            push(builder, "slash_art", "charge_shot",
-                    "充能齐发（ChargeShot）。一次清空弹匣：每发伤害 = (基础+重铸)×(1+力量×系数)×倍率；爆裂弹头模式下锁距/弹速/爆炸半径使用对应的 _explosive 键。");
-            dumpRatio = builder.defineInRange("dump_ratio", 3.0D, 0.0D, 100.0D);
-            dumpEnchantMult = builder.defineInRange("dump_enchant_mult", 0.10D, 0.0D, 5.0D);
-            dumpSweepMult = builder.defineInRange("dump_sweep_mult", 5.0D, 0.0D, 100.0D);
-            dumpSweepMultExplosive = builder.defineInRange("dump_sweep_mult_explosive", 15.0D, 0.0D, 100.0D);
-            dumpLockBase = builder.defineInRange("dump_lock_base", 15.0D, 1.0D, 512.0D);
-            dumpLockBaseExplosive = builder.defineInRange("dump_lock_base_explosive", 35.0D, 1.0D, 512.0D);
-            dumpExpRadiusBase = builder.defineInRange("dump_exp_radius_base", 0.0D, 0.0D, 64.0D);
-            dumpExpRadiusExplosiveBase = builder.defineInRange("dump_exp_radius_explosive_base", 2.0D, 0.0D, 64.0D);
-            dumpExplosiveMult = builder.defineInRange("dump_explosive_mult", 5.0D, 0.0D, 100.0D);
-            dumpSpeed = builder.defineInRange("dump_speed", 1.0D, 0.05D, 10.0D);
-            dumpSpeedExplosive = builder.defineInRange("dump_speed_explosive", 0.33D, 0.05D, 10.0D);
-            builder.pop(3);
+        public float baseDurationSec() {
+            return baseDurationSec.get().floatValue();
         }
 
-        public float dumpRatio() { return dumpRatio.get().floatValue(); }
+        public float baseDurationPerTierSec() {
+            return baseDurationPerTierSec.get().floatValue();
+        }
 
-        public float dumpEnchantMult() { return dumpEnchantMult.get().floatValue(); }
+        public float stackExtensionPerTierSec() {
+            return stackExtensionPerTierSec.get().floatValue();
+        }
 
-        public float dumpSweepMult() { return dumpSweepMult.get().floatValue(); }
+        public int stackExtensionMinTick() {
+            return stackExtensionMinTick.get();
+        }
 
-        public float dumpSweepMultExplosive() { return dumpSweepMultExplosive.get().floatValue(); }
-
-        public float dumpLockBase() { return dumpLockBase.get().floatValue(); }
-
-        public float dumpLockBaseExplosive() { return dumpLockBaseExplosive.get().floatValue(); }
-
-        public float dumpExpRadiusBase() { return dumpExpRadiusBase.get().floatValue(); }
-
-        public float dumpExpRadiusExplosiveBase() { return dumpExpRadiusExplosiveBase.get().floatValue(); }
-
-        public float dumpExplosiveMult() { return dumpExplosiveMult.get().floatValue(); }
-
-        public float dumpSpeed() { return dumpSpeed.get().floatValue(); }
-
-        public float dumpSpeedExplosive() { return dumpSpeedExplosive.get().floatValue(); }
+        public int ampCap() {
+            return ampCap.get();
+        }
     }
 
-    /** 超载充能（OverCharge）：BFG 巨型能量球 */
+    /** 超载充能(OverCharge)：BFG 巨型能量球 */
     public static class OverCharge {
-        public final ForgeConfigSpec.ConfigValue<Double> bfgRefineLinear;
-        public final ForgeConfigSpec.ConfigValue<Double> bfgEnchantMult;
-        public final ForgeConfigSpec.ConfigValue<Double> bfgThunderRatio;
         public final ForgeConfigSpec.ConfigValue<Double> bfgExpRadius;
 
         private OverCharge(ForgeConfigSpec.Builder builder) {
             push(builder, "slash_art", "over_charge",
-                    "超载充能（OverCharge）。发射 BFG 能量球：伤害 = (基础+重铸)×(1+力量×系数)×弹药数×倍率（宙霆模式下 ×1.0 换连锁闪电），爆炸半径可调。");
-            bfgRefineLinear = builder.defineInRange("bfg_refine_linear", 0.1D, 0.0D, 10.0D);
-            bfgEnchantMult = builder.defineInRange("bfg_enchant_mult", 0.25D, 0.0D, 5.0D);
-            bfgThunderRatio = builder.defineInRange("bfg_thunder_ratio", 1.5D, 0.0D, 10.0D);
+                    "超载充能(OverCharge)");
             bfgExpRadius = builder.defineInRange("bfg_exp_radius", 25.0D, 0.0D, 128.0D);
             builder.pop(3);
         }
 
-        public float bfgRefineLinear() { return bfgRefineLinear.get().floatValue(); }
-
-        public float bfgEnchantMult() { return bfgEnchantMult.get().floatValue(); }
-
-        public float bfgThunderRatio() { return bfgThunderRatio.get().floatValue(); }
-
-        public float bfgExpRadius() { return bfgExpRadius.get().floatValue(); }
+        public float bfgExpRadius() {
+            return bfgExpRadius.get().floatValue();
+        }
     }
 
-    /** 虚空强袭（药水效果 VoidStrike）：易伤乘区 */
+    /** 虚空强袭(药水效果 VoidStrike)：易伤乘区 */
     public static class VoidStrikeEffect {
         public final ForgeConfigSpec.ConfigValue<Double> damagePerLayer;
-        public final ForgeConfigSpec.ConfigValue<Integer> stackCap;
-        public final ForgeConfigSpec.ConfigValue<Integer> tickInterval;
 
         private VoidStrikeEffect(ForgeConfigSpec.Builder builder) {
             push(builder, "effect", "void_strike",
-                    "虚空强袭（药水效果 VoidStrike）。目标每携带 1 层，受到的全伤害 ×(1 + 每层增伤)；属性同步层数上限；粒子/音效节拍。");
+                    "虚空强袭(VoidStrike)");
             damagePerLayer = builder.defineInRange("damage_per_layer", 0.10D, 0.0D, 5.0D);
-            stackCap = builder.defineInRange("stack_cap", 50, 0, 255);
-            tickInterval = builder.defineInRange("tick_interval", 20, 1, 100);
             builder.pop(3);
         }
 
-        public float damagePerLayer() { return damagePerLayer.get().floatValue(); }
-
-        public int stackCap() { return stackCap.get(); }
-
-        public int tickInterval() { return tickInterval.get(); }
+        public float damagePerLayer() {
+            return damagePerLayer.get().floatValue();
+        }
     }
 
-    /** 回响计时（EchoTimer）：回响伤害引爆倒计时 */
+    /** 回响计时(EchoTimer)：回响伤害引爆倒计时 */
     public static class EchoTimer {
         public final ForgeConfigSpec.ConfigValue<Integer> duration;
 
         private EchoTimer(ForgeConfigSpec.Builder builder) {
             push(builder, "effect", "echo_timer",
-                    "回响计时（EchoTimer）。目标受到回响伤害后进入倒计时，到期全额引爆记账伤害。");
+                    "回响计时(EchoTimer)");
             duration = builder.defineInRange("duration", 60, 0, Integer.MAX_VALUE);
             builder.pop(3);
         }
 
-        public int duration() { return duration.get(); }
+        public int duration() {
+            return duration.get();
+        }
     }
 
-    /** 寒霜风暴（FrostStorm）：领域、咬噬与持续强度成长 */
+    /** 寒霜风暴(FrostStorm)：领域、咬噬与持续强度成长 */
     public static class FrostStorm {
         public final ForgeConfigSpec.ConfigValue<Double> radiusBase;
         public final ForgeConfigSpec.ConfigValue<Double> radiusPerAmp;
@@ -849,7 +895,7 @@ public final class FDConfig {
 
         private FrostStorm(ForgeConfigSpec.Builder builder) {
             push(builder, "effect", "frost_storm",
-                    "寒霜风暴（FrostStorm）。领域半径 = clamp(基础 + 等级×每级, 基础, 上限)；范围内敌人持续被施加寒霜咬噬；强度从 1 开始，每秒成长 0.05，并通过加值属性修改器影响幻影剑伤害（上限 10）。");
+                    "寒霜风暴(FrostStorm)");
             radiusBase = builder.defineInRange("radius_base", 4.0D, 0.0D, 64.0D);
             radiusPerAmp = builder.defineInRange("radius_per_amp", 3.0D, 0.0D, 64.0D);
             radiusCap = builder.defineInRange("radius_cap", 16.0D, 0.0D, 64.0D);
@@ -859,38 +905,54 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public float radiusBase() { return radiusBase.get().floatValue(); }
+        public float radiusBase() {
+            return radiusBase.get().floatValue();
+        }
 
-        public float radiusPerAmp() { return radiusPerAmp.get().floatValue(); }
+        public float radiusPerAmp() {
+            return radiusPerAmp.get().floatValue();
+        }
 
-        public float radiusCap() { return radiusCap.get().floatValue(); }
+        public float radiusCap() {
+            return radiusCap.get().floatValue();
+        }
 
-        public int biteDuration() { return biteDuration.get(); }
+        public int biteDuration() {
+            return biteDuration.get();
+        }
 
-        public float strengthGrowthPerSecond() { return strengthGrowthPerSecond.get().floatValue(); }
+        public float strengthGrowthPerSecond() {
+            return strengthGrowthPerSecond.get().floatValue();
+        }
 
-        public float strengthCap() { return strengthCap.get().floatValue(); }
+        public float strengthCap() {
+            return strengthCap.get().floatValue();
+        }
     }
 
-    /** 次元崩解（DimensionBreak）：持续削减最大生命 */
+    /** 次元崩解(DimensionBreak)：持续削减最大生命 */
     public static class DimensionBreak {
         public final ForgeConfigSpec.ConfigValue<Double> reducePerSec;
         public final ForgeConfigSpec.ConfigValue<Double> reduceCap;
 
         private DimensionBreak(ForgeConfigSpec.Builder builder) {
             push(builder, "effect", "dimension_break",
-                    "次元崩解（DimensionBreak）。效果期间每秒削减目标最大生命的 每级比例（独立乘区），累计不超过削减上限。");
+                    "次元崩解(DimensionBreak)");
             reducePerSec = builder.defineInRange("reduce_per_sec", 0.01D, 0.0D, 1.0D);
             reduceCap = builder.defineInRange("reduce_cap", -0.99D, -1.0D, 0.0D);
             builder.pop(3);
         }
 
-        public float reducePerSec() { return reducePerSec.get().floatValue(); }
+        public float reducePerSec() {
+            return reducePerSec.get().floatValue();
+        }
 
-        public float reduceCap() { return reduceCap.get().floatValue(); }
+        public float reduceCap() {
+            return reduceCap.get().floatValue();
+        }
     }
 
-    /** 彗星羽翼（CometElytra）：飞行增益 + 撞墙/坠落猛击联动 */
+    /** 彗星羽翼(CometElytra)：飞行增益 + 撞墙/坠落猛击联动 */
     public static class CometElytra {
         public final ForgeConfigSpec.ConfigValue<Integer> baseDuration;
         public final ForgeConfigSpec.ConfigValue<Double> clashWeaponDamageMult;
@@ -899,7 +961,7 @@ public final class FDConfig {
 
         private CometElytra(ForgeConfigSpec.Builder builder) {
             push(builder, "effect", "comet_elytra",
-                    "彗星羽翼（CometElytra）。施放 SA 后获得的时长；撞墙/坠落时对范围内敌人造成 目标最大生命百分比 + 本次撞击伤害 + 武器伤害×系数 的次元伤害并爆炸。");
+                    "彗星羽翼(CometElytra)");
             baseDuration = builder.defineInRange("base_duration", 1200, 0, Integer.MAX_VALUE);
             clashWeaponDamageMult = builder.defineInRange("clash_weapon_damage_mult", 10.0D, 0.0D, 1000.0D);
             clashExplosionRadius = builder.defineInRange("clash_explosion_radius", 15.0D, 0.0D, 128.0D);
@@ -907,104 +969,110 @@ public final class FDConfig {
             builder.pop(3);
         }
 
-        public int baseDuration() { return baseDuration.get(); }
+        public int baseDuration() {
+            return baseDuration.get();
+        }
 
-        public float clashWeaponDamageMult() { return clashWeaponDamageMult.get().floatValue(); }
+        public float clashWeaponDamageMult() {
+            return clashWeaponDamageMult.get().floatValue();
+        }
 
-        public float clashExplosionRadius() { return clashExplosionRadius.get().floatValue(); }
+        public float clashExplosionRadius() {
+            return clashExplosionRadius.get().floatValue();
+        }
 
-        public float clashHealthPercent() { return clashHealthPercent.get().floatValue(); }
+        public float clashHealthPercent() {
+            return clashHealthPercent.get().floatValue();
+        }
     }
 
-    /** 虹羽七刃剑（RainbowSevenEdge）：由 SA 施加的时长 */
+    /** 虹羽七刃剑(RainbowSevenEdge)：由 SA 施加的时长 */
     public static class RainbowSevenEdge {
         public final ForgeConfigSpec.ConfigValue<Integer> castDuration;
 
         private RainbowSevenEdge(ForgeConfigSpec.Builder builder) {
             push(builder, "effect", "rainbow_seven_edge",
-                    "虹羽七刃剑（RainbowSevenEdge）。虹光星雨施放后赋予自身的时长（配合虹光通量将斩击替换为范围攻击）。");
+                    "虹羽七刃剑(RainbowSevenEdge)");
             castDuration = builder.defineInRange("cast_duration", 280, 0, Integer.MAX_VALUE);
             builder.pop(3);
         }
 
-        public int castDuration() { return castDuration.get(); }
+        public int castDuration() {
+            return castDuration.get();
+        }
     }
 
-    /** 决断（Resolution）：追加一半魔法伤害 */
+    /** 决断(Resolution)：追加一半魔法伤害 */
     public static class Resolution {
         public final ForgeConfigSpec.ConfigValue<Double> extraRatio;
 
         private Resolution(ForgeConfigSpec.Builder builder) {
             push(builder, "damagetype", "resolution",
-                    "决断（Resolution）：结算时追加本次伤害 × 比例 的魔法伤害（重置无敌帧）。");
+                    "决断(Resolution)");
             extraRatio = builder.defineInRange("extra_ratio", 0.5D, 0.0D, 10.0D);
             builder.pop(3);
         }
 
-        public float extraRatio() { return extraRatio.get().floatValue(); }
-    }
-
-    /** 回响（Echo）：直伤记账 */
-    public static class EchoDamageType {
-        public final ForgeConfigSpec.ConfigValue<Double> directDamage;
-
-        private EchoDamageType(ForgeConfigSpec.Builder builder) {
-            push(builder, "damagetype", "echo",
-                    "回响（Echo）：目标仅承受 直伤，其余伤害按攻击者记账，回响计时到期/目标死亡时引爆。");
-            directDamage = builder.defineInRange("direct_damage", 0.1D, 0.0D, 100.0D);
-            builder.pop(3);
+        public float extraRatio() {
+            return extraRatio.get().floatValue();
         }
-
-        public float directDamage() { return directDamage.get().floatValue(); }
     }
 
-    /** 永劫（Eternity）：每次削最大生命上限 */
+    /** 永劫(Eternity)：每次削最大生命上限 */
     public static class Eternity {
         public final ForgeConfigSpec.ConfigValue<Double> reduceRatio;
 
         private Eternity(ForgeConfigSpec.Builder builder) {
             push(builder, "damagetype", "eternity",
-                    "永劫（Eternity）：每次造成伤害时永久削减目标最大生命 伤害×比例（可累加，死亡/入睡/入世清除）。");
+                    "永劫(Eternity)");
             reduceRatio = builder.defineInRange("reduce_ratio", 0.1D, 0.0D, 1.0D);
             builder.pop(3);
         }
 
-        public float reduceRatio() { return reduceRatio.get().floatValue(); }
+        public float reduceRatio() {
+            return reduceRatio.get().floatValue();
+        }
     }
 
-    /** 吸收（Absorb）：全额治疗攻击者 */
+    /** 吸收(Absorb)：全额治疗攻击者 */
     public static class Absorb {
         public final ForgeConfigSpec.ConfigValue<Double> overflowRatio;
         public final ForgeConfigSpec.ConfigValue<Double> absorbCap;
 
         private Absorb(ForgeConfigSpec.Builder builder) {
             push(builder, "damagetype", "absorb",
-                    "吸收（Absorb）：攻击者回复等量生命，溢出部分 × 比例 转为额外生命（不超过上限）。");
+                    "吸收(Absorb)");
             overflowRatio = builder.defineInRange("overflow_ratio", 0.1D, 0.0D, 1.0D);
             absorbCap = builder.defineInRange("absorb_cap", 20.0D, 0.0D, 100.0D);
             builder.pop(3);
         }
 
-        public float overflowRatio() { return overflowRatio.get().floatValue(); }
+        public float overflowRatio() {
+            return overflowRatio.get().floatValue();
+        }
 
-        public float absorbCap() { return absorbCap.get().floatValue(); }
+        public float absorbCap() {
+            return absorbCap.get().floatValue();
+        }
     }
 
-    /** 色欲（Lust）：生命虹吸 */
+    /** 色欲(Lust)：生命虹吸 */
     public static class Lust {
         public final ForgeConfigSpec.ConfigValue<Double> healRatio;
 
         private Lust(ForgeConfigSpec.Builder builder) {
             push(builder, "damagetype", "lust",
-                    "色欲（Lust）：攻击者治疗本次伤害 × 比例。");
+                    "色欲(Lust)");
             healRatio = builder.defineInRange("heal_ratio", 0.05D, 0.0D, 1.0D);
             builder.pop(3);
         }
 
-        public float healRatio() { return healRatio.get().floatValue(); }
+        public float healRatio() {
+            return healRatio.get().floatValue();
+        }
     }
 
-    /** 暴食（Gluttony）：血肉转化 */
+    /** 暴食(Gluttony)：血肉转化 */
     public static class Gluttony {
         public final ForgeConfigSpec.ConfigValue<Double> foodRatio;
         public final ForgeConfigSpec.ConfigValue<Double> absorbRatio;
@@ -1012,17 +1080,23 @@ public final class FDConfig {
 
         private Gluttony(ForgeConfigSpec.Builder builder) {
             push(builder, "damagetype", "gluttony",
-                    "暴食（Gluttony）：攻击者恢复饥饿值 伤害×比例，溢出部分 × 比例 转为额外生命（不超过上限）。");
+                    "暴食(Gluttony)");
             foodRatio = builder.defineInRange("food_ratio", 0.1D, 0.0D, 1.0D);
             absorbRatio = builder.defineInRange("absorb_ratio", 0.5D, 0.0D, 1.0D);
             absorbCap = builder.defineInRange("absorb_cap", 10.0D, 0.0D, 100.0D);
             builder.pop(3);
         }
 
-        public float foodRatio() { return foodRatio.get().floatValue(); }
+        public float foodRatio() {
+            return foodRatio.get().floatValue();
+        }
 
-        public float absorbRatio() { return absorbRatio.get().floatValue(); }
+        public float absorbRatio() {
+            return absorbRatio.get().floatValue();
+        }
 
-        public float absorbCap() { return absorbCap.get().floatValue(); }
+        public float absorbCap() {
+            return absorbCap.get().floatValue();
+        }
     }
 }

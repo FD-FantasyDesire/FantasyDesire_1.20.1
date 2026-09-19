@@ -10,20 +10,20 @@ import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraftforge.event.entity.living.MobEffectEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import org.joml.Vector3f;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
-import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 
 import javax.annotation.Nullable;
 
 public class VoidStrikeEffect extends MobEffect {
-    // 数值来自 FDConfig（服务端同步配置），使用处实时读取
-    private static final FDConfig.VoidStrikeEffect VOID_STRIKE_EFFECT = FDConfig.VOID_STRIKE_EFFECT;
+    /** 施加、伤害结算与属性同步共用的层数上限；效果 amplifier 上限为此值减一。 */
+    public static final int MAX_STACKS = 50;
+    /** 粒子与音效的触发间隔，单位：tick。 */
+    private static final int PRESENTATION_INTERVAL_TICKS = 20;
     public static final java.util.UUID STACK_MODIFIER_UUID = java.util.UUID.fromString(
             "b9b8b5ec-0a7f-4e9d-8f75-4f7c5d9d4a11");
 
@@ -35,6 +35,15 @@ public class VoidStrikeEffect extends MobEffect {
     public void applyEffectTick(LivingEntity entity, int amplifier) {
         if (!entity.level().isClientSide() && entity.level() instanceof ServerLevel sl) {
             syncStackAttribute(entity, amplifier);
+            // 属性每 tick 校准，粒子和音效按原版效果计时与固定间隔触发。
+            MobEffectInstance current = entity.getEffect(this);
+            if (current == null) {
+                return;
+            }
+            int duration = current.isInfiniteDuration() ? entity.tickCount : current.getDuration();
+            if (duration % PRESENTATION_INTERVAL_TICKS != 0) {
+                return;
+            }
             sl.playSound(null, entity.blockPosition(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.AMBIENT, 0.5f,
                     1f);
 
@@ -69,60 +78,59 @@ public class VoidStrikeEffect extends MobEffect {
 
     public static int getVoidStrikeLayers(LivingEntity entity) {
         AttributeInstance stack = entity.getAttribute(FDAttributes.VOID_STRIKE_STACK.get());
-        int cap = VOID_STRIKE_EFFECT.stackCap();
         if (stack != null && stack.getValue() > 0.0D) {
-            return Math.min(cap, Math.max(0, (int) Math.round(stack.getValue())));
+            return Math.min(MAX_STACKS, Math.max(0, (int) Math.round(stack.getValue())));
         }
         MobEffectInstance current = entity
                 .getEffect(FDPotionEffects.VOID_STRIKE.get());
         if (current != null) {
-            return Math.min(cap, current.getAmplifier() + 1);
+            return Math.min(MAX_STACKS, current.getAmplifier() + 1);
         }
         return 0;
     }
 
+    /** 服务端校准临时层数修改器，数值不变时不触发属性同步。 */
     public static void syncStackAttribute(LivingEntity entity, int amplifier) {
-        double stack = Math.min(VOID_STRIKE_EFFECT.stackCap(),
-                Math.max(0.0D, amplifier + 1.0D));
-        FDAttributes.syncVoidStrikeStack(entity, stack, STACK_MODIFIER_UUID);
-    }
-
-    public static void clearStackAttribute(LivingEntity entity) {
-        FDAttributes.clearVoidStrikeStack(entity, STACK_MODIFIER_UUID);
-    }
-
-    @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-    public static class VoidStrikeEffectEvents {
-        @SubscribeEvent
-        public static void onEffectRemoved(MobEffectEvent.Remove event) {
-            if (event.getEffect() != FDPotionEffects.VOID_STRIKE.get()) {
-                return;
-            }
-            MobEffectInstance current = event.getEntity().getEffect(FDPotionEffects.VOID_STRIKE.get());
-            if (current == null) {
-                clearStackAttribute(event.getEntity());
-            } else {
-                syncStackAttribute(event.getEntity(), current.getAmplifier());
-            }
+        if (entity.level().isClientSide()) {
+            return;
         }
+        AttributeInstance attribute = entity.getAttribute(FDAttributes.VOID_STRIKE_STACK.get());
+        if (attribute == null) {
+            return;
+        }
+        double stack = Math.min(MAX_STACKS,
+                Math.max(0.0D, amplifier + 1.0D));
+        AttributeModifier modifier = attribute.getModifier(STACK_MODIFIER_UUID);
+        if (modifier == null || modifier.getAmount() != stack) {
+            attribute.removeModifier(STACK_MODIFIER_UUID);
+            attribute.addTransientModifier(new AttributeModifier(STACK_MODIFIER_UUID,
+                    "fd_void_strike_stack", stack, AttributeModifier.Operation.ADDITION));
+        }
+    }
 
-        @SubscribeEvent
-        public static void onEffectExpired(MobEffectEvent.Expired event) {
-            if (event.getEffectInstance().getEffect() == FDPotionEffects.VOID_STRIKE.get()) {
-                clearStackAttribute(event.getEntity());
-            }
+    /** 首次添加、叠层及隐藏效果恢复时立即同步，避免等待下次效果 tick。 */
+    @Override
+    public void addAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int amplifier) {
+        super.addAttributeModifiers(entity, attributeMap, amplifier);
+        syncStackAttribute(entity, amplifier);
+    }
+
+    /** 与寒霜风暴一致，在实际移除或过期的生命周期中清理，取消移除时不会误清。 */
+    @Override
+    public void removeAttributeModifiers(LivingEntity entity, AttributeMap attributeMap, int amplifier) {
+        super.removeAttributeModifiers(entity, attributeMap, amplifier);
+        if (entity.level().isClientSide()) {
+            return;
+        }
+        AttributeInstance attribute = entity.getAttribute(FDAttributes.VOID_STRIKE_STACK.get());
+        if (attribute != null) {
+            attribute.removeModifier(STACK_MODIFIER_UUID);
         }
     }
 
     @Override
     public boolean isDurationEffectTick(int duration, int amplifier) {
-        // 每 20 tick 触发一次，同时播放粒子
-        return duration % VOID_STRIKE_EFFECT.tickInterval() == 0;
-    }
-
-    public @Nullable ResourceLocation getIcon() {
-        // 这是 HUD 图标（左上角）显示使用的图标
-        return new ResourceLocation(FantasyDesire.MODID, "textures/mob_effect/void_strike.png");
+        return true;
     }
 
     public static DustColorTransitionOptions dust = new DustColorTransitionOptions(new Vector3f(1.0f, 0f, 1.0f),

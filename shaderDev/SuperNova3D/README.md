@@ -41,6 +41,8 @@ const vec3 TEST_PLANE_NORMAL = vec3(0.0, 1.0, 0.0);
 
 ## 兼容边界
 
+以下是当前[基础预览入口](../README.md)的实现选择。后续可按总规范扩展为带纹理、顶点阶段或多 pass 的 Minecraft 原型。
+
 - 不声明 `#version`，使用 `gl_FragColor`。
 - 只使用 `u_time`、`u_resolution` 和可选的 `u_mouse`。
 - 不使用纹理、导数、动态数组或整数位运算。

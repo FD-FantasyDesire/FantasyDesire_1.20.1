@@ -23,6 +23,7 @@ public class FDSpecialEffectsRegistry {
         // 使该武器相关所有效果不需要前置消耗即可生效
         public static final RegistryObject<SpecialEffect> CheatRumble = SPECIAL_EFFECT.register("cheat_rumble",
                         () -> new FDSpecialEffectBase(800000, false, false));
+
         // 跨存档认主机制 未实现
         public static final RegistryObject<SpecialEffect> OverDimension = SPECIAL_EFFECT.register("over_dimension",
                         () -> new FDSpecialEffectBase(-1, false, false));
@@ -53,7 +54,7 @@ public class FDSpecialEffectsRegistry {
         public static final RegistryObject<SpecialEffect> VoidTransform = SPECIAL_EFFECT.register("void_transform",
                         () -> new FDSpecialEffectBase(1, false, false));
         // Crimson Scythe
-        //
+
         public static final RegistryObject<SpecialEffect> BloodDrain = SPECIAL_EFFECT.register("blood_drain",
                         () -> new FDSpecialEffectBase(60, false, false));
         public static final RegistryObject<SpecialEffect> CrimsonStrike = SPECIAL_EFFECT.register("crimson_strike",
@@ -72,5 +73,4 @@ public class FDSpecialEffectsRegistry {
                         () -> new FDSpecialEffectBase(100, false, false));
         public static final RegistryObject<SpecialEffect> EchoingStrike = SPECIAL_EFFECT.register("echoing_strike",
                         () -> new FDSpecialEffectBase(30, false, false));
-
 }

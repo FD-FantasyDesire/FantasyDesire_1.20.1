@@ -32,10 +32,16 @@ import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 import tennouboshiuzume.mods.FantasyDesire.potioneffect.FrostStormEffect;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
- * 在世界渲染结束时依据场景深度绘制寒霜风暴球形能量场。
+ * 依据场景深度绘制冰封大地、脉冲和半透明冰裂球壳，再绘制贴地生长的冰晶。
  */
 @OnlyIn(Dist.CLIENT)
 @Mod.EventBusSubscriber(modid = FantasyDesire.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -43,6 +49,8 @@ public final class FrostStormFieldRenderer {
     private static RenderTarget sceneDepthCopy;
     private static RenderTarget blockDepthCopy;
     private static boolean blockDepthReady;
+    private static ClientLevel visualLevel;
+    private static final Map<UUID, FieldVisual> FIELD_VISUALS = new HashMap<>();
 
     private FrostStormFieldRenderer() {
     }
@@ -57,6 +65,11 @@ public final class FrostStormFieldRenderer {
         ClientLevel level = minecraft.level;
         if (level == null) {
             return;
+        }
+        if (visualLevel != level) {
+            FIELD_VISUALS.clear();
+            blockDepthReady = false;
+            visualLevel = level;
         }
 
         RenderTarget mainTarget = minecraft.getMainRenderTarget();
@@ -90,10 +103,10 @@ public final class FrostStormFieldRenderer {
         mainTarget.bindWrite(true);
 
         Matrix3f viewRotation = new Matrix3f(RenderSystem.getInverseViewRotationMatrix()).invert();
-        Matrix4f inverseViewProjection = new Matrix4f(event.getProjectionMatrix())
-                .mul(new Matrix4f(viewRotation))
-                .invert();
-        float fieldTime = (float) (level.getGameTime() & 0xFFFFFL) + event.getPartialTick();
+        Matrix4f viewProjection = new Matrix4f(event.getProjectionMatrix()).mul(new Matrix4f(viewRotation));
+        Matrix4f inverseViewProjection = new Matrix4f(viewProjection).invert();
+        // 闪光周期为 60 tick，2400 tick 回绕保持连续；外扩脉冲使用独立状态。
+        float fieldTime = (float) (level.getGameTime() % 2400L) + event.getPartialTick();
         float depthScaleX = (float) mainTarget.viewWidth / mainTarget.width;
         float depthScaleY = (float) mainTarget.viewHeight / mainTarget.height;
         Vec3 patternOrigin = cameraPosition;
@@ -102,7 +115,7 @@ public final class FrostStormFieldRenderer {
         RenderSystem.depthMask(false);
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE,
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                 GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
 
         try {
@@ -119,10 +132,17 @@ public final class FrostStormFieldRenderer {
                 set(shader, "FieldCenter", field.centerRelativeToCamera());
                 set(shader, "FieldRadius", field.radius());
                 set(shader, "FieldTime", fieldTime);
+                set(shader, "FieldAge", field.age());
+                set(shader, "PulseRadius", field.pulseRadius());
                 set(shader, "DepthUvScale", depthScaleX, depthScaleY);
 
                 RenderSystem.setShader(() -> shader);
                 drawFullscreenQuad();
+            }
+            for (Field field : fields) {
+                field.visual().crystals.render(viewProjection, cameraPosition,
+                        field.centerRelativeToCamera(), field.radius(), field.age(), field.pulseRadius(),
+                        level.getGameTime(), event.getPartialTick());
             }
         } finally {
             blockDepthReady = false;
@@ -136,6 +156,7 @@ public final class FrostStormFieldRenderer {
     private static List<Field> collectVisibleFields(ClientLevel level, RenderLevelStageEvent event,
             Vec3 cameraPosition) {
         List<Field> fields = new ArrayList<>();
+        Set<UUID> active = new HashSet<>();
         for (Entity entity : level.entitiesForRendering()) {
             if (!(entity instanceof LivingEntity living) || !living.isAlive()) {
                 continue;
@@ -143,19 +164,29 @@ public final class FrostStormFieldRenderer {
 
             // 属性修改器检测：服务端每 tick 同步的半径/强度（绕开 MobEffect 对非玩家实体同步失败）
             float radius = Math.min(FDAttributes.getStormRadius(living), FDConfig.FROST_STORM.radiusCap());
-            if (radius <= 0.01F || FDAttributes.getStormStrength(living) <= 0.01F) {
+            if (!Float.isFinite(radius) || radius <= 0.01F || FDAttributes.getStormStrength(living) <= 0.01F) {
                 continue;
             }
 
             Vec3 center = FrostStormEffect.getFieldCenter(living, event.getPartialTick());
+            active.add(living.getUUID());
+            FieldVisual visual = FIELD_VISUALS.computeIfAbsent(living.getUUID(),
+                    ignored -> new FieldVisual(level.getGameTime(), living.getUUID()));
+            float pulseRadius = visual.pulse.advance(level.getGameTime() + (double) event.getPartialTick(), radius);
             AABB bounds = new AABB(center.x - radius, center.y - radius, center.z - radius,
                     center.x + radius, center.y + radius, center.z + radius);
             if (!event.getFrustum().isVisible(bounds)) {
                 continue;
             }
 
-            fields.add(new Field(center.subtract(cameraPosition), radius));
+            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+                visual.crystals.update(level, living, center, radius);
+            }
+            float age = Math.min(240.0F, level.getGameTime() - visual.startedAt + event.getPartialTick());
+            fields.add(new Field(center.subtract(cameraPosition), radius, age, pulseRadius, visual));
         }
+        FIELD_VISUALS.keySet().retainAll(active);
+        fields.sort(Comparator.comparingDouble((Field field) -> field.centerRelativeToCamera().lengthSqr()).reversed());
         return fields;
     }
 
@@ -212,6 +243,8 @@ public final class FrostStormFieldRenderer {
 
     @SubscribeEvent
     public static void onClientLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+        FIELD_VISUALS.clear();
+        visualLevel = null;
         RenderTarget sceneTarget = sceneDepthCopy;
         RenderTarget blockTarget = blockDepthCopy;
         sceneDepthCopy = null;
@@ -237,6 +270,17 @@ public final class FrostStormFieldRenderer {
         }
     }
 
-    private record Field(Vec3 centerRelativeToCamera, float radius) {
+    private static final class FieldVisual {
+        private final long startedAt;
+        private final FrostFieldCrystals crystals;
+        private final FrostFieldPulse pulse = new FrostFieldPulse();
+
+        private FieldVisual(long startedAt, UUID owner) {
+            this.startedAt = startedAt;
+            this.crystals = new FrostFieldCrystals(owner.getMostSignificantBits() ^ owner.getLeastSignificantBits() ^ startedAt);
+        }
+    }
+
+    private record Field(Vec3 centerRelativeToCamera, float radius, float age, float pulseRadius, FieldVisual visual) {
     }
 }

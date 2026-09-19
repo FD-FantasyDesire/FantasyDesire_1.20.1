@@ -6,13 +6,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.world.entity.LivingEntity;
-import tennouboshiuzume.mods.FantasyDesire.client.renderer.VoidFlameOutlineRenderer;
+import tennouboshiuzume.mods.FantasyDesire.client.renderer.VoidFlameRenderer;
 
-/**
- * 复用活体渲染器已经完成动画的基础模型，生成轮廓遮罩。
- */
-public class VoidFlameOutlineLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
-    public VoidFlameOutlineLayer(RenderLayerParent<T, M> parent) {
+/** 记录当前动画姿态，供实体批次完成后绘制表面侵蚀。 */
+public class VoidFlameLayer<T extends LivingEntity, M extends EntityModel<T>> extends RenderLayer<T, M> {
+    public VoidFlameLayer(RenderLayerParent<T, M> parent) {
         super(parent);
     }
 
@@ -20,6 +18,7 @@ public class VoidFlameOutlineLayer<T extends LivingEntity, M extends EntityModel
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T entity,
             float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks,
             float netHeadYaw, float headPitch) {
-        VoidFlameOutlineRenderer.renderSilhouette(entity, this.getParentModel(), poseStack, packedLight);
+        VoidFlameRenderer.capture(entity, getParentModel(), getTextureLocation(entity), poseStack,
+                packedLight, partialTicks);
     }
 }

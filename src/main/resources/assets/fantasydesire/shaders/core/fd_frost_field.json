@@ -2,7 +2,7 @@
     "blend": {
         "func": "add",
         "srcrgb": "one",
-        "dstrgb": "one",
+        "dstrgb": "1-srcalpha",
         "srcalpha": "zero",
         "dstalpha": "one"
     },
@@ -79,6 +79,18 @@
             "values": [
                 0.0
             ]
+        },
+        {
+            "name": "FieldAge",
+            "type": "float",
+            "count": 1,
+            "values": [240.0]
+        },
+        {
+            "name": "PulseRadius",
+            "type": "float",
+            "count": 1,
+            "values": [0.0]
         },
         {
             "name": "DepthUvScale",

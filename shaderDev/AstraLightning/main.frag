@@ -1,120 +1,113 @@
-// Astra Lightning — WebGL 1 / GLSL ES 1.00, self-contained, no textures.
-// Custom parameters (edit these constants):
-//   OUTER_COLOR = 外缘辉光颜色；CORE_COLOR = 近白核心颜色。
-//   CORE_WIDTH = 中心线宽度；OUTER_WIDTH = 外缘线宽度。
-//   GLOW_STRENGTH = 辉光强度；FLASH_SIZE / FLASH_STRENGTH = 节点十字闪光。
-//   ANIMATION_SPEED = 动画速度；NODE_JITTER = 曲折节点的稳定扰动幅度。
-// 未完成内容，预计用于改善line粒子
+// 星座闪电基础预览：WebGL 1 / GLSL ES 1.00，无纹理。
+// 起终点与折点在一次生命期内固定；颜色以 0xRRGGBB 输入，MAX_ENDPOINTS 包含首尾。
 #ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
+precision highp int;
 #else
 precision mediump float;
+precision mediump int;
 #endif
+uniform float u_time;       // 秒
+uniform vec2 u_resolution;  // 像素
 
-uniform float u_time;
-uniform vec2 u_resolution;
+const vec2 START = vec2(-0.88, -0.38);
+const vec2 END = vec2(0.86, 0.42);
+const int COLOR = 0x8000FF;
+const int MAX_ENDPOINTS = 9;
+const float SEED = 42.0;
+const float RANDOMNESS = 0.24;
+const float THICKNESS = 0.012;
+const float STAR_RADIUS = 0.080;
+const float LIFETIME = 1.2;  // 秒，循环间隔额外留出 0.45 秒
 
-const vec3 OUTER_COLOR = vec3(0.0, 0.0, 1.0);
-const vec3 CORE_COLOR = vec3(0.0, 0.6667, 1.0);
-const float CORE_WIDTH = 0.006;
-const float OUTER_WIDTH = 0.026;
-const float GLOW_STRENGTH = 0.72;
-const float FLASH_SIZE = 0.075;
-const float FLASH_STRENGTH = 1.20;
-const float ANIMATION_SPEED = 0.72;
-const float NODE_JITTER = 0.035;
-
-float hash21(vec2 p) {
-    p = fract(p * vec2(123.34, 456.21));
-    p += dot(p, p + 45.32);
-    return fract(p.x * p.y);
+vec3 rgb(int value) {
+    float packed = float(value);
+    return mod(floor(packed / vec3(65536.0, 256.0, 1.0)), 256.0) / 255.0;
 }
 
-float sdSegment(vec2 p, vec2 a, vec2 b) {
-    vec2 pa = p - a;
-    vec2 ba = b - a;
-    float h = clamp(dot(pa, ba) / max(dot(ba, ba), 0.00001), 0.0, 1.0);
-    return length(pa - ba * h);
+float hash(float index, float channel) {
+    vec3 p = fract(vec3(index, channel, SEED) * vec3(0.1031, 0.1030, 0.0973));
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.x + p.y) * p.z);
 }
 
-// One fixed point-to-point zigzag path; explicit nodes avoid WebGL 1 dynamic indexing.
-vec2 mainNode(int index, float time) {
-    vec2 point = vec2(0.0);
-    if (index == 0) point = vec2(-0.82, -0.56);
-    if (index == 1) point = vec2(-0.57, -0.25);
-    if (index == 2) point = vec2(-0.34, -0.39);
-    if (index == 3) point = vec2(-0.09, -0.02);
-    if (index == 4) point = vec2(0.18, 0.16);
-    if (index == 5) point = vec2(0.42, 0.48);
-    if (index == 6) point = vec2(0.79, 0.64);
-    float fi = float(index);
-    point += NODE_JITTER * vec2(
-        sin(time * 1.8 + fi * 2.17),
-        cos(time * 1.5 - fi * 1.71)
-    );
-    return point;
+vec2 node(int index, int count) {
+    if (index == 0) return START;
+    if (index == count - 1) return END;
+    vec2 axis = END - START;
+    float len = max(length(axis), 0.000001);
+    float i = float(index);
+    float t = (i + (hash(i, 1.0) - 0.5) * 0.36) / float(count - 1);
+    vec2 side = vec2(-axis.y, axis.x) / len;
+    float amplitude = min(RANDOMNESS, len / float(count - 1) * 1.3);
+    // 二维预览逐折点随机选侧，不按节点奇偶固定左右方向。
+    float direction = hash(i, 5.0) < 0.5 ? -1.0 : 1.0;
+    float offset = mix(0.45, 1.0, hash(i, 2.0)) * direction;
+    return START + axis * t + side * amplitude * sin(t * 3.14159265) * offset;
 }
 
-float lineDistance(vec2 p, float time) {
-    float distanceToLine = 10.0;
-    for (int i = 0; i < 6; ++i) {
-        vec2 a = mainNode(i, time);
-        vec2 b = mainNode(i + 1, time);
-        distanceToLine = min(distanceToLine, sdSegment(p, a, b));
-    }
-    return distanceToLine;
+float softCore(float distance, float width, float pixel) {
+    float filtered = sqrt(width * width + pixel * pixel);
+    return exp(-distance * distance / (filtered * filtered)) * width / filtered;
 }
 
-float nodeFlash(vec2 p, vec2 point, float phase) {
-    vec2 delta = p - point;
-    float radial = exp(-length(delta) / max(FLASH_SIZE * 0.45, 0.001));
-    float crossX = exp(-abs(delta.x) / max(FLASH_SIZE * 1.65, 0.001)) *
-        exp(-abs(delta.y) / max(FLASH_SIZE * 0.085, 0.001));
-    float crossY = exp(-abs(delta.y) / max(FLASH_SIZE * 1.65, 0.001)) *
-        exp(-abs(delta.x) / max(FLASH_SIZE * 0.085, 0.001));
-    float pulse = 0.82 + 0.18 * sin(phase);
-    return (radial * 0.48 + (crossX + crossY) * 0.72) * pulse;
+float starRay(vec2 p, vec2 pixel) {
+    float along = abs(p.x);
+    float width = 0.009 + 0.085 * exp(-along * 12.0);
+    return softCore(abs(p.y), width, pixel.y) * exp(-along * 3.8)
+        * (1.0 - smoothstep(0.55, 0.92, along));
+}
+
+vec3 star(vec2 delta, float size, float pixel, vec3 tint, vec3 core) {
+    vec2 p = delta / size;
+    vec2 aa = vec2(pixel / size);
+    float cross = starRay(p / vec2(0.84, 1.0), aa / vec2(0.84, 1.0))
+        + starRay(p.yx / vec2(1.0, 0.84), aa / vec2(1.0, 0.84));
+    vec2 diagonal = vec2(p.x + p.y, p.y - p.x) * 1.35;
+    vec2 diagonalAA = aa * 2.7;
+    float glints = (starRay(diagonal, diagonalAA) + starRay(diagonal.yx, diagonalAA)) * 0.10;
+    float nucleus = softCore(length(p), 0.045, length(aa));
+    float halo = exp(-length(p) * 8.0) * (1.0 - smoothstep(0.60, 0.96, length(p)));
+    return core * (cross * 1.05 + nucleus * 0.65 + glints) + tint * (halo * 0.65 + cross * 0.18);
 }
 
 void main() {
     vec2 resolution = max(u_resolution, vec2(1.0));
     float shortSide = min(resolution.x, resolution.y);
-    vec2 uv = (2.0 * gl_FragCoord.xy - resolution.xy) / shortSide;
-
-    float time = mod(u_time, 4096.0) * ANIMATION_SPEED;
-    vec2 p = uv;
-
-    vec3 color = vec3(0.002, 0.006, 0.024);
-    float distanceToLine = lineDistance(p, time);
-    float outer = GLOW_STRENGTH * OUTER_WIDTH /
-        max(distanceToLine, 0.0015);
-    outer *= 1.0 - smoothstep(0.05, 1.25, length(p));
-    color += OUTER_COLOR * outer;
-
-    float core = CORE_WIDTH / max(distanceToLine, 0.0012);
-    core *= 0.82 + 0.18 * sin(time * 5.0 + distanceToLine * 90.0);
-    color += CORE_COLOR * core;
-
-    float flashes = 0.0;
-    for (int i = 0; i < 7; ++i) {
-        flashes += nodeFlash(p, mainNode(i, time), time * 4.0 + float(i));
+    vec2 p = (2.0 * gl_FragCoord.xy - resolution) / shortSide;
+    float pixel = 1.3 / shortSide;
+    float seconds = mod(max(u_time, 0.0), LIFETIME + 0.45);
+    float progress = clamp(seconds / LIFETIME, 0.0, 1.0);
+    float envelope = smoothstep(0.0, 0.075, seconds) * (1.0 - smoothstep(0.22, 1.0, progress));
+    vec3 tint = rgb(COLOR);
+    vec3 core = mix(tint, vec3(max(tint.r, max(tint.g, tint.b))), 0.82);
+    float len = length(END - START);
+    int count = int(min(min(max(float(MAX_ENDPOINTS), 2.0), 33.0),
+        max(2.0, ceil(len / max(0.20, STAR_RADIUS * 3.0)) + 1.0)));
+    if (len < 0.000001) count = 1;
+    vec3 emission = vec3(0.0);
+    for (int i = 0; i < 33; i++) {
+        if (i >= count) break;
+        vec2 a = node(i, count);
+        float fi = float(i);
+        float wave = (fi / max(1.0, float(count - 1)) - seconds * 2.4) * 5.0;
+        float flash = exp(-pow((seconds * 20.0 - 2.0) / 1.3, 2.0));
+        float pulse = min(1.0, 0.72 + 0.20 * exp(-wave * wave) + 0.08 * flash);
+        float twinkle = 0.91 + 0.09 * sin(seconds * 13.0 + hash(fi, 3.0) * 6.2831853);
+        float size = (i == 0 || i == count - 1) ? 1.25 : mix(0.85, 1.10, hash(fi, 4.0));
+        emission += star(p - a, STAR_RADIUS * 1.8 * size * (0.94 + 0.06 * twinkle), pixel, tint, core) * twinkle * pulse;
+        if (i < count - 1) {
+            vec2 b = node(i + 1, count);
+            vec2 ab = b - a;
+            float t = clamp(dot(p - a, ab) / max(dot(ab, ab), 0.0000001), 0.0, 1.0);
+            float d = length(p - a - ab * t) / (THICKNESS * 4.0);
+            float aa = pixel / (THICKNESS * 4.0);
+            float halo = exp(-d * 5.5) * (1.0 - smoothstep(0.65, 1.0, d));
+            emission += (core * softCore(d, 0.065, aa) * 1.05
+                + tint * (softCore(d, 0.22, aa) * 0.48 + halo * 0.14)) * pulse;
+        }
     }
-    color += (OUTER_COLOR * 0.28 + CORE_COLOR * 0.72) * flashes * FLASH_STRENGTH;
-
-    // Sparse, stable constellation pinpricks add depth without textures.
-    for (int k = 0; k < 8; ++k) {
-        float fk = float(k);
-        vec2 star = vec2(
-            mix(-0.92, 0.92, hash21(vec2(fk, 7.1))),
-            mix(-0.82, 0.82, hash21(vec2(fk, 9.4)))
-        );
-        float starGlow = 0.003 / max(length(p - star), 0.006);
-        color += OUTER_COLOR * starGlow * 0.06;
-    }
-
-    float vignette = 1.0 - smoothstep(0.72, 1.55, length(uv));
-    color *= 0.35 + 0.65 * vignette;
-    color = 1.0 - exp(-color * 1.10);
-    color = pow(max(color, vec3(0.0)), vec3(0.92));
-    gl_FragColor = vec4(color, 1.0);
+    vec3 background = mix(vec3(0.012, 0.018, 0.034), vec3(0.003, 0.005, 0.012), smoothstep(0.0, 1.6, length(p)));
+    // 与正式管线一样采用加法；不利用全屏曝光掩盖过宽的辉光。
+    gl_FragColor = vec4(background + emission * envelope, 1.0);
 }

@@ -19,6 +19,9 @@ import tennouboshiuzume.mods.FantasyDesire.utils.*;
 import java.util.List;
 
 public class WingToTheFuture {
+        /** 每翼幻影剑数量，与羽翼布局及发射编排保持一致。 */
+        private static final int MAX_FEATHER = 32;
+        private static final int EXP_LEVEL_SQRT_OFFSET = 5;
         // 数值来自 FDConfig（服务端同步配置），使用处实时读取
         private static final FDConfig.WingToTheFuture WING_TO_THE_FUTURE = FDConfig.WING_TO_THE_FUTURE;
         private static final String CHIKEFLARE_KEY = "item.fantasydesire.chikeflare";
@@ -40,12 +43,13 @@ public class WingToTheFuture {
                         return;
                 ISlashBladeState state = ctx.state;
                 int wingCount = Mth.clamp((int) (Math.sqrt(Math.abs(((Player) player).experienceLevel))
-                                - WING_TO_THE_FUTURE.expLevelSqrtOffset()), 1, 3);
+                                - EXP_LEVEL_SQRT_OFFSET), 1, 3);
                 float baseModif = state.getDamage();
                 float magicDamage = WING_TO_THE_FUTURE.swordDamageBase()
                                 + (baseModif * WING_TO_THE_FUTURE.swordDamageAttackRatio());
                 int countdown = 1;
-                int maxFeather = WING_TO_THE_FUTURE.maxFeather();
+                int maxFeather = MAX_FEATHER;
+
                 List<LivingEntity> targets = FDTargetSelector.getTargetsInSight((Player) player,
                                 WING_TO_THE_FUTURE.targetRange(), WING_TO_THE_FUTURE.targetAngle(), true, null);
                 for (int i = 0; i < wingCount; i++) {
