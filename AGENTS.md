@@ -24,13 +24,15 @@ Shaders live in `src/main/resources/assets/fantasydesire/shaders/core/fd_*.{json
 
 ## shaderDev/ is NOT part of the Minecraft pipeline
 
-`shaderDev/` 是独立的效果原型目录，具体要求见 [`shaderDev/README.md`](shaderDev/README.md)。按效果需要选择以下方式，无需把所有作品限制在同一种预览能力内：
+`shaderDev/` 是独立的效果原型目录。后续开发统一使用 [`shaderDev/MinecraftShaderLab`](shaderDev/MinecraftShaderLab/README.md) 验证，调用与作品规范见 [`shaderDev/README.md`](shaderDev/README.md)，作用域约定见 [`shaderDev/AGENTS.md`](shaderDev/AGENTS.md)。
 
-- **基础预览**：默认使用 VSCode GLSL Canvas（`circledev.glsl-canvas`）与自包含的 `main.frag`，按 WebGL 1 / GLSL ES 1.00 编写。优先零纹理依赖，便于打开即用；这是预览默认选择，不是 Minecraft 的能力限制。
-- **Minecraft 原型**：需要纹理、片元导数、自定义 uniform、顶点阶段、公共 GLSL 函数或多 pass 时可以使用，并按需提供独立预览宿主。在作品 README 中说明运行方式、资源与输入数据，以及到正式管线的映射。正式能力基线为桌面 GLSL 150；浏览器宿主使用其实际支持的 GLSL ES 语法，不能直接加载 `#version 150`。
+- 直接维护 Minecraft core `.fsh`、`.vsh`、`.json` 三件套（桌面 GLSL 150），在作品目录提供 `.preview.json` 描述场景、纹理、uniform、时间单位与渲染状态。主项目根目录启动：`.\shaderDev\MinecraftShaderLab\run.cmd -Shader .\shaderDev\<作品>\main.preview.json`。
+- 不再为每个效果新建 HTML/WebGL 沙盒、`preview.js` 或 `serve.cjs`，GLSL Canvas 不再作为默认开发入口。已有浏览器/`.frag` 示例保留作历史参考；继续开发某个旧效果时，将该效果接入统一工具，无需批量迁移无关作品。
+- agent 验收默认使用隐藏调试接口，按 [`DEBUG_API.md`](shaderDev/MinecraftShaderLab/DEBUG_API.md) 加载、定时绘制、导出画面和深度数据，不控制用户桌面。工具缺少所需网格、输入或 pass 时扩展公共工具，再验证效果。
+- 工具回归命令：`.\shaderDev\MinecraftShaderLab\run.cmd -SmokeTest`、`-Verify`；API 回归：`powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\shaderDev\MinecraftShaderLab\tests\debug-api.ps1`。这些是独立工具检查，不需要 Forge/Gradle 构建。
 - 循环应有可控上限、数组访问应合法；几何边界和生命周期按效果语义定义。避免除零、意外路径、可见网格截断与阶段残留，性能根据覆盖面积、并发数量和实际测量评估，不以“无纹理”或“单 pass”代替判断。
 
-本目录不由 Minecraft 自动加载，也不自动接入 `src/main/resources`。正式迁移时适配坐标、时间单位、采样资源、shader JSON、顶点格式、混合与深度状态，并遵守上方的注册和资源重载约定。
+本目录不由 Minecraft 自动加载，也不自动接入 `src/main/resources`。MinecraftShaderLab 的 Java 代码、依赖与构建产物不加入 mod 的 Gradle 源码集或发布包。正式迁移时对齐坐标、时间单位、采样资源、shader JSON、顶点格式、混合与深度状态，并遵守上方的注册和资源重载约定。
 
 ## Reference sources
 

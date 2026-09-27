@@ -1,0 +1,10 @@
+{
+  "vertex":"shaderlab:depth","fragment":"shaderlab:depth","attributes":["Position","UV0"],
+  "blend":{"func":"add","srcrgb":"one","dstrgb":"1-srcalpha","srcalpha":"zero","dstalpha":"one"},
+  "samplers":[{"name":"DepthSampler"},{"name":"BlockDepthSampler"}],
+  "uniforms":[
+    {"name":"InvViewProj","type":"matrix4x4","count":16,"values":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name":"Time","type":"float","count":1,"values":[0]},
+    {"name":"Radius","type":"float","count":1,"values":[3.5]}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "shader":"assets/shaderlab/shaders/core/surface.json",
+  "target":"blocks",
+  "state":{"depthTest":true,"depthWrite":true,"cull":true},
+  "uniforms":{"Pulse":0.35,"Tint":[0.8,0.95,1]},
+  "bindings":{"Time":"seconds"}
+}

@@ -1,0 +1,12 @@
+{
+  "shader":"../../../src/main/resources/assets/fantasydesire/shaders/core/fd_frost_field.json",
+  "target":"screen",
+  "state":{"depthTest":false,"depthWrite":false,"cull":false},
+  "uniforms":{"FieldRadius":3.5,"FieldAge":240,"PulseRadius":1.6,"DepthUvScale":[1,1]},
+  "bindings":{
+    "InvViewProj":"inverse_view_projection_rotation",
+    "PatternOrigin":"camera_position",
+    "FieldCenter":{"source":"camera_relative","value":[0,0.5,0]},
+    "FieldTime":"ticks"
+  }
+}

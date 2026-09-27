@@ -1,0 +1,9 @@
+{
+  "shader":"assets/shaderlab/shaders/core/sky.json",
+  "target":"sky",
+  "camera":{"yaw":-145,"pitch":-12,"distance":9},
+  "scene":{"terrain":false,"entity":false},
+  "state":{"depthTest":false,"depthWrite":false,"cull":false},
+  "bindings":{"Time":"seconds"},
+  "uniforms":{"Zenith":[0.08,0.025,0.2],"Horizon":[0.5,0.2,0.3]}
+}

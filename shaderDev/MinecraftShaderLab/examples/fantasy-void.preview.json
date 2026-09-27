@@ -1,0 +1,7 @@
+{
+  "shader":"../../../src/main/resources/assets/fantasydesire/shaders/core/fd_void_flame.json",
+  "target":"entity","entity":"zombie","overlay":true,
+  "state":{"depthTest":true,"depthWrite":false,"cull":true},
+  "uniforms":{"VoidStrength":0.65,"EchoStrength":0.6,"EffectSeed":0.4},
+  "bindings":{"EffectTime":"seconds"}
+}

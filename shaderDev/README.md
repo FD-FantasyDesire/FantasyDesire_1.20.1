@@ -1,113 +1,156 @@
-# Shader 原型开发要求
+# Shader 原型开发与统一验证
 
-此目录用于制作面向 **Minecraft Java 1.20.1 / Forge 47.4.0** 的魔法、能量和粒子视觉原型。基础预览使用 VSCode GLSL Canvas；需要验证真实渲染结构的效果可以使用独立宿主。预览工具的能力限制只适用于对应入口，不作为 Minecraft 的能力上限。
+此目录面向 **Minecraft Java 1.20.1 / Forge 47.4.0** 的视觉效果开发。后续统一使用 [MinecraftShaderLab](MinecraftShaderLab/README.md)：直接编译桌面 GLSL 150 的 `.vsh`、`.fsh` 和 Minecraft core shader JSON，无需先制作浏览器版本再转换。
 
-## 选择预览方式
+新效果和继续开发的旧效果均接入这个公共工具。**不再为每个作品搭建 HTML/WebGL 沙盒、`preview.js` 或独立预览服务器。** 所需网格、纹理输入或 pass 超出当前能力时，扩展公共工具，再进行验证。已有 `.frag` 与浏览器入口保留作历史参考，不表示已经迁移，也不需要一次性改写所有旧作品。
 
-| 方式 | 适用情况 | 默认约定 |
-| --- | --- | --- |
-| 基础预览 | 快速确认形状、配色与动画节奏 | 自包含的 `main.frag`，WebGL 1 / GLSL ES 1.00，优先零纹理依赖，直接在 GLSL Canvas 运行 |
-| Minecraft 原型 | 需要场景采样、深度交互、实体轮廓、顶点几何或多 pass 合成 | 按需增加纹理、自定义 uniform、顶点 shader、公共函数和独立预览宿主，并说明正式迁移方式 |
+## 统一入口
 
-新效果按需要选择，已有基础入口无需统一升级。Minecraft 原型可以继续使用 GLSL Canvas，只要所需能力已在该宿主确认可用；也可以提供 WebGL 2 或桌面 OpenGL 预览。需要独立宿主时，在作品 README 中写清启动方式、所需资源、输入数据与合成顺序；尚未验证的宿主支持应明确标注。
+以下命令均从主项目根目录执行。工具自身的 [README](MinecraftShaderLab/README.md) 和 [DEBUG_API](MinecraftShaderLab/DEBUG_API.md) 使用工具目录作为工作目录。
 
-## 基础预览开始使用
+```powershell
+# 人工交互：也可以直接双击 shaderDev/MinecraftShaderLab/run.cmd。
+.\shaderDev\MinecraftShaderLab\run.cmd
 
-1. 在 VSCode 扩展市场安装 **GLSL Canvas**（扩展 ID：`circledev.glsl-canvas`）。
-2. 用 VSCode 打开某个效果目录中的 `main.frag`，例如 `shaderDev/BladeRift/main.frag`。
-3. 打开命令面板（`Ctrl+Shift+P`），运行 **Show GLSL Canvas**。
-4. 保存文件后观察预览；只有显式声明并使用 `u_mouse` 的作品支持鼠标交互。
+# 打开已有正式效果：这些配置直接读取 src/main/resources 中的三件套。
+.\shaderDev\MinecraftShaderLab\run.cmd -Shader .\shaderDev\MinecraftShaderLab\examples\fantasy-frost.preview.json
+.\shaderDev\MinecraftShaderLab\run.cmd -Shader .\shaderDev\MinecraftShaderLab\examples\fantasy-void.preview.json
+.\shaderDev\MinecraftShaderLab\run.cmd -Shader .\shaderDev\MinecraftShaderLab\examples\fantasy-rift.preview.json
 
-有额外资源或独立宿主的效果按自身 README 运行，不假定 GLSL Canvas 会自动加载它们。
-
-## Uniform 约定
-
-基础入口按需要使用 GLSL Canvas 提供的以下 uniform：
-
-```glsl
-uniform float u_time;       // 自预览开始后的秒数
-uniform vec2 u_resolution;  // 画布像素尺寸
-uniform vec2 u_mouse;       // 鼠标像素坐标
+# 打开自己的作品，含空格的路径需要引号。
+.\shaderDev\MinecraftShaderLab\run.cmd -Shader .\shaderDev\MyEffect\main.preview.json
 ```
 
-允许宿主提供额外的时间、种子、进度、相机矩阵、颜色、实例参数和采样资源。自定义输入应说明来源、单位和有效范围；数值演示值或模拟场景应标明用途。Minecraft 不会自动提供这些同名 uniform，正式迁移时需要由 Java、目标 shader JSON 或顶点阶段接入。
+工具使用 Java 17 与桌面 OpenGL，不参与 mod 的 Gradle 源码集或发布包。依赖缓存在工具自己的 `.deps/`；运行日志、验证报告和帧图像位于 `build/`、`captures/`，均被 Git 忽略。原版 include 和纹理可从本机 1.20.1 client.jar 读取；查找方式和手动指定方法见工具说明。
 
-## 坐标约定
+## 新作品最小结构
 
-- 基础预览中的 `gl_FragCoord.xy` 和 `u_mouse` 按像素处理；自定义宿主需要保持鼠标坐标与实际渲染分辨率一致。
-- GLSL Canvas 尚未收到鼠标输入而提供 `u_mouse == vec2(0.0)` 时，现有示例将其视为中性输入。独立宿主可以显式传入交互状态。
-- 二维示例默认将画面中心映射到原点，并除以分辨率的较短边，短边两端约为 `-1.0` 与 `1.0`，以保持宽高比。允许按效果改用 UV、模型局部、世界或视图空间，并说明坐标变换。
-- 对分辨率、除数、归一化向量和距离计算处理退化输入，避免除零、NaN 与中心奇点。
+```text
+shaderDev/MyEffect/
+  README.md
+  main.preview.json
+  assets/myeffect/shaders/core/main.json
+  assets/myeffect/shaders/core/main.vsh
+  assets/myeffect/shaders/core/main.fsh
+  assets/myeffect/shaders/include/      # 按需使用
+  assets/myeffect/textures/            # 按需使用
+```
 
-## 纹理与渲染资源
+core JSON 中的 `vertex` / `fragment` 使用 `myeffect:main`，按实际顶点格式声明 `attributes`，并完整声明 sampler 与 uniform。`.vsh` / `.fsh` 使用 `#version 150`、匹配的 `in/out`；矩阵默认值使用单位矩阵。可参考公共工具的 [surface 三件套](MinecraftShaderLab/examples/assets/shaderlab/shaders/core/surface.json)，不复制宿主实现。
 
-- 基础预览优先用 SDF、噪声和程序化调色板保持零资源依赖。**允许使用纹理与 `sampler`**；需要时在作品 README 中说明绑定方式、资源来源与运行条件。
-- 可以使用噪声贴图、调色板、实体遮罩、场景颜色或深度纹理。场景数据需要由宿主生成或提供，演示场景不能当作已经验证 Minecraft 地形或实体交互。
-- 纹理通道按作品配置；资源应使用可复现的相对路径或由宿主生成，避免依赖个人电脑上的绝对路径。
-- 多 pass 效果应说明每步输入、输出和合成顺序。对当前正在写入的同一纹理图像进行采样会产生反馈问题，应使用独立目标、复制或乒乓缓冲。
-- 无纹理不保证性能更好。应比较程序化噪声的运算量、纹理采样成本、缓存与显存开销，再决定实现方式。
+下面是与上述目录对应的 `main.preview.json` 起点。`uniforms`、`bindings`、`textures` 按实际 shader 声明添加，不需要的字段省略：
 
-## 兼容边界
+```json
+{
+  "shader": "assets/myeffect/shaders/core/main.json",
+  "target": "quad",
+  "state": {"depthTest": true, "depthWrite": false, "cull": false},
+  "mesh": {"width": 2, "height": 2, "uv": [0, 0, 1, 1], "billboard": true},
+  "camera": {"yaw": 35, "pitch": 25, "distance": 9, "fov": 60}
+}
+```
 
-基础入口遵守实际 WebGL 1 宿主限制：不声明 `#version`，使用浮点精度声明与 `gl_FragColor`，循环按 GLSL ES 1.00 的限制采用编译期可确定的边界。片元导数需要宿主支持并启用 `OES_standard_derivatives`；无法确认时使用替代抗锯齿或更换预览方式。`highp` 不可用时可以在接受画质下降的前提下回退到 `mediump`，无需为 Minecraft 桌面目标强制适配移动端低精度。
+所有文件路径相对于配置文件；标准 `assets/` 布局会自动确定资源根。预览配置保存实验场景和 Java 端需要提供的输入，正式 shader JSON 保持 Minecraft 格式。
 
-Minecraft 原型以本项目正式 shader 的 **桌面 GLSL 150** 为迁移基线：
+## 试验场景与输入
 
-- 允许纹理采样与片元阶段的 `fwidth`、`dFdx`、`dFdy`。导数用于抗锯齿时应避免在非一致控制流中计算，以免得到未定义结果。
-- 允许 GLSL 150 支持的整数位运算、动态循环和固定大小数组的动态索引。循环仍应有明确、可控的最大迭代次数；数组下标需要保持合法，不将此能力理解为运行时任意分配数组。
-- 允许顶点阶段、Java/宿主生成的网格和多 pass 渲染，不要求所有几何都在一个片元入口中重算。
-- 不默认依赖 GLSL 150 之外的特性，例如 compute shader 或 SSBO；确有需要时另行说明更高版本要求与兼容方案。
+| target | 用途 |
+| --- | --- |
+| `blocks` | 地面、台阶、立柱材质，检查顶点、法线和表面效果 |
+| `sky` | 相机中心的天空立方体，检查方向空间和环视 |
+| `entity` | 有肢体动画和 UV 岛的僵尸/苦力怕试件，检查表面附着和遮挡 |
+| `quad` | 世界空间平面或 billboard，适合粒子、裂痕及光束承载网格 |
+| `screen` | 读取地形/完整场景快照，检查深度重建与全屏合成 |
 
-浏览器不能直接编译桌面 `#version 150`。WebGL 2 入口使用其支持的 GLSL ES 3.00 语法（如 `#version 300 es`），仍需适配正式 shader。纹理格式、扩展和浮点目标也要按实际宿主确认，不能只通过改版本号获得能力。
+工具提供模型视图、投影、渲染尺寸、雾和光照相关的常规 uniform；自定义时间、种子、生命周期和实例参数通过配置显式绑定。完整字段见 [Uniform 与纹理契约](MinecraftShaderLab/README.md#uniform-与纹理契约)。
+
+- `seconds` 为预览秒数；`ticks` 为秒数 × 20；`GameTime` 是 `(ticks % 24000) / 24000`。生命周期应使用独立年龄或进度，结合插值，避免全局时间回绕。不要把旧 `u_time` 只改名后当作游戏时间。
+- `mesh.uv` 可指定纹理坐标以外的局部域。SDF、有限路径等效果必须与 Java 实际上传的 UV 范围一致；`[0,1]` 并非所有网格的默认语义。
+- 明确模型局部、世界、视图与相机相对坐标。深度重建用完整视图矩阵的逆得到世界坐标，用旋转视图的逆得到相机相对坐标，输入中心必须与之配套。
+- `gl_FragCoord` 与 `ScreenSize` 对应实际离屏目标像素尺寸。鼠标、实体轮廓或额外实例数据不会因为 shader 声明同名变量而自动产生；按实际需求扩展公共输入。
+- 检查分辨率、除数、归一化向量和距离函数的退化情况，避免除零、NaN 和中心奇点。
+
+## Agent 验证流程
+
+使用自己启动的隐藏调试进程，不控制用户桌面，也不接管用户的 GUI。接口详情、CLI 客户端和结构化错误见 [DEBUG_API](MinecraftShaderLab/DEBUG_API.md)。
+
+下面是可复用的 PowerShell 调用；设置时间后捕获实际 GPU 帧和两份深度，最后关闭自己的会话：
+
+```powershell
+$labRoot = (Resolve-Path .\shaderDev\MinecraftShaderLab).Path
+$labSession = Join-Path $labRoot ('build/debug/agent-' + [Guid]::NewGuid().ToString('N') + '.json')
+$labProcess = Start-Process -FilePath "$env:SystemRoot/System32/WindowsPowerShell/v1.0/powershell.exe" -WindowStyle Hidden -PassThru -ArgumentList @(
+  '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', ('"' + $labRoot + '\run.ps1"'),
+  '-DebugServer', '-SessionFile', ('"' + $labSession + '"')
+)
+$labClient = Join-Path $labRoot 'debug-client.ps1'
+try {
+  $labDeadline = [DateTime]::UtcNow.AddSeconds(30)
+  while (!(Test-Path -LiteralPath $labSession)) {
+    if ($labProcess.HasExited -or [DateTime]::UtcNow -gt $labDeadline) { throw '调试进程未能就绪' }
+    Start-Sleep -Milliseconds 100
+  }
+  & $labClient -Session $labSession -Command load -Body '{"path":"examples/fantasy-frost.preview.json"}'
+  & $labClient -Session $labSession -Command configure -Body '{"time":2.75,"camera":{"yaw":45,"pitch":20}}'
+  & $labClient -Session $labSession -Command render -Body '{"width":800,"height":600,"attachments":true}'
+} finally {
+  if (Test-Path -LiteralPath $labSession) {
+    & $labClient -Session $labSession -Command shutdown
+    $null = $labProcess.WaitForExit(10000)
+  }
+}
+```
+
+API 的相对加载路径以**工具目录**为基准；加载同级作品可以使用 `../MyEffect/main.preview.json`。复杂请求写入 JSON 文件并用 `-InputFile` 传给客户端。隐藏模式冻结时间、按请求绘制；源码保存后显式调用 `reload`，GUI 模式则自动重载。
+
+改效果时，验证当前作品的开始、中点、阶段切换与结束，必要时检查不同视角、宽屏和遮挡，并读取实际截图。改公共加载器、渲染或启动代码时，再执行相关回归：
+
+```powershell
+.\shaderDev\MinecraftShaderLab\run.cmd -SmokeTest
+.\shaderDev\MinecraftShaderLab\run.cmd -Verify
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\shaderDev\MinecraftShaderLab\tests\debug-api.ps1
+```
+
+`-SmokeTest` 输出隐藏控制台的布局图与控件 JSON，可检查界面而不操作桌面。工具回归本身不能代替新效果的视觉验收，只有编译/静态检查时须如实说明。
+
+## 纹理、pass 与性能
+
+允许纹理、导数、公共 `#moj_import` 和有明确上限的循环/数组访问。GLSL 150 支持整数位运算和动态索引；不默认依赖 compute shader、SSBO 等更高版本功能。
+
+- 纹理用可复现的资源位置或相对路径；场景颜色/深度由公共宿主生成，作品 README 写明来源、坐标和有效范围。
+- 多 pass 需说明输入、输出、顺序、目标格式与尺寸；不能在当前写入的纹理附件上采样。公共工具现有双深度流水线之外的能力需要先扩展，不能以另建 HTML 沙盒绕过。
+- `fwidth`、`dFdx`、`dFdy` 应避免在非一致控制流中求值。循环有可控上限，数组访问合法。
+- 无纹理、单 pass 或纯 GPU 几何都不自动保证性能。比较程序化运算与采样成本，关注屏幕覆盖面积、并发实例、透明叠加和中间目标数量。
+- 根据成本暴露步数、噪声层数、范围或分辨率选项。记录测量环境，预览器帧率不能直接代表 Minecraft 多实例表现。
 
 ## 几何与动画质量
 
-按效果语义定义几何和动画，验收重点是预期形状、边界与阶段行为。特殊设计在作品 README 或关键公式旁说明即可，无需重复说明同一意图。
+- 有限线段、曲线、光束和裂痕应有清楚的起点、端点、长度或范围。不得因缺失节点、无效分支或默认原点产生意外路径。
+- 从实体表面发出的光束，其根部和头部要符合设计；真实遮挡不能代替正确的路径定义。
+- 生命周期与空间形状分别检查。单侧展开、中心展开或移动窗口都可以，但尚未出生/已消失区域不应残留。
+- 辉光应平滑衰减，不能暴露承载网格的矩形边界。按实际混合方式选择网格余量、衰减或合成方式。
+- `BladeRift` 的 Spawn 从局部左端向右端推进，中途由起点延伸到中心符合设计。特殊语义应写入作品 README，避免在后续迭代中误修。
 
-- 有限线段和贝塞尔路径应有明确端点，或等价的起点、方向与长度定义；目标为原点时也应表达该意图，避免省略项、无效节点或未命中分支意外生成通向原点的路径。
-- 从实体表面发出的有限光束需要正确的根部和头部范围，可通过距离场、网格或遮罩实现。根部应位于设计的发射表面；遮挡可以承担真实可见性，但不能掩盖错误的路径定义。
-- 有限裂痕和尾迹应有有限轴向范围；持续射线、贯穿画面或延伸到屏幕外的光束可以按设计使用开放边界，并定义方向、可见范围和结束条件。
-- 生命周期与空间形状应能分别理解和调节。单侧展开、中心向两端展开、移动头尾窗口或整体淡入均可按视觉需求选择，检查尚未出生或已经消失的部分是否产生残留。
-- 修改动画时检查受影响阶段的开始、中点及切换前后；完整交付前覆盖整个生命周期，并检查宽屏或不同视角下的行为。可用暂停、时间参数或逐帧工具定位关键状态，无需每次微调都重复全部验收。
-- 辉光应平滑衰减，避免暴露承载网格的矩形边缘。允许扩大网格、调整衰减或采用屏幕空间合成；不统一要求某个 `discard` 阈值，范围与透明度应结合混合方式确定。
+## 接入 Minecraft 与兼容边界
 
-`BladeRift` 的 Spawn 采用从局部左端向右端推进的单侧展开，中途存在从起点延伸到中心的裂痕，符合该作品的设计。
+shaderDev 和公共验证器都不由 Minecraft 自动加载，不会自动写入 `src/main/resources`。使用正式格式消除了反复转译，但接入仍需：
 
-## 文件组织与复用
+1. 在实际 Java 渲染端对齐网格、UV、坐标、时间单位、sampler、uniform、混合和深度状态。
+2. 明确场景颜色/深度副本的渲染阶段、分辨率、resize 和生命周期，避免纹理反馈。
+3. 在 `FDShaderHandler` 注册 `ShaderInstance`，显式匹配 `DefaultVertexFormat`，提供 getter 与加载状态检查，每帧获取实例以兼容 `F3+T`。
+4. 在真实世界验证地形、实体、透明物体、资源重载和并发效果。工具的盒模型、全亮 lightmap、固定光照与场景试件不等于完整 Minecraft 世界管线。
 
-- 基础入口默认自包含，保持打开即可运行。
-- 复杂效果允许公共 `lib/*.glsl`、顶点/片元文件和宿主代码，按作品需要组织。GLSL ES 不提供标准 `#include`，需要由已确认支持的宿主或预处理步骤展开，并说明启动流程；Minecraft 的 `#moj_import` 也不能直接假定在浏览器中可用。
-- 复用函数时保留输入、输出、坐标空间和有效范围约定，避免遗漏端点或生命周期处理。宿主与 GLSL 的职责可以按性能和维护成本分配。
+当前工具支持 core JSON 与 sampler2D，不自动支持 OptiFine/Iris shaderpack、任意后处理链、完整材质图集、AO、透明排序或 HDR/Bloom。输出超过 1 的颜色本身不会产生 Bloom；需要这些能力时先明确并实现公共渲染契约，参见工具 [兼容边界](MinecraftShaderLab/README.md#与游戏一致的部分与边界)。
 
-## 性能与预览验证
+## 现有作品
 
-复杂效果应关注渲染分辨率、屏幕覆盖面积、同时出现的实例数量、透明层叠加、循环和采样次数，以及中间目标的分辨率与数量。单 pass、大量程序化运算或纯 GPU 几何都不自动代表更快。
+下列作品的一部分 README 仍记录旧 Canvas/浏览器入口，属于历史说明。下一次继续开发时按本页补齐三件套与 `main.preview.json`，不再扩展独立浏览器宿主。
 
-按成本提供有用的调节项，例如体积步数、噪声层数、效果范围或中间目标分辨率。性能结论应说明测量环境与场景；原型工具中的帧率不能直接代表 Minecraft 内多实例叠加时的表现。只有编译或静态检查时，如实标注尚未进行视觉或性能验证。
-
-## 迁移到 Minecraft
-
-原型迁移不是直接复制即用，需要按目标 Minecraft shader 类型适配：
-
-1. 将预览输入映射到实际数据来源。`u_time` 使用秒；原版内建 `GameTime` 是按 24000 tick 周期归一化的值，乘以 24000 后得到周期内 tick，再除以 20 得到游戏秒。短时实例动画优先使用实体年龄或独立进度并结合 partial tick，避免全局时间回绕；自定义时间 uniform 按上传端确认单位，不能只改名称。
-2. 正式 shader 使用 `#version 150` 与匹配的 `in`/`out`，按 JSON 声明采样器、uniform 和默认值。将预览坐标映射到模型 UV、局部/世界坐标或实际屏幕空间；`gl_FragCoord` 在正式片元 shader 中仍可使用，但要匹配当前渲染目标尺寸与视口。
-3. 通过 Java 提供所需纹理、相机参数和实例数据，确定渲染时机与资源生命周期。场景颜色、深度、实体轮廓和鼠标数据不会因声明同名 uniform 自动获得；按实际管线处理深度复制、遮挡和目标尺寸变化。
-4. 根据效果拆分普通 Alpha、预乘 Alpha 与加法层，并匹配混合因子、深度测试和深度写入。预览背景与色调映射按需移除，输出透明度以作品实际实现为准。原版目标不自动提供 HDR/Bloom，真正的 HDR 合成需要合适的浮点目标及后处理；输出大于 1 的颜色本身不会生成 Bloom。
-5. 在 `FDShaderHandler` 中注册 `ShaderInstance`，显式指定与 JSON attributes 匹配的 `DefaultVertexFormat`，提供 getter 和加载状态检查。每帧通过 getter 获取实例，适配 `F3+T` 资源重载，避免保存失效引用。
-6. 只迁移需要的函数与资源，处理 include、宏和 uniform 命名冲突，并在游戏内验证受影响的遮挡、透明合成、资源重载和并发效果。
-
-本目录仅用于原型开发，不修改或自动接入项目的正式 Minecraft shader 资源。
-
-## 独立作品
-
-- [`AstraLightning`](AstraLightning/README.md)：固定种子星座闪电，首尾与折点十字星光，附正式参数化粒子调用说明。
-- [`BladeRift`](BladeRift/README.md)：单侧生成的有限空间裂痕。
-- [`EchoTimer`](EchoTimer/README.md)：附着于实体轮廓的虚空侵蚀效果。
-- [`Starfield`](Starfield/README.md)：程序化蓝紫银河、暗尘埃与三层闪烁恒星，附可暂停和调整视角的浏览器预览。
-- [`StarSea`](StarSea/README.md)：参考 FrostField 双深度遮盖的贴地星海，流体边缘与高频流星，附台阶和实体遮挡预览。
-- [`SuperNova`](SuperNova/main.frag)：多色粒子流汇聚后形成体积超新星。
-- [`SuperNova3D`](SuperNova3D/README.md)：透视相机下的星云冲击球壳与表面残留原型。
-- [`SuperNovaConvergence`](SuperNovaConvergence/README.md)：同色粒子对称汇入旋转星核，按可设倒计时爆发的三维星云预制。
-- [`VoidRifter`](VoidRifter/main.frag)：交错菱形十字裂痕与中央传送门。
-
-`SuperNovaConvergence` 另提供共用着色器源文件的本地审查页，支持暂停、逐帧、切换随机种子和环绕视角；启动方式及实际渲染动画见其 README。
+- [AstraLightning](AstraLightning/README.md)：固定种子的星座闪电和十字星光。
+- [BladeRift](BladeRift/README.md)：单侧生成的有限空间裂痕；正式 shader 已有 [公共预设](MinecraftShaderLab/examples/fantasy-rift.preview.json)。
+- [EchoTimer](EchoTimer/README.md)：附着实体轮廓的虚空侵蚀原型。
+- [VoidFlame](VoidFlame/README.md)：虚空火焰与实体表面效果；正式 shader 已有 [公共预设](MinecraftShaderLab/examples/fantasy-void.preview.json)。
+- [Starfield](Starfield/README.md)：银河、暗尘埃与分层恒星。
+- [StarSea](StarSea/README.md)：双深度地形覆盖星海。
+- [SuperNova](SuperNova/main.frag)、[SuperNova3D](SuperNova3D/README.md)、[SuperNovaConvergence](SuperNovaConvergence/README.md)：超新星系列历史原型。
+- [VoidRifter](VoidRifter/main.frag)：交错菱形裂痕与中央传送门。

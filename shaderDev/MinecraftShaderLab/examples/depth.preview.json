@@ -1,0 +1,7 @@
+{
+  "shader":"assets/shaderlab/shaders/core/depth.json",
+  "target":"screen",
+  "state":{"depthTest":false,"depthWrite":false,"cull":false},
+  "textures":{"DepthSampler":"@scene_depth","BlockDepthSampler":"@block_depth"},
+  "bindings":{"InvViewProj":"inverse_view_projection","Time":"seconds"}
+}

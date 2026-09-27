@@ -21,6 +21,7 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
@@ -29,6 +30,7 @@ import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.damagesource.FDDamageSource;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDSpearPhantomSword;
+import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSpecialEffectsRegistry;
 import tennouboshiuzume.mods.FantasyDesire.items.fantasyslashblade.IFantasySlashBladeState;
@@ -74,7 +76,7 @@ public class ChikeFlareEffects {
         Vec3 VecToAttacker = VecMathUtils.calculateDirectionVec(player, attacker);
         float[] YP = VecMathUtils.getYawPitchFromVec(VecToAttacker);
         // 自动反击
-        player.playSound(SoundEvents.SHIELD_BLOCK, 0.5F, 2.0F);
+        attacker.playSound(SoundEvents.SHIELD_BLOCK, 0.5F, 2.0F);
         AddonSlashUtils.doAddonFDSlash(player, random.nextInt(180), YP[0], YP[1], 0x00FFFF, 0, VecToAttacker,
                 false, false, SOUL_SHIELD.counterSuccessDamageRatio() * event.getAmount(), KnockBacks.cancel, 1.5f, 60,
                 FDDamageSource.DIMENSION.location().toString());
@@ -116,7 +118,8 @@ public class ChikeFlareEffects {
     }
 
     // 不屈之魂
-    @SubscribeEvent
+    // 最高优先级触发，防止其他复活效果抢占永久成长的机会，这是作为永久成长养成玩法而有意为之的
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void OnDeath(LivingDeathEvent event) {
         if (!(event.getEntity() instanceof Player player))
             return;
@@ -140,7 +143,7 @@ public class ChikeFlareEffects {
         state.setMaxDamage(state.getMaxDamage() + IMMORTAL_SOUL.maxDamageBonus());
         CapabilityUtils.addSpecialCharge(fdState,
                 Mth.ceil(fdState.getMaxSpecialCharge() * IMMORTAL_SOUL.reviveChargeRatio()));
-        player.heal(player.getMaxHealth() * IMMORTAL_SOUL.healthRatio());
+        player.setHealth(player.getMaxHealth() * IMMORTAL_SOUL.healthRatio());
         player.removeAllEffects();
         player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, IMMORTAL_SOUL.regenDuration(),
                 IMMORTAL_SOUL.regenAmplifier()));
@@ -177,12 +180,14 @@ public class ChikeFlareEffects {
             return;
         LivingEntity target = event.getTarget();
         RandomSource random = target.getRandom();
+        // 8% + 消耗的灵魂 * 0.25 + 1 配置默认值
         float damage = target.getMaxHealth() * TYRANT_STRIKE.healthPercent()
                 + consumeAmount * TYRANT_STRIKE.chargeDamageScale();
         spawnTyrantStrikePhantomSword(player, target, state, random, damage + TYRANT_STRIKE.phantomDamage());
     }
 
     // SA 鞘翅滑翔 联动 彗星猛击
+    // 思考如何防止意外触发并且在玩家意图触发的时候才触发
     @SubscribeEvent
     public static void OnElytraClashBlock(LivingHurtEvent event) {
         if (!(event.getEntity() instanceof Player entity))
@@ -247,7 +252,7 @@ public class ChikeFlareEffects {
                 particleOptions, spawnPos.x, spawnPos.y + 0.1, spawnPos.z, 1, 0, 0,
                 0, 0, 64.0);
         EntityFDSpearPhantomSword ss = new EntityFDSpearPhantomSword(
-                tennouboshiuzume.mods.FantasyDesire.init.FDEntitys.FDSpearPhantomSword.get(), player.level());
+                FDEntitys.FDSpearPhantomSword.get(), player.level());
         ss.setIsCritical(false);
         ss.setOwner(player);
         ss.setColor(state.getColorCode());

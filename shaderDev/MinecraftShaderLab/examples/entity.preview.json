@@ -1,0 +1,7 @@
+{
+  "shader":"assets/shaderlab/shaders/core/surface.json",
+  "target":"entity","entity":"zombie",
+  "state":{"depthTest":true,"depthWrite":true,"cull":true},
+  "uniforms":{"Pulse":0.8,"Tint":[0.6,0.8,1]},
+  "bindings":{"Time":"seconds"}
+}

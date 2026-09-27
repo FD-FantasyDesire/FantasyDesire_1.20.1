@@ -105,9 +105,9 @@ public class EchoDamageHelper {
 
             if (triggered) {
                 target.playSound(SoundEvents.TRIDENT_RETURN, 1f, 1.5f);
-                ParticleUtils.generateRingParticles(ParticleTypes.PORTAL, target.level(),
+                ParticleUtils.generateRingParticles(ParticleTypes.END_ROD, target.level(),
                         target.getX(),
-                        target.getY() + target.getBbHeight() / 4, target.getZ(), 1, 4);
+                        target.getY() + target.getBbHeight() / 4, target.getZ(), 1, 20);
             }
         });
     }

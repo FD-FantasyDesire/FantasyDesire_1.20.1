@@ -10,6 +10,7 @@
     ],
     "client": [
         "client.EnderDragonRendererMixin",
+        "client.LayerMainBladeMixin",
         "client.LocalPlayerGlidingMixin"
     ],
     "injectors": {

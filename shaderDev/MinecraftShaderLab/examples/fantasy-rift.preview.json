@@ -1,0 +1,8 @@
+{
+  "shader":"../../../src/main/resources/assets/fantasydesire/shaders/core/fd_blade_rift.json",
+  "target":"quad","scale":1,
+  "mesh":{"width":6.4,"height":2.8,"uv":[-1.6,-0.7,1.6,0.7],"billboard":true},
+  "state":{"depthTest":true,"depthWrite":false,"cull":false},
+  "uniforms":{"Progress":0.45,"RiftLength":0.9,"RiftWidth":0.06},
+  "bindings":{"FlowTime":"seconds"}
+}

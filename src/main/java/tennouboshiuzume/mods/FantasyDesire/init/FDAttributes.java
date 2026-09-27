@@ -38,6 +38,16 @@ public class FDAttributes {
     public static final RegistryObject<Attribute> TOTAL_ECHO_DAMAGE = ATTRIBUTES.register("total_echo_damage",
             () -> new RangedAttribute("attribute.fantasydesire.total_echo_damage", 0.0D, 0.0D, 1.0E9D).setSyncable(true));
 
+    /** 望的有效点数上限，同时约束每把刀的光环数量。 */
+    public static final int MAX_LC_POINTS = 1024;
+    public static final RegistryObject<Attribute> FD_LC_MANG = ATTRIBUTES.register("fd_lc_mang",
+            () -> new RangedAttribute("attribute.fantasydesire.fd_lc_mang", 0.0D, 0.0D, MAX_LC_POINTS)
+                    .setSyncable(true));
+    /** 心：预留玩家属性，尚不附加视觉或战斗效果。 */
+    public static final RegistryObject<Attribute> FD_LC_SHIN = ATTRIBUTES.register("fd_lc_shin",
+            () -> new RangedAttribute("attribute.fantasydesire.fd_lc_shin", 0.0D, 0.0D, MAX_LC_POINTS)
+                    .setSyncable(true));
+
     public static void register(IEventBus modEventBus) {
         ATTRIBUTES.register(modEventBus);
         modEventBus.addListener(FDAttributes::onEntityAttributeModification);
@@ -52,6 +62,8 @@ public class FDAttributes {
             event.add(entityType, VOID_STRIKE_STACK.get());
             event.add(entityType, TOTAL_ECHO_DAMAGE.get());
         }
+        event.add(EntityType.PLAYER, FD_LC_MANG.get());
+        event.add(EntityType.PLAYER, FD_LC_SHIN.get());
     }
 
     /** 读取实体当前寒霜风暴半径（无修改器时返回 0） */

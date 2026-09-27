@@ -13,17 +13,19 @@ public class FDSpecialEffectsRegistry {
         // ChikeFlare
         // 消耗耀魂抵挡致死伤害并且永久改变面板
         public static final RegistryObject<SpecialEffect> ImmortalSoul = SPECIAL_EFFECT.register("immortal_soul",
-                        () -> new FDSpecialEffectBase(5, false, false));
+                        () -> new FDSpecialEffectBase(0, false, false));
         // 根据积累的灵魂充能格挡伤害并且触发反击
         public static final RegistryObject<SpecialEffect> SoulShield = SPECIAL_EFFECT.register("soul_shield",
-                        () -> new FDSpecialEffectBase(15, false, false));
+                        () -> new FDSpecialEffectBase(10, false, false));
         // 消耗灵魂充能造成百分比伤害的追加打击
         public static final RegistryObject<SpecialEffect> TyrantStrike = SPECIAL_EFFECT.register("tyrant_strike",
                         () -> new FDSpecialEffectBase(80, false, false));
-        // 使该武器相关所有效果不需要前置消耗即可生效
+        // 使暴君一击不需要前置消耗即可生效
         public static final RegistryObject<SpecialEffect> CheatRumble = SPECIAL_EFFECT.register("cheat_rumble",
                         () -> new FDSpecialEffectBase(800000, false, false));
 
+        public static final RegistryObject<SpecialEffect> SoulFlame = SPECIAL_EFFECT.register("soul_flame",
+                        () -> new FDSpecialEffectBase(100, false, false));
         // 跨存档认主机制 未实现
         public static final RegistryObject<SpecialEffect> OverDimension = SPECIAL_EFFECT.register("over_dimension",
                         () -> new FDSpecialEffectBase(-1, false, false));
