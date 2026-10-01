@@ -43,7 +43,7 @@ public class FDAttributes {
     public static final RegistryObject<Attribute> FD_LC_MANG = ATTRIBUTES.register("fd_lc_mang",
             () -> new RangedAttribute("attribute.fantasydesire.fd_lc_mang", 0.0D, 0.0D, MAX_LC_POINTS)
                     .setSyncable(true));
-    /** 心：预留玩家属性，尚不附加视觉或战斗效果。 */
+    /** 心：第 1 档金色流焰不透明度系数为 20%，第 18 档为 100%；0 不渲染。 */
     public static final RegistryObject<Attribute> FD_LC_SHIN = ATTRIBUTES.register("fd_lc_shin",
             () -> new RangedAttribute("attribute.fantasydesire.fd_lc_shin", 0.0D, 0.0D, MAX_LC_POINTS)
                     .setSyncable(true));
@@ -61,9 +61,9 @@ public class FDAttributes {
             event.add(entityType, FROST_STORM_STRENGTH.get());
             event.add(entityType, VOID_STRIKE_STACK.get());
             event.add(entityType, TOTAL_ECHO_DAMAGE.get());
+            event.add(entityType, FD_LC_SHIN.get());
         }
         event.add(EntityType.PLAYER, FD_LC_MANG.get());
-        event.add(EntityType.PLAYER, FD_LC_SHIN.get());
     }
 
     /** 读取实体当前寒霜风暴半径（无修改器时返回 0） */
@@ -86,6 +86,13 @@ public class FDAttributes {
     public static float getTotalEchoDamage(LivingEntity entity) {
         var attr = entity.getAttribute(TOTAL_ECHO_DAMAGE.get());
         return attr == null ? 0.0F : (float) attr.getValue();
+    }
+
+    /** 无属性、负数或非有限值不产生气场；不改变服务端的属性数值。 */
+    public static float getShinStrength(LivingEntity entity) {
+        var attr = entity.getAttribute(FD_LC_SHIN.get());
+        double value = attr == null ? 0.0D : attr.getValue();
+        return Double.isFinite(value) ? (float) Math.max(0.0D, Math.min(MAX_LC_POINTS, value)) : 0.0F;
     }
 
     public static void syncTotalEchoDamage(LivingEntity entity, double total, java.util.UUID modifierId) {

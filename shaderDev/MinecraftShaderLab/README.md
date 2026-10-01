@@ -61,6 +61,7 @@ Windows x64，需要 JDK 17 和支持 OpenGL 3.2 的显卡驱动。本机已具�
 | `entity` | 僵尸或苦力怕盒模型，有独立肢体动画及 UV 岛 | 表面侵蚀、能量纹路、实体附着效果 |
 | `quad` | 世界空间平面，可朝向相机，UV 域可配置 | 粒子、裂痕、光束等承载网格 |
 | `screen` | 全屏平面，读取场景快照 | 深度重建、地形覆盖、屏幕合成 |
+| `volume` | 世界空间内向单位盒，读取场景快照 | 有界体积射线积分、实体与地形深度裁剪 |
 
 渲染顺序：**天空 + 地形 → 地形颜色/深度 → 复制后绘制实体 → 完整场景颜色/深度 → 复制到输出并执行效果**。三个 framebuffer 独立，均为 RGBA8 + DEPTH24；缩放窗口时同步重建。双深度输入保留实体遮挡差异，避免读写同一附件。
 
@@ -95,11 +96,25 @@ Windows x64，需要 JDK 17 和支持 OpenGL 3.2 的显卡驱动。本机已具�
 
 `uv` 顺序为左下 U/V、右上 U/V；默认 `[0,0,1,1]`。这对把 UV 用作局部 SDF 坐标的效果尤其必要：正式 Java 上传的是 `[-1,1]` 或更大的域时，不能用默认纹理 UV 代替。
 
+`quad` 的 `mesh.copies` 可设置 1–4096 个相同面片（默认 1），以一个 `glDrawArrays` 绘制，适合技能粒子批量压力测试。每片连续六顶点，可由 vertex shader 的 `gl_VertexID / 6` 解码槽号，自行计算位置、年龄和尺寸。公共工具不自动提供战斗实例数据或出生队列。多片批次首次绘制缓存 VAO/VBO，重载时重新创建；时间与 uniform 仍逐帧上传。copies 必须是整数，其他 target 不接受多片配置；GLSL 自行生成的位置仍需对齐 quad 的模型平移与 scale。
+
+`mesh.billboard: true` 时可指定 `mesh.billboardMode: "vertical"`，只绕世界 Y 轴转向相机，保持竖直；默认 `"spherical"` 同时跟随俯仰。`quad` 默认在实体之后绘制；顶层 `quadStage: "before_entities"` 可验证实体之前的背景气场，此时效果遵守地形深度，而实体随后覆盖效果。`scene-color` / `scene-depth` 附件仍保存不含效果的完整场景，便于逐像素验证实体未被覆盖。该选项不提供额外场景纹理采样，也不改变其他 target 的顺序。
+
 ## Uniform 与纹理契约
+
+`volume` 使用 `[-1,1]³` 局部坐标、内向三角形绕序，默认开启背面剔除，只提交射线出口面。`mesh.width / height / depth` 指定世界尺寸，均默认 2、范围 `(0,100]`；中心固定为 `(0,1.5,0)`，始终世界轴对齐，不受 `scale`、`billboard` 或 `quadStage` 影响。默认关闭硬件深度测试与写入；shader 自行用独立的 `@scene_depth` 截断积分，因此实体前方的体积可见、后方体积被遮挡，也可用 `@block_depth` 做对照。关闭剔除会重复累计前后面，不适合普通体积积分。近裁面、相机在盒内、采样步数与包围盒外归零均由效果 shader 处理；参考 [Shin](../Shin/README.md)。
+
+`volumeScale` 默认 1，范围 `[0.25,1]`，支持 `volume` 和 `screen`。小于 1 时启用两个阶段：先在向上取整的缩小目标中绘制透明层，再在原分辨率绘制同一个出口盒或全屏平面。shader 必须声明 `RenderSize`（vec2，当前目标的像素尺寸）、`ResolvePass`（int，首次 0、合成 1），并绑定 `AuraSampler: "@volume_color"`。宿主在自定义 uniform 后上传这两个值；缩小阶段该 sampler 绑定独立白纹理，合成阶段绑定前次颜色，禁止 framebuffer 反馈。shader 负责深度感知重建和必要时的精确重算，使用预乘颜色及 `one / 1-srcalpha` 混合；低分辨率颜色初始为透明黑。`ScreenSize` 仍为最终输出尺寸，场景深度始终为原分辨率。`customGpuMs` 包含两个 draw 的总时间。此能力是同一 shader 的双阶段执行，不是通用 post chain。
+
+`screen` 在 `volumeScale: 1` 时上传 `ResolvePass: -1`，表示直接绘制全部层；`volume` 保留原来的 0。全屏效果可在 pass 0 只绘制云团，pass 1 重建云团并绘制原分辨率粒子/细线，参考 [超新星汇聚](../Shaders/SuperNovaConvergence/README.md)。未使用该接口的 screen shader 不受影响。颜色调制应只在最终阶段应用一次；尺寸、深度边缘、相机进入体积以及完整与缩小分辨率切换均需实际验证。
+
+文件纹理读取可选 `.png.mcmeta` 的 `texture.blur` / `texture.clamp`：分别选择线性/最近邻过滤与钳位/循环寻址。缺省保持最近邻和循环寻址，元数据同样参与热重载；指定线性过滤的效果应在采样中正确处理 LOD 和非一致控制流。
 
 从 shader JSON 读取 `int` / `float`（1–4 分量）、`matrix2x2` / `matrix3x3` / `matrix4x4` 默认值。一个默认值按照 Minecraft 规则广播；矩阵按列主序上传。检查 JSON 声明与 GPU 活动 uniform 类型，优化掉的值只提示。
 
 自动提供 `ModelViewMat`、`ProjMat`、`IViewRotMat`、`TextureMat`、`ScreenSize`、`ColorModulator`、`Light0_Direction`、`Light1_Direction`、`FogStart/End/Color/Shape`、`GameTime`、`ChunkOffset`、`LineWidth`、`GlintAlpha`。`EffectLocalMat` 在默认实体局部坐标契约下为单位矩阵。
+
+声明 `InvProjMat` 时自动上传当前 `ProjMat` 的逆矩阵，用于逐像素重建视图坐标。
 
 默认两方向光是固定试验光；光照贴图是全亮 16×16，实体 overlay 使用原版通道约定。需要其他光照时可显式绑定自己的纹理、覆盖 uniform。
 
@@ -126,7 +141,7 @@ Windows x64，需要 JDK 17 和支持 OpenGL 3.2 的显卡驱动。本机已具�
 | `@white` / `@checker` | 全白 / 棋盘测试纹理 |
 | 资源位置或相对 PNG 路径 | 例如 `minecraft:textures/block/stone.png` 或 `textures/noise.png` |
 
-场景颜色、深度输入只在 `screen` pass 中可用，防止反馈或读取尚未绘制的目标。当前支持 `sampler2D`。PNG 保持 Minecraft 的像素行与 UV 约定；使用最近邻放大，PNG 自动生成 mipmap。
+场景颜色、深度输入只在 `screen` / `volume` pass 中可用；两者写入的 output 与采样的 scene / blocks 附件独立，防止反馈或读取尚未绘制的目标。当前支持 `sampler2D`。PNG 保持 Minecraft 的像素行与 UV 约定；使用最近邻放大，PNG 自动生成 mipmap。
 
 ## 与游戏一致的部分与边界
 

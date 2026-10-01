@@ -1,0 +1,32 @@
+{
+  "shader": "assets/supernova/shaders/core/main.json",
+  "target": "screen",
+  "state": {
+    "depthTest": false,
+    "depthWrite": false,
+    "cull": false
+  },
+  "scene": {
+    "terrain": true,
+    "entity": true
+  },
+  "camera": {
+    "yaw": 25,
+    "pitch": 12,
+    "distance": 13,
+    "fov": 55
+  },
+  "uniforms": {
+    "RepeatPreview": 1
+  },
+  "bindings": {
+    "EffectAge": "seconds",
+    "CameraPosition": "camera_position",
+    "InverseViewProjection": "inverse_view_projection"
+  },
+  "textures": {
+    "DepthSampler": "@scene_depth",
+    "AuraSampler": "@volume_color"
+  },
+  "volumeScale": 1
+}

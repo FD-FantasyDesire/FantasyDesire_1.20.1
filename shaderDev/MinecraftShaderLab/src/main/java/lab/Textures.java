@@ -1,5 +1,6 @@
 package lab;
 
+import com.google.gson.JsonParser;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -25,7 +26,18 @@ final class Textures implements AutoCloseable {
         Project.Resource resource=project.resource(key,key.contains(":")?null:project.input.getParent());
         BufferedImage image=ImageIO.read(new ByteArrayInputStream(resource.bytes()));
         if(image==null)throw new IOException("无法解码纹理: "+key);
-        int id=upload(image,true);textures.put(key,id);return id;
+        boolean blur=false,clamp=false;
+        try {
+            Project.Resource metadata=project.resource(key+".mcmeta",key.contains(":")?null:project.input.getParent());
+            var texture=Project.object(JsonParser.parseString(new String(metadata.bytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject(),"texture");
+            blur=Project.bool(texture,"blur",false);clamp=Project.bool(texture,"clamp",false);
+        } catch(FileNotFoundException absent) { /* 没有元数据时使用原版默认过滤。 */ }
+        int id=upload(image,true);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,blur?GL_LINEAR_MIPMAP_LINEAR:GL_NEAREST_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,blur?GL_LINEAR:GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,clamp?GL_CLAMP_TO_EDGE:GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,clamp?GL_CLAMP_TO_EDGE:GL_REPEAT);
+        textures.put(key,id);return id;
     }
     int optional(Project project,String key){try{return get(project,key);}catch(IOException e){int fallback=textures.get("@checker");textures.put(key,fallback);return fallback;}}
     static int upload(BufferedImage image,boolean mipmap){

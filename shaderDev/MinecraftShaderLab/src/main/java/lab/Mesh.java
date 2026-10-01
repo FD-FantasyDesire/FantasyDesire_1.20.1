@@ -11,6 +11,8 @@ final class Mesh implements AutoCloseable {
     record Vertex(float x,float y,float z,float u,float v,float nx,float ny,float nz,int color) { }
     final List<Vertex> vertices=new ArrayList<>();
     private final int vao=glGenVertexArrays(),vbo=glGenBuffers();
+    private boolean staticBatch=false;
+    private ShaderProgram uploadedProgram;
     void quad(float[][] p,float u0,float v0,float u1,float v1,Vector3f normal,int color,Matrix4f pose){
         float[][] uv={{u0,v1},{u1,v1},{u1,v0},{u0,v0}};
         Vector3f n=pose.transformDirection(new Vector3f(normal)).normalize();
@@ -53,8 +55,17 @@ final class Mesh implements AutoCloseable {
     }
     static Mesh plane(){return plane(new float[]{0,0,1,1},2,2);}
     static Mesh plane(float[] uv,float width,float height){Mesh m=new Mesh();float x=width*.5f,y=height*.5f;m.quad(new float[][]{{-x,-y,0},{x,-y,0},{x,y,0},{-x,y,0}},uv[0],uv[3],uv[2],uv[1],new Vector3f(0,0,1),0xffffffff,new Matrix4f());return m;}
+    // 六顶点连续面片可通过 gl_VertexID 解码实例；静态批次只在程序替换后上传。
+    static Mesh batchPlane(float[] uv,float width,float height,int copies){
+        Mesh m=plane(uv,width,height);List<Vertex> quad=List.copyOf(m.vertices);
+        for(int i=1;i<copies;i++)m.vertices.addAll(quad);
+        m.staticBatch=true;return m;
+    }
     static Mesh sky(){Mesh m=new Mesh();m.box(-1,-1,-1,2,2,2,0xffffffff,new Matrix4f());return m;}
+    // 内向绕序绘制射线出口面，镜头进入体积后仍覆盖可见区域。
+    static Mesh volume(){Mesh m=sky();for(int i=0;i<m.vertices.size();i+=3)Collections.swap(m.vertices,i,i+2);return m;}
     void draw(ShaderProgram program){
+        if(staticBatch&&uploadedProgram==program){glBindVertexArray(vao);glDrawArrays(GL_TRIANGLES,0,vertices.size());glBindVertexArray(0);return;}
         ByteBuffer data=MemoryUtil.memAlloc(vertices.size()*program.stride);
         try{
             for(Vertex v:vertices){int start=data.position();for(ShaderProgram.Attribute a:program.attributes){data.position(start+a.offset());switch(a.name()){
@@ -68,7 +79,7 @@ final class Mesh implements AutoCloseable {
             glBindVertexArray(vao);glBindBuffer(GL_ARRAY_BUFFER,vbo);glBufferData(GL_ARRAY_BUFFER,data,GL_DYNAMIC_DRAW);
             for(int i=0;i<8;i++)glDisableVertexAttribArray(i);
             for(int i=0;i<program.attributes.size();i++){var a=program.attributes.get(i);glEnableVertexAttribArray(i);if(a.integer())glVertexAttribIPointer(i,a.size(),a.type(),program.stride,a.offset());else glVertexAttribPointer(i,a.size(),a.type(),a.normalized(),program.stride,a.offset());}
-            glDrawArrays(GL_TRIANGLES,0,vertices.size());glBindVertexArray(0);
+            glDrawArrays(GL_TRIANGLES,0,vertices.size());glBindVertexArray(0);if(staticBatch)uploadedProgram=program;
         }finally{MemoryUtil.memFree(data);}
     }
     @Override public void close(){glDeleteBuffers(vbo);glDeleteVertexArrays(vao);}

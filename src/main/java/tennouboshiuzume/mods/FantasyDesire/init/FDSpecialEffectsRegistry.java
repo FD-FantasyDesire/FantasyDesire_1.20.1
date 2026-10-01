@@ -75,4 +75,14 @@ public class FDSpecialEffectsRegistry {
                         () -> new FDSpecialEffectBase(100, false, false));
         public static final RegistryObject<SpecialEffect> EchoingStrike = SPECIAL_EFFECT.register("echoing_strike",
                         () -> new FDSpecialEffectBase(30, false, false));
+        // 通用SE
+        // 心
+        // 根据评级赋予强度，提供伤害减免，持续消耗评分
+        public static final RegistryObject<SpecialEffect> Shin = SPECIAL_EFFECT.register("lc_shin",
+                        () -> new FDSpecialEffectBase(80, false, true, true));
+        // 望
+        // 根据评级赋予强度，提供次方近战面板乘区，攻击消耗评分
+        public static final RegistryObject<SpecialEffect> Mang = SPECIAL_EFFECT.register("lc_mang",
+                        () -> new FDSpecialEffectBase(80, false, true, true));
+
 }

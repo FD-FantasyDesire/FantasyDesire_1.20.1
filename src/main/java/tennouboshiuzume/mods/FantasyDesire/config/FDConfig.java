@@ -27,6 +27,8 @@ public final class FDConfig {
     public static final ColorFlux COLOR_FLUX;
     public static final VoidStrikeSe VOID_STRIKE_SE;
     public static final EchoingStrike ECHOING_STRIKE;
+    public static final Shin SHIN;
+    public static final Mang MANG;
 
     // ---- slash_art.fantasydesire.* ----
     public static final WingToTheFuture WING_TO_THE_FUTURE;
@@ -67,6 +69,8 @@ public final class FDConfig {
         COLOR_FLUX = new ColorFlux(builder);
         VOID_STRIKE_SE = new VoidStrikeSe(builder);
         ECHOING_STRIKE = new EchoingStrike(builder);
+        SHIN = new Shin(builder);
+        MANG = new Mang(builder);
         WING_TO_THE_FUTURE = new WingToTheFuture(builder);
         CRIMSON_STRIKE_SA = new CrimsonStrikeSa(builder);
         RAINBOW_STAR = new RainbowStar(builder);
@@ -90,6 +94,52 @@ public final class FDConfig {
     }
 
     private FDConfig() {
+    }
+
+    /** 心：每 5 tick 按评级概率叠层，上限十八档，每档减伤 5%。 */
+    public static class Shin {
+        public final ForgeConfigSpec.ConfigValue<Double> reductionPerPoint;
+        public final ForgeConfigSpec.ConfigValue<Double> reductionCap;
+        public final ForgeConfigSpec.ConfigValue<Integer> rankCostPerStack;
+        public final ForgeConfigSpec.ConfigValue<Double> stackChanceS;
+        public final ForgeConfigSpec.ConfigValue<Double> stackChanceSs;
+        public final ForgeConfigSpec.ConfigValue<Double> stackChanceSss;
+
+        private Shin(ForgeConfigSpec.Builder builder) {
+            push(builder, "se", "lc_shin", "心：初始1层，每5 tick按评级概率增加1层，上限18层，低于S或换刀清空。每秒按强度额外扣分，保留自然衰减与受击扣分。");
+            reductionPerPoint = builder.defineInRange("reduction_per_point", 0.05D, 0.0D, 1.0D);
+            reductionCap = builder.defineInRange("reduction_cap", 0.9D, 0.0D, 0.95D);
+            rankCostPerStack = builder.defineInRange("rank_cost_per_stack", 1, 1, 300);
+            stackChanceS = builder.defineInRange("stack_chance_s", 0.05D, 0.0D, 1.0D);
+            stackChanceSs = builder.defineInRange("stack_chance_ss", 0.15D, 0.0D, 1.0D);
+            stackChanceSss = builder.defineInRange("stack_chance_sss", 0.25D, 0.0D, 1.0D);
+            builder.pop(3);
+        }
+    }
+
+    /** 望：攻击伤害属性独立总乘区为 multiplierBase 的层数次方，有效命中共用扣分预算。 */
+    public static class Mang {
+        public final ForgeConfigSpec.ConfigValue<Double> multiplierBase;
+        public final ForgeConfigSpec.ConfigValue<Integer> rankCostPerStack;
+        public final ForgeConfigSpec.ConfigValue<Integer> rankCostPerSecondCap;
+        public final ForgeConfigSpec.ConfigValue<Double> stackChanceS;
+        public final ForgeConfigSpec.ConfigValue<Double> stackChanceSs;
+        public final ForgeConfigSpec.ConfigValue<Double> stackChanceSss;
+        public final ForgeConfigSpec.ConfigValue<Double> stackChanceDecay;
+
+        private Mang(ForgeConfigSpec.Builder builder) {
+            push(builder, "se", "lc_mang",
+                    "望：初始1层，每5 tick按评级概率增加1层，每多一层叠层概率再乘衰减系数，上限3层，攻击伤害属性独立总乘区为倍率底数的层数次方。面板型攻击命中按层数扣分，每20 tick共用预算，不额外增强幻影剑。");
+            multiplierBase = builder.defineInRange("multiplier_base", 1.25D, 1.0D, 1.5D);
+            rankCostPerStack = builder.defineInRange("rank_cost_per_stack", 1, 1, 300);
+            rankCostPerSecondCap = builder.defineInRange("rank_cost_per_second_cap", 8, 1, 300);
+            stackChanceS = builder.defineInRange("stack_chance_s", 0.10D, 0.0D, 1.0D);
+            stackChanceSs = builder.defineInRange("stack_chance_ss", 0.15D, 0.0D, 1.0D);
+            stackChanceSss = builder.defineInRange("stack_chance_sss", 0.20D, 0.0D, 1.0D);
+            stackChanceDecay = builder.comment("叠层概率 = 评级基础概率 × 此系数^(当前层数-1)，默认第二层升第三层的概率减半。")
+                    .defineInRange("stack_chance_decay", 0.5D, 0.0D, 1.0D);
+            builder.pop(3);
+        }
     }
 
     /** 进入 <root>.fantasydesire.<id> 配置节(根前缀与 lang 键一致) */

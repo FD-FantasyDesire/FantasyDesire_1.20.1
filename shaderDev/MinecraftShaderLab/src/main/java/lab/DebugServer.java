@@ -152,7 +152,8 @@ final class DebugServer implements AutoCloseable {
                 boolean attachments = bool(request.body, "attachments", false);
                 if (renderer.program == null) throw new IOException("尚无有效 shader，请先 load");
                 renderer.seconds = time;
-                renderer.render(w, h);
+                renderer.measureGpu = true;
+                try { renderer.render(w, h); } finally { renderer.measureGpu = false; }
                 glFinish();
                 width = w; height = h;
                 Path folder = captureRoot.resolve(String.format(Locale.ROOT, "frame-%05d", ++frameNumber));
@@ -161,6 +162,7 @@ final class DebugServer implements AutoCloseable {
                 lastFrame = Files.readAllBytes(png);
                 result = status();
                 result.addProperty("capture", png.toString());
+                result.addProperty("customGpuMs", renderer.gpuTimersAvailable ? renderer.customGpuMs : null);
                 result.addProperty("sha256", HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(lastFrame)));
                 if (attachments) {
                     renderer.blocks.capture(folder.resolve("terrain-color.png"));
@@ -203,6 +205,7 @@ final class DebugServer implements AutoCloseable {
         data.addProperty("descriptor", renderer.project == null ? null : renderer.project.descriptor.toString());
         data.addProperty("generation", renderer.generation);
         data.addProperty("target", renderer.target);
+        data.addProperty("volumeScale", renderer.volumeScale);
         data.addProperty("entity", renderer.entity);
         data.addProperty("time", renderer.seconds);
         data.addProperty("paused", renderer.paused);
@@ -255,7 +258,7 @@ final class DebugServer implements AutoCloseable {
         double time = number(body, "time", renderer.seconds, 0, 1e7);
         String target = Project.string(body, "target", renderer.target);
         String entity = Project.string(body, "entity", renderer.entity);
-        if (!Set.of("blocks", "sky", "entity", "quad", "screen").contains(target)) throw new IOException("未知 target");
+        if (!Set.of("blocks", "sky", "entity", "quad", "screen", "volume").contains(target)) throw new IOException("未知 target");
         if (!Set.of("zombie", "creeper").contains(entity)) throw new IOException("未知 entity");
         JsonObject camera = Project.object(body, "camera"), state = Project.object(body, "state"), scene = Project.object(body, "scene");
         only(camera, "yaw", "pitch", "distance", "fov");

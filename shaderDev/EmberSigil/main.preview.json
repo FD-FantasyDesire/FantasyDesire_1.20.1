@@ -1,0 +1,12 @@
+{
+  "shader": "assets/embersigil/shaders/core/main.json",
+  "target": "quad",
+  "scale": 1,
+  "mesh": {"width": 2, "height": 2, "copies": 300, "uv": [-1,-1,1,1]},
+  "state": {"depthTest": true, "depthWrite": false, "cull": false},
+  "scene": {"terrain": true, "entity": true},
+  "camera": {"yaw": 25, "pitch": 32, "distance": 11, "fov": 48},
+  "uniforms": {"EventCount": 100, "RepeatPreview": 1, "Intensity": 0.42},
+  "bindings": {"EffectTime": "seconds"},
+  "textures": {"NoiseSampler": "assets/embersigil/textures/dissolve-pattern.png"}
+}

@@ -1,0 +1,16 @@
+{
+  "shader": "../../../src/main/resources/assets/fantasydesire/shaders/core/fd_shin.json",
+  "target": "volume",
+  "entity": "zombie",
+  "volumeScale": 0.5,
+  "mesh": {"width": 2.4, "height": 3.6, "depth": 2.4},
+  "state": {"depthTest": false, "depthWrite": false, "cull": true},
+  "camera": {"yaw": 35, "pitch": 15, "distance": 6, "fov": 60},
+  "textures": {
+    "DepthSampler": "@scene_depth",
+    "AuraSampler": "@volume_color",
+    "NoiseSampler": "../../../src/main/resources/assets/fantasydesire/textures/effect/shin_noise.png"
+  },
+  "uniforms": {"ShinStrength": 18, "EffectSeed": 0.4, "EffectYaw": 0, "RaySteps": 48},
+  "bindings": {"EffectTime": "seconds"}
+}

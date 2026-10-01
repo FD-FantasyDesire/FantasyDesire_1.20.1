@@ -1,0 +1,18 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "zero"},
+  "vertex": "arclance:main",
+  "fragment": "arclance:main",
+  "attributes": ["Position", "UV0"],
+  "samplers": [{"name": "SceneSampler"}, {"name": "DepthSampler"}],
+  "uniforms": [
+    {"name": "InverseViewProjection", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "CameraPosition", "type": "float", "count": 3, "values": [0,5,16]},
+    {"name": "ScreenSize", "type": "float", "count": 2, "values": [1280,720]},
+    {"name": "SkillAge", "type": "float", "count": 1, "values": [0]},
+    {"name": "RepeatPreview", "type": "int", "count": 1, "values": [0]},
+    {"name": "Origin", "type": "float", "count": 3, "values": [-3.5,2.3,0]},
+    {"name": "Target", "type": "float", "count": 3, "values": [3.3,1.1,0]},
+    {"name": "Intensity", "type": "float", "count": 1, "values": [1]},
+    {"name": "Steps", "type": "int", "count": 1, "values": [224]}
+  ]
+}

@@ -73,14 +73,9 @@ public class FDPhantomSwordRender<T extends EntityFDPhantomSword> extends Entity
             Entity hits = entity.getHitEntity();
             boolean hasHitEntity = hits != null;
 
-            if (hasHitEntity) {
-                matrixStack
-                        .mulPose(Axis.YN.rotationDegrees(Mth.rotLerp(partialTicks, hits.yRotO, hits.getYRot()) - 90));
-                matrixStack.mulPose(Axis.YN.rotationDegrees(entity.getOffsetYaw()));
-            } else {
-                matrixStack.mulPose(
-                        Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
-            }
+            // 插入后仍使用剑自身的命中朝向，目标移动或转身只影响位置。
+            matrixStack.mulPose(
+                    Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
 
             matrixStack.mulPose(Axis.ZP.rotationDegrees(Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot())));
 

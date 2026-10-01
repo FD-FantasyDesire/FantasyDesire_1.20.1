@@ -27,6 +27,7 @@ deplib
 plans
 .vscode
 docs
+logs
 
 # datagen cache
 src/generated/resources/.cache/

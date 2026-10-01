@@ -85,6 +85,10 @@ $client = Join-Path (Get-Location) 'debug-client.ps1'
 
 `generation` 只在 shader 成功替换时递增。加载失败后 `requested` 可指向失败文件，`descriptor` 仍指向正在使用的有效程序。`lastError` 记录最近命令错误；`status` 保留渲染器加载诊断。
 
+`target` 包括 `volume`（世界轴对齐的内向单位盒），契约见 README。每次 `render` 返回 `customGpuMs`：通过 `GL_TIME_ELAPSED` 查询本帧自定义 shader draw 的 GPU 时间总和，单位毫秒；没有 OpenGL 3.3 / ARB_timer_query 支持时返回 null，仍正常渲染。它不包含场景绘制、深度复制、PNG 编码或 HTTP；首次编译/驱动热身可能偏高，应比较同一场景多次绘制。只在隐藏调试接口同步读回查询，GUI 不等待计时结果；不能将单气场测量外推成并发世界帧率。
+
+`status.volumeScale` 返回预览文件指定的透明层分辨率比例，支持 screen / volume。`volumeScale < 1` 时 GPU 计时包含缩小积分和原分辨率重建两个 draw；最后读回的 `RenderSize` 是最终输出尺寸、`ResolvePass` 是 1。screen 在比例为 1 时上传 -1，volume 保留 0。修改比例需加载相应预览配置，不通过 configure 覆盖宿主 uniform。
+
 ## 图像与深度产物
 
 每次 render 写入 `build/debug/captures-<pid>/frame-<编号>/`，返回 PNG 绝对路径及 SHA-256。同一机器、同一程序和输入下，可比较哈希来检查时间冻结或参数变化；不同驱动之间不要求逐像素相同。

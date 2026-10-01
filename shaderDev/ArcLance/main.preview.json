@@ -1,0 +1,14 @@
+{
+  "shader": "assets/arclance/shaders/core/main.json",
+  "target": "screen",
+  "state": {"depthTest": false, "depthWrite": false, "cull": false},
+  "scene": {"terrain": true, "entity": true},
+  "camera": {"yaw": 25, "pitch": 22, "distance": 12, "fov": 48},
+  "uniforms": {"RepeatPreview": 1},
+  "bindings": {
+    "SkillAge": "seconds",
+    "CameraPosition": "camera_position",
+    "InverseViewProjection": "inverse_view_projection"
+  },
+  "textures": {"SceneSampler": "@scene_color", "DepthSampler": "@scene_depth"}
+}

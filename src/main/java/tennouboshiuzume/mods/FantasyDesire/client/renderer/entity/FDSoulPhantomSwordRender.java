@@ -130,8 +130,7 @@ public class FDSoulPhantomSwordRender<T extends EntityFDSoulPhantomSword> extend
         }
 
         PoseStack tipStack = new PoseStack();
-        tipStack.mulPose(Axis.YN.rotationDegrees(Mth.rotLerp(partialTicks, hits.yRotO, hits.getYRot()) - 90));
-        tipStack.mulPose(Axis.YN.rotationDegrees(entity.getOffsetYaw()));
+        tipStack.mulPose(Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
         tipStack.mulPose(Axis.ZP.rotationDegrees(Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot())));
         tipStack.mulPose(Axis.XP.rotationDegrees(entity.getRoll()));
 

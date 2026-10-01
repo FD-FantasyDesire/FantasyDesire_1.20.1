@@ -1,0 +1,18 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "zero"},
+  "vertex": "eventhorizon:main",
+  "fragment": "eventhorizon:main",
+  "attributes": ["Position", "UV0"],
+  "samplers": [],
+  "uniforms": [
+    {"name": "InverseViewProjection", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "CameraPosition", "type": "float", "count": 3, "values": [0,4,18]},
+    {"name": "HoleCenter", "type": "float", "count": 3, "values": [0,1.5,0]},
+    {"name": "ScreenSize", "type": "float", "count": 2, "values": [1280,720]},
+    {"name": "EffectTime", "type": "float", "count": 1, "values": [0]},
+    {"name": "Exposure", "type": "float", "count": 1, "values": [1.15]},
+    {"name": "DiscBrightness", "type": "float", "count": 1, "values": [2.4]},
+    {"name": "LensingStrength", "type": "float", "count": 1, "values": [1]},
+    {"name": "Steps", "type": "int", "count": 1, "values": [280]}
+  ]
+}

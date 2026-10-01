@@ -24,6 +24,8 @@ import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.client.FDShaderHandler;
+import tennouboshiuzume.mods.FantasyDesire.client.compat.ShaderPackCompat;
+import tennouboshiuzume.mods.FantasyDesire.client.compat.ShaderRenderScope;
 import tennouboshiuzume.mods.FantasyDesire.init.FDAttributes;
 
 import java.util.ArrayDeque;
@@ -45,6 +47,7 @@ public final class VoidFlameRenderer {
 
     @SubscribeEvent
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
+        if (ShaderPackCompat.isRenderingShadowPass()) return;
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
             releaseSurfaces();
             ClientLevel level = Minecraft.getInstance().level;
@@ -55,13 +58,21 @@ public final class VoidFlameRenderer {
             collecting = level != null && FDShaderHandler.isVoidFlameShaderLoaded();
         } else if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_ENTITIES) {
             collecting = false;
-            renderSurfaces();
+            if (!ShaderPackCompat.isShaderPackInUse()) renderSurfaces();
+        } else if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_LEVEL) {
+            collecting = false;
+            if (ShaderPackCompat.isShaderPackInUse() && !SURFACES.isEmpty()) {
+                try (ShaderRenderScope ignored = new ShaderRenderScope()) {
+                    renderSurfaces();
+                }
+            }
         }
     }
 
     public static <T extends LivingEntity> void capture(T entity, EntityModel<T> model, ResourceLocation texture,
             PoseStack poseStack, int packedLight, float partialTick) {
-        if (!collecting || entity.isInvisible() || entity.isRemoved() || entity.level() != currentLevel) {
+        if (!collecting || ShaderPackCompat.isRenderingShadowPass()
+                || entity.isInvisible() || entity.isRemoved() || entity.level() != currentLevel) {
             return;
         }
         float stacks = positive(FDAttributes.getVoidStrikeStack(entity));

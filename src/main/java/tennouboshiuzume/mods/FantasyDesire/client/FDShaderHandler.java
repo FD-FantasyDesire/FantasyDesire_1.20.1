@@ -2,6 +2,7 @@ package tennouboshiuzume.mods.FantasyDesire.client;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.minecraft.client.renderer.ShaderInstance;
+import tennouboshiuzume.mods.FantasyDesire.client.compat.FDShaderCompat;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -33,6 +34,7 @@ public class FDShaderHandler {
     private static ShaderInstance frostFieldShader;
     private static ShaderInstance frostCrystalShader;
     private static ShaderInstance voidFlameShader;
+    private static ShaderInstance shinShader;
 
     /** 着色器是否成功加载 */
     private static boolean crossFlashShaderLoaded = false;
@@ -50,6 +52,7 @@ public class FDShaderHandler {
     private static boolean frostFieldShaderLoaded = false;
     private static boolean frostCrystalShaderLoaded = false;
     private static boolean voidFlameShaderLoaded = false;
+    private static boolean shinShaderLoaded = false;
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(FDShaderHandler::onRegisterShaders);
@@ -104,6 +107,14 @@ public class FDShaderHandler {
         return voidFlameShader;
     }
 
+    public static ShaderInstance getShinShader() {
+        return shinShader;
+    }
+
+    public static boolean isShinShaderLoaded() {
+        return shinShaderLoaded && shinShader != null;
+    }
+
     public static boolean isCrossFlashShaderLoaded() {
         return crossFlashShaderLoaded && crossFlashShader != null;
     }
@@ -130,11 +141,26 @@ public class FDShaderHandler {
 
     @SubscribeEvent
     public static void onRegisterShaders(RegisterShadersEvent event) {
+        FDShaderCompat.resetShaders();
+        try {
+            ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
+                    new ResourceLocation(FantasyDesire.MODID, "fd_shin"), DefaultVertexFormat.POSITION);
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.POST_WORLD, loaded -> {
+                shinShader = loaded;
+                shinShaderLoaded = true;
+                System.out.println("[FantasyDesire] Shin aura shader loaded successfully.");
+            });
+        } catch (IOException e) {
+            System.err.println("[FantasyDesire] Failed to register Shin aura shader: " + e.getMessage());
+            shinShader = null;
+            shinShaderLoaded = false;
+        }
+
         try {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_astra_star"),
                     DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, loaded -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.DEFERRED_WORLD, loaded -> {
                 astraStarShader = loaded;
                 astraStarShaderLoaded = true;
             });
@@ -148,7 +174,7 @@ public class FDShaderHandler {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_astra_lightning"),
                     DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, loaded -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.DEFERRED_WORLD, loaded -> {
                 astraLightningShader = loaded;
                 astraLightningShaderLoaded = true;
             });
@@ -163,7 +189,7 @@ public class FDShaderHandler {
                     event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_cross_flash"),
                     DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, shaderInstance -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.DEFERRED_WORLD, shaderInstance -> {
                 crossFlashShader = shaderInstance;
                 crossFlashShaderLoaded = true;
                 System.out.println(
@@ -182,7 +208,7 @@ public class FDShaderHandler {
                     event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_bfg_corona"),
                     DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, shaderInstance -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.DEFERRED_WORLD, shaderInstance -> {
                 bfgCoronaShader = shaderInstance;
                 bfgCoronaShaderLoaded = true;
                 System.out.println(
@@ -201,7 +227,7 @@ public class FDShaderHandler {
                     event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_bfg_bridge"),
                     DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, shaderInstance -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.DEFERRED_WORLD, shaderInstance -> {
                 bfgBridgeShader = shaderInstance;
                 bfgBridgeShaderLoaded = true;
                 System.out.println(
@@ -218,7 +244,7 @@ public class FDShaderHandler {
         try {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_blade_rift"), DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, loaded -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.DEFERRED_WORLD, loaded -> {
                 bladeRiftShader = loaded;
                 bladeRiftShaderLoaded = true;
             });
@@ -231,7 +257,7 @@ public class FDShaderHandler {
         try {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_frost_field"), DefaultVertexFormat.POSITION_TEX);
-            event.registerShader(shader, loaded -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.POST_WORLD, loaded -> {
                 frostFieldShader = loaded;
                 frostFieldShaderLoaded = true;
                 System.out.println(
@@ -247,7 +273,7 @@ public class FDShaderHandler {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_frost_crystal"),
                     DefaultVertexFormat.POSITION_COLOR_TEX);
-            event.registerShader(shader, loaded -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.POST_WORLD, loaded -> {
                 frostCrystalShader = loaded;
                 frostCrystalShaderLoaded = true;
             });
@@ -260,7 +286,7 @@ public class FDShaderHandler {
         try {
             ShaderInstance shader = new ShaderInstance(event.getResourceProvider(),
                     new ResourceLocation(FantasyDesire.MODID, "fd_void_flame"), DefaultVertexFormat.NEW_ENTITY);
-            event.registerShader(shader, loaded -> {
+            FDShaderCompat.registerShader(event, shader, FDShaderCompat.Pass.POST_WORLD, loaded -> {
                 voidFlameShader = loaded;
                 voidFlameShaderLoaded = true;
                 System.out.println("[FantasyDesire] Void flame surface shader loaded successfully.");

@@ -21,6 +21,7 @@ Shaders live in `src/main/resources/assets/fantasydesire/shaders/core/fd_*.{json
 
 - 正式 `.fsh` 使用 `#version 150` 与 `in`/`out`，不使用 `gl_FragColor`。时间单位以实际上传端和 shader 换算为准：原版内建 `GameTime` 是按 24000 tick 周期归一化的值，乘以 24000 后才得到周期内 tick（如 `fd_cross_flash.fsh`），再除以 20 得到游戏秒；自定义时间 uniform 可以直接使用 tick、秒或生命周期进度，必须注明单位。
 - The `.json` declares blend mode, samplers, and uniforms with default values; `matrix4x4` uniforms default to identity.
+- 新增或修改正式特效 shader 时遵守 [`SHADER_COMPATIBILITY.md`](SHADER_COMPATIBILITY.md)。通过 `FDShaderCompat.registerShader` 显式选择 `DEFERRED_WORLD` 或 `POST_WORLD`，并按规格验证光影开启/关闭、资源重载和渲染状态恢复。
 
 ## shaderDev/ is NOT part of the Minecraft pipeline
 

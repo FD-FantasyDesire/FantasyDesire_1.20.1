@@ -120,14 +120,9 @@ public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> exte
             Entity hits = entity.getHitEntity();
             boolean hasHitEntity = hits != null;
 
-            if (hasHitEntity) {
-                matrixStack
-                        .mulPose(Axis.YN.rotationDegrees(Mth.rotLerp(partialTicks, hits.yRotO, hits.getYRot()) - 90));
-                matrixStack.mulPose(Axis.YN.rotationDegrees(entity.getOffsetYaw()));
-            } else {
-                matrixStack.mulPose(
-                        Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
-            }
+            // 插入后仍使用剑自身的命中朝向，目标移动或转身只影响位置。
+            matrixStack.mulPose(
+                    Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
 
             matrixStack.mulPose(Axis.ZP.rotationDegrees(Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot())));
 
@@ -384,8 +379,7 @@ public class FDSpearPhantomSwordRender<T extends EntityFDSpearPhantomSword> exte
         }
 
         PoseStack tipStack = new PoseStack();
-        tipStack.mulPose(Axis.YN.rotationDegrees(Mth.rotLerp(partialTicks, hits.yRotO, hits.getYRot()) - 90));
-        tipStack.mulPose(Axis.YN.rotationDegrees(entity.getOffsetYaw()));
+        tipStack.mulPose(Axis.YP.rotationDegrees(Mth.rotLerp(partialTicks, entity.yRotO, entity.getYRot()) - 90.0F));
         tipStack.mulPose(Axis.ZP.rotationDegrees(Mth.rotLerp(partialTicks, entity.xRotO, entity.getXRot())));
         tipStack.mulPose(Axis.XP.rotationDegrees(entity.getRoll()));
 

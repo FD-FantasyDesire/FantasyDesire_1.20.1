@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.nio.file.*;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /** Swing 仅编辑控制值；所有 OpenGL 和场景修改都排入渲染线程。 */
@@ -19,7 +20,7 @@ final class Controls {
     final JTextField path=new JTextField();
     final JTextArea log=new JTextArea(7,30);
     final JLabel clock=new JLabel("0.000 秒");
-    final JComboBox<String> target=new JComboBox<>(new String[]{"blocks","sky","entity","quad","screen"});
+    final JComboBox<String> target=new JComboBox<>(new String[]{"blocks","sky","entity","quad","screen","volume"});
     final JComboBox<String> entity=new JComboBox<>(new String[]{"zombie","creeper"});
     final JCheckBox depth=new JCheckBox("深度测试"),write=new JCheckBox("写入深度"),cull=new JCheckBox("背面剔除"),overlay=new JCheckBox("叠加在原材质上");
     final JCheckBox terrain=new JCheckBox("地面 / 台阶",true),actorVisible=new JCheckBox("实体遮挡物",true);
@@ -36,7 +37,7 @@ final class Controls {
         body.add(row(button("打开文件",()->chooseOpen()),button("加载路径",()->queue(()->renderer.load(Path.of(path.getText())))),button("重新加载",()->queue(()->renderer.load(renderer.requested)))));
         JComboBox<String> presets=new JComboBox<>(new String[]{"surface","entity","sky","depth","fantasy-rift","fantasy-void","fantasy-frost"});body.add(row(new JLabel("示例"),presets,button("打开示例",()->{String name=(String)presets.getSelectedItem();queue(()->renderer.load(renderer.root.resolve("examples/"+name+".preview.json")));})));
         body.add(label("试验对象"));body.add(row(target,entity));
-        target.addActionListener(e->{if(!updating){String value=(String)target.getSelectedItem();queue(()->{renderer.target=value;renderer.depthTest=!value.equals("sky")&&!value.equals("screen");renderer.depthWrite=value.equals("blocks")||value.equals("entity");renderer.cull=renderer.depthWrite;});}});
+        target.addActionListener(e->{if(!updating){String value=(String)target.getSelectedItem();queue(()->{renderer.target=value;renderer.depthTest=!Set.of("sky","screen","volume").contains(value);renderer.depthWrite=value.equals("blocks")||value.equals("entity");renderer.cull=renderer.depthWrite||value.equals("volume");});}});
         entity.addActionListener(e->{if(!updating){String value=(String)entity.getSelectedItem();queue(()->renderer.entity=value);}});
         body.add(row(depth,write,cull));body.add(row(overlay));
         depth.addActionListener(e->{if(!updating){boolean value=depth.isSelected();queue(()->renderer.depthTest=value);}});

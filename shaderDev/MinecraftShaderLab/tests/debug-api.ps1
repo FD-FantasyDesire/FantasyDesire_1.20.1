@@ -1,6 +1,7 @@
 ﻿param([string]$Root = (Split-Path $PSScriptRoot -Parent))
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Net.Http
+Add-Type -AssemblyName System.Drawing
 $labTestRoot = Join-Path $Root ('build/api-tests/' + [DateTime]::UtcNow.ToString('yyyyMMdd-HHmmss') + '-' + [Guid]::NewGuid().ToString('N').Substring(0,6))
 New-Item -ItemType Directory -Force $labTestRoot | Out-Null
 $labSessionPath = Join-Path $labTestRoot 'session.json'
@@ -109,6 +110,65 @@ try {
         try { $hash = [BitConverter]::ToString($digest.ComputeHash($imageBytes)).Replace('-','').ToLowerInvariant() } finally { $digest.Dispose() }
         Assert-Lab ($hash -eq $repairedFrame.sha256) 'PNG endpoint returns the actual captured framebuffer'
     } finally { $imageResponse.Dispose(); $imageRequest.Dispose() }
+    # 真实双阶段体积：覆盖奇数尺寸、缩小纹理绑定和最后阶段的实际 uniform。
+    $volumeVertex = @'
+#version 150
+in vec3 Position;
+uniform mat4 ModelViewMat;
+uniform mat4 ProjMat;
+void main(){gl_Position=ProjMat*ModelViewMat*vec4(Position,1);}
+'@
+    $volumeFragment = @'
+#version 150
+uniform sampler2D AuraSampler;
+uniform vec2 RenderSize;
+uniform int ResolvePass;
+out vec4 fragColor;
+void main(){
+    vec2 uv=gl_FragCoord.xy/RenderSize;
+    fragColor=ResolvePass==1?texture(AuraSampler,uv):vec4(uv*0.4,0.2,0.5);
+}
+'@
+    [IO.File]::WriteAllText("$fixture/volume.vsh",$volumeVertex,$utf8)
+    [IO.File]::WriteAllText("$fixture/volume.fsh",$volumeFragment,$utf8)
+    [IO.File]::WriteAllText("$fixture/volume.json",'{"vertex":"volume","fragment":"volume","attributes":["Position"],"blend":{"srcrgb":"one","dstrgb":"1-srcalpha","srcalpha":"one","dstalpha":"1-srcalpha"},"samplers":[{"name":"AuraSampler"}],"uniforms":[{"name":"ModelViewMat","type":"matrix4x4","count":16,"values":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},{"name":"ProjMat","type":"matrix4x4","count":16,"values":[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},{"name":"RenderSize","type":"float","count":2,"values":[1,1]},{"name":"ResolvePass","type":"int","count":1,"values":[0]}]}',$utf8)
+    $volumePreview='{"shader":"volume.json","target":"volume","volumeScale":0.5,"textures":{"AuraSampler":"@volume_color"},"scene":{"terrain":false,"entity":false},"camera":{"distance":1.5,"yaw":45,"pitch":0}}'
+    [IO.File]::WriteAllText("$fixture/volume.preview.json",$volumePreview,$utf8)
+    Invoke-Lab '/v1/load' @{path="$fixture/volume.preview.json"} | Out-Null
+    $volumeFrame=(Invoke-Lab '/v1/render' @{width=537;height=311;time=0}).result
+    $renderSize=@($volumeFrame.uniforms | Where-Object name -eq 'RenderSize')[0].uploaded
+    $resolve=@($volumeFrame.uniforms | Where-Object name -eq 'ResolvePass')[0].uploaded
+    Assert-Lab ($volumeFrame.volumeScale -eq 0.5 -and $renderSize[0] -eq 537 -and $renderSize[1] -eq 311 -and $resolve[0] -eq 1) 'Reduced volume resolves at full odd-sized viewport without GPU errors'
+    $volumeSame=(Invoke-Lab '/v1/render' @{width=537;height=311;time=0}).result
+    Assert-Lab ($volumeSame.sha256 -eq $volumeFrame.sha256) 'Reduced volume target is cleared and deterministic'
+    [IO.File]::WriteAllText("$fixture/volume.preview.json",$volumePreview.Replace('"volumeScale":0.5','"volumeScale":0.1'),$utf8)
+    Invoke-Lab '/v1/reload' @{} 422 | Out-Null
+    $volumeRetained=(Invoke-Lab '/v1/render' @{width=537;height=311;time=0}).result
+    Assert-Lab ($volumeRetained.sha256 -eq $volumeFrame.sha256) 'Invalid volume scale preserves previous program and render state'
+    # screen 使用相同离屏契约，验证实际像素、奇数尺寸和 pass 切换。
+    [IO.File]::WriteAllText("$fixture/volume.vsh","#version 150`nin vec3 Position;void main(){gl_Position=vec4(Position.xy,0,1);}`n",$utf8)
+    $screenPreview=$volumePreview.Replace('"target":"volume"','"target":"screen"')
+    [IO.File]::WriteAllText("$fixture/screen.preview.json",$screenPreview,$utf8)
+    Invoke-Lab '/v1/load' @{path="$fixture/screen.preview.json"} | Out-Null
+    $screenFrame=(Invoke-Lab '/v1/render' @{width=537;height=311;time=0}).result
+    $screenResolve=@($screenFrame.uniforms | Where-Object name -eq 'ResolvePass')[0].uploaded
+    $screenSize=@($screenFrame.uniforms | Where-Object name -eq 'RenderSize')[0].uploaded
+    Assert-Lab ($screenFrame.volumeScale -eq 0.5 -and $screenResolve[0] -eq 1 -and $screenSize[0] -eq 537 -and $screenSize[1] -eq 311) 'Reduced screen resolves at full odd-sized viewport'
+    $screenSame=(Invoke-Lab '/v1/render' @{width=537;height=311;time=0}).result
+    Assert-Lab ($screenSame.sha256 -eq $screenFrame.sha256) 'Reduced screen clears its intermediate target deterministically'
+    $screenImage=[Drawing.Bitmap]::new($screenFrame.capture)
+    try {
+        $screenLeft=$screenImage.GetPixel(80,155); $screenRight=$screenImage.GetPixel(450,155)
+        Assert-Lab ($screenRight.R -gt $screenLeft.R+50 -and $screenLeft.B -gt 40) 'Screen resolve samples the actual low-resolution color attachment'
+    } finally { $screenImage.Dispose() }
+    [IO.File]::WriteAllText("$fixture/screen.preview.json",$screenPreview.Replace('"volumeScale":0.5','"volumeScale":1'),$utf8)
+    Invoke-Lab '/v1/reload' @{} | Out-Null
+    $screenDirect=(Invoke-Lab '/v1/render' @{width=320;height=240;time=0}).result
+    $screenDirectPass=@($screenDirect.uniforms | Where-Object name -eq 'ResolvePass')[0].uploaded
+    Assert-Lab ($screenDirect.volumeScale -eq 1 -and $screenDirectPass[0] -eq -1) 'Full-resolution screen declares the direct pass without sampling the intermediate target'
+    Invoke-Lab '/v1/load' @{path='examples/surface.preview.json'} | Out-Null
+    $normalAgain=(Invoke-Lab '/v1/render' @{width=320;height=240;time=1.25}).result
+    Assert-Lab ($normalAgain.sha256 -eq $first.sha256 -and $normalAgain.volumeScale -eq 1) 'Switching away from reduced volume restores ordinary rendering'
     Invoke-Lab '/v1/shutdown' @{} | Out-Null
     Assert-Lab ($labHelper.WaitForExit(10000)) 'Shutdown exits the hidden helper'
     $stopped = [IO.File]::ReadAllText($labSessionPath) | ConvertFrom-Json

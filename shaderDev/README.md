@@ -144,6 +144,9 @@ shaderDev 和公共验证器都不由 Minecraft 自动加载，不会自动写�
 
 ## 现有作品
 
+- [Shin](Shin/README.md)：属性 `fd_lc_shin` 驱动的三维金色流焰，体积积分结合实体/方块深度，已接入正式模组。
+- [ShinRotatedBackup](ShinRotatedBackup/README.md)：噪声火焰与 yaw 跟随改版前的旋转焰片存档，自带冻结资源与独立预览。
+
 下列作品的一部分 README 仍记录旧 Canvas/浏览器入口，属于历史说明。下一次继续开发时按本页补齐三件套与 `main.preview.json`，不再扩展独立浏览器宿主。
 
 - [AstraLightning](AstraLightning/README.md)：固定种子的星座闪电和十字星光。

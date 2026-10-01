@@ -9,6 +9,9 @@
         "LivingEntityGlidingMixin"
     ],
     "client": [
+        "client.BufferUploaderMixin",
+        "client.GameRendererShaderCompatMixin",
+        "client.ShaderInstanceAccessor",
         "client.EnderDragonRendererMixin",
         "client.LayerMainBladeMixin",
         "client.LocalPlayerGlidingMixin"

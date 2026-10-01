@@ -1,0 +1,26 @@
+{
+  "blend": {"func": "add", "srcrgb": "one", "dstrgb": "1-srcalpha", "srcalpha": "one", "dstalpha": "1-srcalpha"},
+  "vertex": "fantasydesire:fd_shin",
+  "fragment": "fantasydesire:fd_shin",
+  "attributes": ["Position"],
+  "samplers": [{"name": "DepthSampler"}, {"name": "NoiseSampler"}, {"name": "AuraSampler"}],
+  "uniforms": [
+    {"name": "RenderSize", "type": "float", "count": 2, "values": [1,1]},
+    {"name": "ResolvePass", "type": "int", "count": 1, "values": [0]},
+    {"name": "ModelViewMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "ProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "InvProjMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "EffectLocalMat", "type": "matrix4x4", "count": 16, "values": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]},
+    {"name": "EffectTime", "type": "float", "count": 1, "values": [0]},
+    {"name": "EffectSeed", "type": "float", "count": 1, "values": [0]},
+    {"name": "EffectYaw", "type": "float", "count": 1, "values": [0]},
+    {"name": "ShinStrength", "type": "float", "count": 1, "values": [0]},
+    {"name": "RaySteps", "type": "int", "count": 1, "values": [48]},
+    {"name": "LongFlameStrength", "type": "float", "count": 1, "values": [1]},
+    {"name": "ShortFlameStrength", "type": "float", "count": 1, "values": [1]},
+    {"name": "SparkStrength", "type": "float", "count": 1, "values": [1]},
+    {"name": "FogStart", "type": "float", "count": 1, "values": [128]},
+    {"name": "FogEnd", "type": "float", "count": 1, "values": [256]},
+    {"name": "FogShape", "type": "int", "count": 1, "values": [0]}
+  ]
+}

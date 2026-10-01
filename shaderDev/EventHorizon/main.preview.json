@@ -1,0 +1,12 @@
+{
+  "shader": "assets/eventhorizon/shaders/core/main.json",
+  "target": "screen",
+  "state": {"depthTest": false, "depthWrite": false, "cull": false},
+  "camera": {"yaw": 0, "pitch": 12, "distance": 19, "fov": 48},
+  "scene": {"terrain": false, "entity": false},
+  "bindings": {
+    "EffectTime": "seconds",
+    "CameraPosition": "camera_position",
+    "InverseViewProjection": "inverse_view_projection"
+  }
+}

@@ -51,6 +51,24 @@ final class Verification {
                 try(Project vanilla=new Project(p,r.minecraftJar);ShaderProgram compiled=new ShaderProgram(vanilla)){passed.add("Vanilla 1.20.1 shader + Mojang includes: "+name);}
             }
         }
+        // 多片一次提交、静态 VAO 重用和非法数量的事务性失败。
+        Files.writeString(scratch.resolve("test.vsh"),"#version 150\nin vec3 Position;in vec2 UV0;out vec2 uv;void main(){gl_Position=vec4(Position.xy+vec2(float(gl_VertexID/6)-0.5,0),0,1);uv=UV0;}\n");
+        Files.writeString(scratch.resolve("test.fsh"),valid);
+        String batch="{\"shader\":\"test.json\",\"target\":\"quad\",\"mesh\":{\"width\":0.7,\"height\":0.7,\"copies\":2},\"state\":{\"depthTest\":false,\"depthWrite\":false,\"cull\":false},\"scene\":{\"terrain\":false,\"entity\":false}}";
+        Files.writeString(scratch.resolve("batch.preview.json"),batch);
+        r.load(scratch.resolve("batch.preview.json"));require(r.effectPlane.vertices.size()==12,"批次顶点数错误");
+        r.render(320,240);r.output.capture(out.resolve("batch-first.png"));
+        r.render(320,240);r.output.capture(out.resolve("batch-cached.png"));
+        BufferedImage first=ImageIO.read(out.resolve("batch-first.png").toFile()),cached=ImageIO.read(out.resolve("batch-cached.png").toFile());
+        for(int y=0;y<240;y++)for(int x=0;x<320;x++)require(first.getRGB(x,y)==cached.getRGB(x,y),"缓存批次改变图像");
+        require((first.getRGB(80,120)&0xff)==(first.getRGB(240,120)&0xff)&&((first.getRGB(80,120)>>8)&0xff)>80,"两份批次面片未绘制");
+        previous=r.program.id;
+        for(String bad:List.of("0","1.5","4097")){
+            Files.writeString(scratch.resolve("batch.preview.json"),batch.replace("\"copies\":2","\"copies\":"+bad));
+            try{r.load(scratch.resolve("batch.preview.json"));throw new AssertionError("非法 copies 被接受");}catch(IOException expected){require(r.program.id==previous,"非法批次数量破坏旧程序");}
+        }
+        Files.writeString(scratch.resolve("batch.preview.json"),batch);r.load(scratch.resolve("batch.preview.json"));r.render(320,240);
+        passed.add("Quad batch: vertex IDs, cached VAO, reload and bounded copies validation");
         r.load(r.root.resolve("examples/surface.preview.json"));
         r.target="screen";r.depthTest=false;r.depthWrite=false;r.cull=false;r.render(320,240);passed.add("Integer UV1/UV2 + normalized Color/Normal vertex upload");
         r.load(r.root.resolve("examples/depth.preview.json"));r.render(320,240);

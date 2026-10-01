@@ -32,7 +32,7 @@ final class Project implements AutoCloseable {
             if (p.getFileName() != null && p.getFileName().toString().equals("assets")) { roots.add(p.getParent()); break; }
         }
         target = string(preview,"target", shader.getAsJsonArray("attributes") != null && shader.getAsJsonArray("attributes").toString().contains("UV1") ? "entity" : "quad");
-        if (!Set.of("blocks","sky","entity","quad","screen").contains(target)) throw new IOException("未知 target: " + target);
+        if (!Set.of("blocks","sky","entity","quad","screen","volume").contains(target)) throw new IOException("未知 target: " + target);
         if (minecraftJar != null) packs.add(new ZipFile(minecraftJar.toFile()));
         watch(this.input); watch(descriptor);
     }

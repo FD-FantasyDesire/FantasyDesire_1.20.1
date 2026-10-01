@@ -13,6 +13,7 @@ import tennouboshiuzume.mods.FantasyDesire.FantasyDesire;
 import tennouboshiuzume.mods.FantasyDesire.config.FDConfig;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDBFG;
 import tennouboshiuzume.mods.FantasyDesire.entity.EntityFDPhantomSword;
+import tennouboshiuzume.mods.FantasyDesire.entity.phantomsword.PiercingHomingFlight;
 import tennouboshiuzume.mods.FantasyDesire.init.FDEntitys;
 import tennouboshiuzume.mods.FantasyDesire.init.FDPotionEffects;
 import tennouboshiuzume.mods.FantasyDesire.init.FDSlashArtRegistry;
@@ -36,6 +37,10 @@ public class SmartPistolMode {
     private static final float BFG_ENCHANT_MULT_PER_LEVEL = 0.25F;
     /** 非宙霆模式的额外伤害倍率；宙霆模式保持 1 倍并启用连锁。 */
     private static final float BFG_NON_THUNDER_DAMAGE_MULT = 1.5F;
+    // 临时验证：普通齐发幻影剑每枚最多命中三个不同目标，转火搜索以命中点为中心。
+    private static final int DUMP_AMMO_PIERCE_HITS = 3;
+    private static final float DUMP_AMMO_RETARGET_RADIUS = 16f;
+    private static final float DUMP_AMMO_INACCURACY = 1f;
 
     public static boolean AntiNTR(LivingEntity entity) {
         return CapabilityUtils.SEConditionMatcher.of(entity)
@@ -103,6 +108,8 @@ public class SmartPistolMode {
 
     public static void dumpAmmo(LivingEntity entity, ISlashBladeState state,
             IFantasySlashBladeState fdState) {
+        if (entity.level().isClientSide())
+            return;
         if (!(entity instanceof Player player))
             return;
         ItemStack blade = entity.getMainHandItem();
@@ -158,6 +165,10 @@ public class SmartPistolMode {
             ss.setSpeed(speed);
             ss.setStandbyMode(EntityFDPhantomSword.StandbyMode.PLAYER);
             ss.setMovingMode(EntityFDPhantomSword.MovingMode.SEEK);
+            if (!explosiveOn) {
+                ss.setPiercingHoming(DUMP_AMMO_PIERCE_HITS, DUMP_AMMO_RETARGET_RADIUS);
+                ss.setInaccuracy(DUMP_AMMO_INACCURACY);
+            }
             ss.setDelay(100 + i);
             ss.setDelayTicks(0);
             ss.setSeekDelay(10);
@@ -187,9 +198,14 @@ public class SmartPistolMode {
             ss.setStandbyYawPitch(yaw, pitch);
 
             net.minecraft.world.entity.Entity locked = state.getTargetEntity(player.level());
+            if (!explosiveOn && !PiercingHomingFlight.isValidTarget(ss, locked))
+                locked = null;
             if (locked == null && !targets.isEmpty()) {
                 if (!explosiveOn) {
-                    locked = targets.get(i % targets.size());
+                    java.util.List<LivingEntity> validTargets = targets.stream()
+                            .filter(target -> PiercingHomingFlight.isValidTarget(ss, target)).toList();
+                    if (!validTargets.isEmpty())
+                        locked = validTargets.get(i % validTargets.size());
                 } else {
                     locked = targets.stream()
                             .filter(e -> e.getEffect(FDPotionEffects.MISSILE_LOCKED.get()) == null)
